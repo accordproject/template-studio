@@ -5,6 +5,14 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ROOT_URI = 'https://template-studio.netlify.com'; // No end '/' please
 
+function resolveRootURI() {
+    if (process.env.CONTEXT === 'production') {
+        return ROOT_URI;
+    } else {
+        return process.env.DEPLOY_PRIME_URL || ROOT_URI;
+    }
+}
+
 module.exports = {
   entry: {
     client: [
@@ -24,7 +32,7 @@ module.exports = {
       { from: 'static', to: 'static' }
     ]),
     new webpack.DefinePlugin({
-      ROOT_URI: JSON.stringify(process.env.DEPLOY_PRIME_URL || ROOT_URI), // From Netlify
+      ROOT_URI: JSON.stringify(resolveRootURI()), // From Netlify
     }),
   ],
   module: {
