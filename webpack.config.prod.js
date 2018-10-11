@@ -3,7 +3,7 @@ var webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-const ROOT_URI = 'http://localhost:8080'; // No end '/' please
+const ROOT_URI = 'https://template-studio.netlify.com'; // No end '/' please
 
 module.exports = {
   entry: {
@@ -24,7 +24,7 @@ module.exports = {
       { from: 'static', to: 'static' }
     ]),
     new webpack.DefinePlugin({
-      ROOT_URI: JSON.stringify(ROOT_URI),
+      ROOT_URI: JSON.stringify(process.env.DEPLOY_PRIME_URL || ROOT_URI), // From Netlify
     }),
   ],
   module: {

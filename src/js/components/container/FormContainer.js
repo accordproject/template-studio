@@ -29,7 +29,6 @@ import { Template, Clause } from '@accordproject/cicero-core';
 import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Grid, Dropdown, Menu } from 'semantic-ui-react';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
-import siteroot from '../../../config.js'
 
 import * as templateLibrary from '@accordproject/cicero-template-library/build/template-library.json';
 
@@ -280,7 +279,7 @@ class FormContainer extends Component {
 
     loadTemplate(templateName) {
         let state = this.state;
-        Template.fromUrl(siteroot+'static/archives/'+templateName+'.cta').then((template) => { 
+        Template.fromUrl(ROOT_URI+'/static/archives/'+templateName+'.cta').then((template) => { 
             console.log('Loaded template: ' + template.getIdentifier());
             state.clause = new Clause(template);
             state.grammar = template.getTemplatizedGrammar();

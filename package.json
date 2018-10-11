@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "webpack --config webpack.config.dev.js --mode development",
+    "build": "webpack --config webpack.config.prod.js --mode production",
     "start": "webpack-dev-server --config webpack.config.dev.js --mode development --watch ",
     "templates": "node scripts/makeArchives.js"
   },
