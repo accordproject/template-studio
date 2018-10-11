@@ -1,0 +1,33 @@
+pre {
+    padding-left: 0.5em;
+    white-space: pre-wrap;
+    color: #555;
+}
+
+pre, .CodeMirror {
+    font-family: Menlo;
+}
+
+span.emit     { color: hotpink; }
+span.failure  { color: red; }
+span.state    { color: blue; }
+span.response { color: green; }
+
+.react-codemirror2 {
+    height: 100%;
+}
+.CodeMirror {
+    height: 100% !important;
+}
+
+.Site {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+.Site-content {
+    flex: 1;
+}
+.ui.footer {
+    text-align: right;
+}
