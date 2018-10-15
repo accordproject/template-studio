@@ -26,16 +26,18 @@ class DownloadButton extends Dropdown {
         super(props);
         this.downloadCta = this.downloadCta.bind(this);
     }
-    async downloadCta(name,clause) {
+    async downloadCta(clause) {
         if (clause !== null) {
-            var cta = await clause.getTemplate().toArchive();
+            const template = clause.getTemplate();
+            const name = template.getMetadata().getName();
+            const cta = await template.toArchive();
             var blob = new Blob([cta], {type: "application/zip"});
             saveAs(blob, name);
         } else {
             console.log("CLAUSE MISSING!");
         }
     }
-    render() { return (<Dropdown.Item onClick={() => this.downloadCta(this.props.name,this.props.clause)}>Download</Dropdown.Item>); }
+    render() { return (<Dropdown.Item onClick={() => this.downloadCta(this.props.clause)}>Download</Dropdown.Item>); }
 }
 
 class UploadButton extends Dropdown {
@@ -43,10 +45,10 @@ class UploadButton extends Dropdown {
         super(props);
         this.uploadCta = this.uploadCta.bind(this);
     }
-    async uploadCta(name,clause) {
+    async uploadCta(clause) {
         console.log("Upload TBD!");
     }
-    render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.name,this.props.clause)}>Upload</Dropdown.Item>; }
+    render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.clause)}>Upload</Dropdown.Item>; }
 }
 
 class NewButton extends Dropdown {
@@ -54,10 +56,10 @@ class NewButton extends Dropdown {
         super(props);
         this.newCta = this.newCta.bind(this);
     }
-    async newCta(name,clause) {
+    async newCta(clause) {
         console.log("New TBD!");
     }
-    render() { return <Dropdown.Item onClick={() => this.newCta(this.props.name,this.props.clause)}>New</Dropdown.Item>; }
+    render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}>New</Dropdown.Item>; }
 }
 
 export { UploadButton, DownloadButton, NewButton };

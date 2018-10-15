@@ -379,9 +379,9 @@ class FormContainer extends Component {
                            onChange={this.handleSelectTemplate}/>
                  <Dropdown item icon='wrench'>
                    <Dropdown.Menu>
-                     <NewButton name={name} clause={this.state.clause}/>
-                     <UploadButton name={name} clause={this.state.clause}/>
-                     <DownloadButton name={name} clause={this.state.clause}/>
+                     <NewButton clause={this.state.clause}/>
+                     <UploadButton clause={this.state.clause}/>
+                     <DownloadButton clause={this.state.clause}/>
                    </Dropdown.Menu>
                  </Dropdown>
                </Menu>);
