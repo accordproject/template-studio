@@ -37,7 +37,7 @@ class DownloadButton extends Dropdown {
             console.log("CLAUSE MISSING!");
         }
     }
-    render() { return (<Dropdown.Item onClick={() => this.downloadCta(this.props.clause)}>Download</Dropdown.Item>); }
+    render() { return (<Dropdown.Item onClick={() => this.downloadCta(this.props.clause)}> <Icon name="download"/> Download</Dropdown.Item>); }
 }
 
 class UploadButton extends Dropdown {
@@ -48,7 +48,7 @@ class UploadButton extends Dropdown {
     async uploadCta(clause) {
         console.log("Upload TBD!");
     }
-    render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.clause)}>Upload</Dropdown.Item>; }
+    render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.clause)}><Icon name="upload"/> Upload</Dropdown.Item>; }
 }
 
 class NewButton extends Dropdown {
@@ -59,7 +59,7 @@ class NewButton extends Dropdown {
     async newCta(clause) {
         console.log("New TBD!");
     }
-    render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}>New</Dropdown.Item>; }
+    render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}><Icon name="add"/> New</Dropdown.Item>; }
 }
 
 export { UploadButton, DownloadButton, NewButton };

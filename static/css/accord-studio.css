@@ -34,3 +34,6 @@ span.response { color: green; }
 .github-fork-ribbon.right-top:before {
     background-color: #008B8B;
 }
+.ui.color1 {
+  background-color: #008B8B;
+}

@@ -26,7 +26,7 @@ import { Status, StatusIcon } from '../status/Status';
 import Options from '../status/Options';
 import { UploadButton, DownloadButton, NewButton } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
-import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Grid, Dropdown, Menu, Icon, Rail } from 'semantic-ui-react';
+import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Grid, Dropdown, Menu, Modal, Icon, Rail } from 'semantic-ui-react';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 
@@ -124,8 +124,8 @@ class FormContainer extends Component {
             emit: '[]',
             options: { lineNumbers: false },
             activeItem: 'legal',
-            activeLegal: 1,
-            activeLogic: 1,
+            activeLegal: 0,
+            activeLogic: 0,
             clogic: { compiled: '', compiledLinked: '' }
         };
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -369,21 +369,59 @@ class FormContainer extends Component {
                 lineNumbers={this.state.options.lineNumbers}/>
             }, */
         ];
+        const ModalAbout = () => (
+            <Modal trigger={<Menu.Item>About</Menu.Item>}>
+              <Modal.Header>Accord Project &middot; Template Studio (Experimental)</Modal.Header>
+              <Modal.Content>
+                <Modal.Description>
+                  <Header>Welcome!</Header>
+                  <p>This template studio lets you edit and execute legal contract templates built with the <a href='https://accordproject.org/'>Accord Project</a>.</p>
+                  <p>It is open-source and under active development. Contributions and bug reports are welcome on <a href='https://github.com/accordproject/template-studio'>GitHub</a>.</p>
+                </Modal.Description>
+                <Divider/>
+                <Modal.Description>
+                  <Header>Version Information</Header>
+                  <p>Cicero 0.8.0</p>
+                  <p>Ergo 0.4.3</p>
+                </Modal.Description>
+              </Modal.Content>
+            </Modal>
+        );
         const templateMenu = () =>
-              (<Menu text compact>
-                 <Dropdown icon='search'
-                           placeholder='Select a template'
-                           search
-                           selection
-                           options={templates}
-                           onChange={this.handleSelectTemplate}/>
-                 <Dropdown item icon='wrench'>
-                   <Dropdown.Menu>
-                     <NewButton clause={this.state.clause}/>
-                     <UploadButton clause={this.state.clause}/>
-                     <DownloadButton clause={this.state.clause}/>
-                   </Dropdown.Menu>
-                 </Dropdown>
+              (<Menu fixed='top' inverted>
+                 <Container>
+                   <Menu.Item header>
+                     <Image size='mini' src='static/img/accordlogo.png' style={{ marginRight: '1.5em' }} />
+                     Accord Project &middot; Template Studio
+                   </Menu.Item>
+                   <Menu.Item>
+                     <Dropdown icon='search'
+                               placeholder='Template Search'
+                               search
+                               selection
+                               options={templates}
+                               onChange={this.handleSelectTemplate}/>
+                     <Dropdown item text="Template" simple>
+                       <Dropdown.Menu>
+                         <NewButton clause={this.state.clause}/>
+                         <UploadButton clause={this.state.clause}/>
+                         <DownloadButton clause={this.state.clause}/>
+                       </Dropdown.Menu>
+                     </Dropdown>
+                     <Dropdown item text="Help" simple>
+                       <Dropdown.Menu>
+                         <ModalAbout/>
+                         <Header as='h4'>Documentation</Header>
+                         <Menu.Item href='https://docs.accordproject.org/' target='_blank'>
+                           <Icon name="info"/> Accord Project Documentation
+                         </Menu.Item>
+                         <Menu.Item href='https://docs.accordproject.org/docs/ergo-lang.html' target='_blank'>
+                           <Icon name="lab"/> Ergo Language Guide
+                         </Menu.Item>
+                       </Dropdown.Menu>
+                     </Dropdown>
+                   </Menu.Item>
+                 </Container>
                </Menu>);
         const viewMenu = () =>
               (<Menu compact secondary vertical pointing>
@@ -395,26 +433,12 @@ class FormContainer extends Component {
                  </Menu.Item>
                </Menu>);
         return (
-            <Container>
-              <Grid>
-
-                <Grid.Row>
-                  <Grid.Column width={16}>
-                    <Divider hidden/>
-                    <Header as='h2'>Accord Project &middot; Template Studio
-                      <Image href='https://github.com/accordproject/ergo' title='Running Ergo' src='static/img/ergologo.png' size='small' floated='right' />
-                      <Image href='https://ergo.accordproject.org/' title='Powered by Accord Project' src='static/img/accordlogo.png' size='small' floated='right' />
-                    </Header>
-                    <Divider fitted/>
-                  </Grid.Column>
-                </Grid.Row>
-                <Grid.Row>
-                  <Grid.Column width={16}>
-                    {templateMenu()}
-                  </Grid.Column>
-                </Grid.Row>
-                <Grid.Row>
-                  <Grid.Column width={3}>
+            <div>
+              {templateMenu()}
+              <Container style={{ marginTop: '7em' }}>
+                <Grid>
+                  <Grid.Row>
+                    <Grid.Column width={3}>
                     {viewMenu()}
                   </Grid.Column>
                   <Grid.Column width={13}>
@@ -428,6 +452,7 @@ class FormContainer extends Component {
                 </Grid.Row>
               </Grid>
             </Container>
+            </div>
         );
     }
 }
