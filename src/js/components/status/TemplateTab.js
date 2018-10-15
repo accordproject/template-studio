@@ -16,12 +16,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Icon, Table, Label, Button, Form, Modal } from 'semantic-ui-react';
+import { Icon, Label, Dropdown } from 'semantic-ui-react';
 import saveAs from 'file-saver';
 require("babel-core/register");
 require("babel-polyfill");
 
-class DownloadButton extends Button {
+class DownloadButton extends Dropdown {
     constructor(props) {
         super(props);
         this.downloadCta = this.downloadCta.bind(this);
@@ -35,10 +35,10 @@ class DownloadButton extends Button {
             console.log("CLAUSE MISSING!");
         }
     }
-    render() { return (<Button animated onClick={() => this.downloadCta(this.props.name,this.props.clause)}><Button.Content hidden>Download</Button.Content><Button.Content visible><Icon name='download'/></Button.Content></Button>); }
+    render() { return (<Dropdown.Item onClick={() => this.downloadCta(this.props.name,this.props.clause)}>Download</Dropdown.Item>); }
 }
 
-class UploadButton extends Button {
+class UploadButton extends Dropdown {
     constructor(props) {
         super(props);
         this.uploadCta = this.uploadCta.bind(this);
@@ -46,18 +46,18 @@ class UploadButton extends Button {
     async uploadCta(name,clause) {
         console.log("Upload TBD!");
     }
-    render() { return <Button animated onClick={() => this.uploadCta(this.props.name,this.props.clause)}><Button.Content hidden>Upload</Button.Content><Button.Content visible><Icon name='upload'/></Button.Content></Button>; }
+    render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.name,this.props.clause)}>Upload</Dropdown.Item>; }
 }
 
-class NewButton extends Button {
+class NewButton extends Dropdown {
     constructor(props) {
         super(props);
-        this.uploadCta = this.uploadCta.bind(this);
+        this.newCta = this.newCta.bind(this);
     }
-    async uploadCta(name,clause) {
+    async newCta(name,clause) {
         console.log("New TBD!");
     }
-    render() { return <Button animated onClick={() => this.uploadCta(this.props.name,this.props.clause)}><Button.Content hidden>New</Button.Content><Button.Content visible><Icon name='pencil'/></Button.Content></Button>; }
+    render() { return <Dropdown.Item onClick={() => this.newCta(this.props.name,this.props.clause)}>New</Dropdown.Item>; }
 }
 
 export { UploadButton, DownloadButton, NewButton };

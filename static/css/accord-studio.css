@@ -31,3 +31,6 @@ span.response { color: green; }
 .ui.footer {
     text-align: right;
 }
+.github-fork-ribbon.right-top:before {
+    background-color: #008B8B;
+}

@@ -1,5 +1,5 @@
 {
-  "name": "webpack-cicero",
+  "name": "template-studio",
   "version": "0.0.1",
   "description": "",
   "scripts": {
@@ -7,22 +7,26 @@
     "start": "webpack-dev-server --config webpack.config.dev.js --mode development --watch ",
     "templates": "node scripts/makeArchives.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/accordproject/template-studio.git"
+  },
   "keywords": [],
-  "author": "mttrbrts",
-  "license": "Apache2.0",
+  "author": "accordproject.org",
+  "license": "Apache-2.0",
   "dependencies": {
     "@accordproject/cicero-core": "0.8.0-20181010135015",
-    "@accordproject/ergo-compiler": "0.4.4",
     "@accordproject/cicero-template-library": "git+https://git@github.com/accordproject/cicero-template-library.git",
+    "@accordproject/ergo-compiler": "0.4.4",
     "codemirror": "^5.40.2",
     "file-saver": "^2.0.0-rc.3",
     "lodash": "^4.17.4",
     "nearley": "2.13.0",
     "randexp": "^0.4.6",
     "re-resizable": "^4.9.0",
-    "react": "^15.6.1",
+    "react": "^16.0.0",
     "react-codemirror2": "^5.1.0",
-    "react-dom": "^15.6.1",
+    "react-dom": "^16.0.0",
     "react-inspector": "^2.1.4",
     "react-resizable": "^1.7.5",
     "react-sortable-pane": "^1.0.2",

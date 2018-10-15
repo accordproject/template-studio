@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import InputJson from '../presentational/InputJson';
 import InputGrammar from '../presentational/InputGrammar';
 import TextArea from 'semantic-ui-react';
-import { Form, Segment, Divider, Grid, Button } from 'semantic-ui-react';
+import { Form, Segment, Divider, Grid, Button, Tab } from 'semantic-ui-react';
 
 class ExecuteForm extends Form {
     constructor(props) {
@@ -54,60 +54,59 @@ class ExecuteForm extends Form {
     render() {
         const { request, cstate, response, emit,
                 handleRequestChange, handleStateChange, handleResponseChange, handleEmitChange, handleRunLogic } = this.props;
-        return (
-            <Form>
-              <Grid>
-                <Divider hidden/>
-                <Grid.Row columns={1}>
-                  <Grid.Column>
-                    <Button type='submit' color='blue' onClick={this.handleRunLogic} compact>Run</Button>
-                  </Grid.Column>
-                </Grid.Row>
-                <Grid.Row columns={2}>
-                  <Grid.Column>
-                    <Form.Field>
-                      <label>Request</label>
-                    </Form.Field>
-                    <InputJson
-                      json={request}
-                      handleJSONChange={this.handleRequestChange}
-                    />
-                  </Grid.Column>
-                  <Grid.Column>
-                    <Form.Field>
-                      <label>State</label>
-                    </Form.Field>
-                    <InputJson
-                      json={cstate}
-                      handleJSONChange={this.handleStateChange}
-                    />
-                  </Grid.Column>
-                </Grid.Row>
-                <Grid.Row columns={1}>
-                  <Grid.Column>
-                    <Form.Field>
-                      <label>Response</label>
-                    </Form.Field>
-                    <InputJson
-                      json={response}
-                      handleJSONChange={this.handleResponseChange}
-                    />
-                  </Grid.Column>
-                </Grid.Row>
-                <Grid.Row columns={1}>
-                  <Grid.Column>
-                    <Form.Field>
-                      <label>Obligations</label>
-                    </Form.Field>
-                    <InputJson
-                      json={emit}
-                      handleJSONChange={this.handleEmitChange}
-                    />
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-            </Form>
-        );
+        return (<Tab.Pane>
+                  <Grid>
+                    <Divider hidden/>
+                    <Grid.Row columns={1}>
+                      <Grid.Column>
+                        <Button type='submit' color='blue' onClick={this.handleRunLogic} compact>Run</Button>
+                      </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row columns={2}>
+                      <Grid.Column>
+                        <Form.Field>
+                          <label>Request</label>
+                        </Form.Field>
+                        <InputJson
+                          json={request}
+                          handleJSONChange={this.handleRequestChange}
+                        />
+                      </Grid.Column>
+                      <Grid.Column>
+                        <Form.Field>
+                          <label>State</label>
+                        </Form.Field>
+                        <InputJson
+                          json={cstate}
+                          handleJSONChange={this.handleStateChange}
+                        />
+                      </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row columns={1}>
+                      <Grid.Column>
+                        <Form.Field>
+                          <label>Response</label>
+                        </Form.Field>
+                        <InputJson
+                          json={response}
+                          handleJSONChange={this.handleResponseChange}
+                        />
+                      </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row columns={1}>
+                      <Grid.Column>
+                        <Form.Field>
+                          <label>Obligations</label>
+                        </Form.Field>
+                        <InputJson
+                          json={emit}
+                          handleJSONChange={this.handleEmitChange}
+                        />
+                      </Grid.Column>
+                    </Grid.Row>
+                  </Grid>
+                </Tab.Pane>
+               );
     }
 }
 

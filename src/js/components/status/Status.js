@@ -16,12 +16,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Icon, Form, Label, Message } from 'semantic-ui-react';
+import { Segment, Icon, Form, Label, Message, Tab } from 'semantic-ui-react';
 
 const statusColor = (log) => (
     log.indexOf('success') != -1 ? 'green' :
-        log.indexOf('fail') != -1 ? 'red' :
+        log.indexOf('error') != -1 || log.indexOf('invalid') != -1 ? 'red' :
         'grey'
+);
+const statusIcon = (log) => (
+    log.indexOf('success') != -1 ? 'check' :
+        log.indexOf('error') != -1 ? 'warning sign' :
+        'warning sign'
 );
 const newlines = (log) => (log.split('\n').map(function(item, key) {
   return (
@@ -31,22 +36,39 @@ const newlines = (log) => (log.split('\n').map(function(item, key) {
     </span>
   )
 }));
-const printErrors = (log) => (
-//      <Message.List><Segment>{log}</Segment></Message.List>
-    log.indexOf('success') == -1 ? <Message.List><Segment>{newlines(log)}</Segment></Message.List> : <Message.List/>
+
+const printTextErrors = (log) => (
+    log.indexOf('success') == -1 ? 
+        <Message>
+          <Message.Header>Natural Language Error</Message.Header>
+          <Message.List><Segment>{newlines(log)}</Segment></Message.List>
+        </Message>
+    : null
+);
+
+const printLogicErrors = (log) => (
+    log.indexOf('success') == -1 ? 
+        <Message>
+          <Message.Header>Contract Logic Error</Message.Header>
+          <Message.List><Segment>{newlines(log)}</Segment></Message.List>
+        </Message>
+    : null
 );
 
 const StatusTable = (log) => (
-    <Message>
-      <Label color={statusColor(log)}>Contract Instance Parses</Label>
-      <Label color={statusColor(log)}>Contract Logic Compiles</Label>
-      {printErrors(log)}
-    </Message>
+    (log.text.indexOf('success') == -1 || log.logic.indexOf('success') == -1) ?
+        <div>{printTextErrors(log.text)}{printLogicErrors(log.logic)}</div>
+    : <Message><Message.Header>No Error</Message.Header></Message>
 );
 
-const Status = ({ log }) => StatusTable(log);
-;
-Status.propTypes = {
+const StatusIcon = ({ log }) => (<Icon name={statusIcon(log)} color={statusColor(log)}/>);
+StatusIcon.propTypes = {
     log: PropTypes.string.isRequired
 };
-export default Status;
+
+const Status = ({ log }) => StatusTable(log);
+Status.propTypes = {
+    log: PropTypes.object.isRequired
+};
+
+export {StatusIcon, Status};
