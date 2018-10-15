@@ -26,7 +26,7 @@ import { Status, StatusIcon } from '../status/Status';
 import Options from '../status/Options';
 import { UploadButton, DownloadButton, NewButton } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
-import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Grid, Dropdown, Menu, Icon } from 'semantic-ui-react';
+import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Grid, Dropdown, Menu, Icon, Rail } from 'semantic-ui-react';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 
@@ -124,6 +124,8 @@ class FormContainer extends Component {
             emit: '[]',
             options: { lineNumbers: false },
             activeItem: 'legal',
+            activeLegal: 1,
+            activeLogic: 1,
             clogic: { compiled: '', compiledLinked: '' }
         };
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -141,11 +143,25 @@ class FormContainer extends Component {
         this.handleStateChange = this.handleStateChange.bind(this);
         this.handleResponseChange = this.handleResponseChange.bind(this);
         this.handleEmitChange = this.handleEmitChange.bind(this);
-    }
+        this.handleLegalTabChange = this.handleLegalTabChange.bind(this);
+        this.handleLogicTabChange = this.handleLogicTabChange.bind(this); 
+   }
 
     handleSampleChange(text) {
         const state = this.state;
         this.setState(parse(this.state, text));
+    }
+
+
+    handleLegalTabChange(e, { activeIndex }) {
+        const state = this.state;
+        state.activeLegal = activeIndex;
+        this.setState(state);
+    }
+    handleLogicTabChange(e, { activeIndex }) {
+        const state = this.state;
+        state.activeLogic = activeIndex;
+        this.setState(state);
     }
 
     handleGrammarChange(text) {
@@ -344,10 +360,8 @@ class FormContainer extends Component {
               <CompileForm compiledLogic={clogic.compiled}
                            handleCompileChange={this.handleCompileChange}/> },
             ];
-        const toppanes = () => [
-            <Tab panes={naturalLanguagePanes}/>,
-            <Tab panes={logicPanes}/>,
-        ];
+        const toppanes1 = <Tab panes={naturalLanguagePanes} activeIndex={this.state.activeLegal} onTabChange={this.handleLegalTabChange} />;
+        const toppanes2 = <Tab panes={logicPanes} activeIndex={this.state.activeLogic} onTabChange={this.handleLogicTabChange} />;
         const bottompanes = () => [
             { menuItem: 'Template Status', render: () => <Status log={log}/> },
 /*          { menuItem: 'Options', render: () =>
@@ -383,6 +397,7 @@ class FormContainer extends Component {
         return (
             <Container>
               <Grid>
+
                 <Grid.Row>
                   <Grid.Column width={16}>
                     <Divider hidden/>
@@ -403,7 +418,7 @@ class FormContainer extends Component {
                     {viewMenu()}
                   </Grid.Column>
                   <Grid.Column width={13}>
-                    { this.state.activeItem === 'legal' ? toppanes()[0] : toppanes()[1]}
+                    { this.state.activeItem === 'legal' ? toppanes1 : toppanes2 }
                   </Grid.Column>
                 </Grid.Row>
                 <Grid.Row>
