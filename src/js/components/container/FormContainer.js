@@ -105,6 +105,7 @@ function compileLogic(editor,logic,state) {
     const model = state.model;
     const compiledLogic = Ergo.compileToJavaScript(logic,model,'cicero',false);
     state.markers.forEach(marker => marker.clear());
+    state.markers = [];
     if (compiledLogic.hasOwnProperty('error')) {
         const error = compiledLogic.error;
         state.log.logic = error.verbose;
