@@ -46,6 +46,7 @@ function getTemplates() {
         let currentTemplate = templateLibrary.default[t];
         let currentName = currentTemplate.name;
         let currentVersion = currentTemplate.version;
+        // Keep only the last version for any given template
         for (var t2 in templateLibrary.default) {
             const newTemplate = templateLibrary.default[t2];
             const newName = newTemplate.name;
@@ -57,6 +58,7 @@ function getTemplates() {
                 currentVersion = currentTemplate.version;
             }
         }
+        // Make sure it's the right ciceroVersion and uses Ergo
         if (currentTemplate.ciceroVersion === '^0.8.0' && currentTemplate.language === 0) {
             if (templates.filter(t => t.key === currentT).length < 1)
                 templates.push({'key':currentT, 'value':currentT, 'text':currentT});
@@ -134,6 +136,7 @@ class FormContainer extends Component {
         this.state = {
             clause: null,
             package: 'null',
+            readme: '',
             text: `[Please Select a Sample Template]`,
             data: 'null',
             log: { text: 'Not yet parsed.', logic: 'Not yet compiled.', meta: 'Not yet loaded.' },
@@ -224,7 +227,19 @@ class FormContainer extends Component {
         }
     }
     handleREADMEChange(text) {
-        // TBD
+        const state = this.state;
+        try {
+            const readme = text;
+            state.clause.getTemplate().setReadme(readme);
+            state.readme = readme
+            state.log.meta = "README change successful!";
+            this.setState(state);
+        } catch (error){
+            console.log('ERROR'+JSON.stringify(error.message));
+            state.readme = text;
+            state.log.meta = "[Change Template README] " + error;
+            this.setState(state);
+        }
     }
 
     handleSampleChange(text) {
