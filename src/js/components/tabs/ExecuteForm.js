@@ -29,6 +29,7 @@ class ExecuteForm extends Form {
         this.handleResponseChange = this.handleResponseChange.bind(this);
         this.handleEmitChange = this.handleEmitChange.bind(this);
         this.handleRunLogic = this.handleRunLogic.bind(this);
+        this.handleInitLogic = this.handleInitLogic.bind(this);
     }
 
     handleRequestChange(text) {
@@ -51,15 +52,20 @@ class ExecuteForm extends Form {
         this.props.handleRunLogic(text);
     }
 
+    handleInitLogic(text) {
+        this.props.handleInitLogic(text);
+    }
+
     render() {
         const { request, cstate, response, emit,
-                handleRequestChange, handleStateChange, handleResponseChange, handleEmitChange, handleRunLogic } = this.props;
+                handleRequestChange, handleStateChange, handleResponseChange, handleEmitChange, handleRunLogic, handleInitLogic } = this.props;
         return (<Tab.Pane>
                   <Grid>
                     <Divider hidden/>
                     <Grid.Row columns={1}>
                       <Grid.Column>
-                        <Button type='submit' color='blue' onClick={this.handleRunLogic} compact>Run</Button>
+                        <Button type='submit' color='blue' onClick={this.handleRunLogic} compact>Send Request</Button>
+                        <Button type='submit' color='blue' onClick={this.handleInitLogic} compact>Reset Contract</Button>
                       </Grid.Column>
                     </Grid.Row>
                     <Grid.Row columns={2}>

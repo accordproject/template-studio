@@ -165,7 +165,7 @@ class FormContainer extends Component {
         this.handleJSONChange = this.handleJSONChange.bind(this);
         this.handleLogicChange = this.handleLogicChange.bind(this);
         this.handleRunLogic = this.handleRunLogic.bind(this);
-        this.handleRunInit = this.handleRunInit.bind(this);
+        this.handleInitLogic = this.handleInitLogic.bind(this);
         this.handleCompileChange = this.handleCompileChange.bind(this);
         this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
         this.loadTemplate = this.loadTemplate.bind(this);
@@ -361,7 +361,7 @@ class FormContainer extends Component {
         this.setState(state);
     }
 
-    handleRunInit() {
+    handleInitLogic() {
         // XXX Should check whether the NL parses & the logic compiles & the state/request are valid JSON first
         const state = this.state;
         try {
@@ -409,7 +409,7 @@ class FormContainer extends Component {
             this.handleSampleChange(state.text);
             this.handleLogicChange(state,state.logic);
             this.handlePackageChange(state.package);
-            this.handleRunInit(); // Initializes the contract state
+            this.handleInitLogic(); // Initializes the contract state
         });
     }
 
@@ -498,7 +498,8 @@ class FormContainer extends Component {
                              handleStateChange={this.handleStateChange}
                              handleResponseChange={this.handleResponseChange}
                              handleEmitChange={this.handleEmitChange}
-                             handleRunLogic={this.handleRunLogic}/> :
+                             handleRunLogic={this.handleRunLogic}
+                             handleInitLogic={this.handleInitLogic}/> :
                 this.state.activeLogic === 'model' ?
                 <Tab.Pane>
                   <ModelForm model={model} handleModelChange={this.handleModelChange}/>
