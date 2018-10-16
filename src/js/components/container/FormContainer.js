@@ -17,6 +17,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import InputGrammar from '../presentational/InputGrammar';
+import InputJson from '../presentational/InputJson';
 import ModelForm from '../tabs/ModelForm';
 import LogicForm from '../tabs/LogicForm';
 import CompileForm from '../tabs/CompileForm';
@@ -129,10 +130,13 @@ class FormContainer extends Component {
             emit: '[]',
             options: { lineNumbers: false },
             activeItem: 'legal',
-            activeLegal: 0,
-            activeLogic: 0,
+            activeLegal: 'template',
+            activeLogic: 'ergo',
+            activeMeta: 'package',
             clogic: { compiled: '', compiledLinked: '' }
         };
+        this.handlePackageChange = this.handlePackageChange.bind(this);
+        this.handleREADMEChange = this.handleREADMEChange.bind(this);
         this.handleSampleChange = this.handleSampleChange.bind(this);
         this.handleGrammarChange = this.handleGrammarChange.bind(this);
         this.handleModelChange = this.handleModelChange.bind(this);
@@ -150,7 +154,15 @@ class FormContainer extends Component {
         this.handleEmitChange = this.handleEmitChange.bind(this);
         this.handleLegalTabChange = this.handleLegalTabChange.bind(this);
         this.handleLogicTabChange = this.handleLogicTabChange.bind(this); 
+        this.handleMetaTabChange = this.handleMetaTabChange.bind(this); 
    }
+
+    handlePackageChange(text) {
+        // TBD
+    }
+    handleREADMEChange(text) {
+        // TBD
+    }
 
     handleSampleChange(text) {
         const state = this.state;
@@ -158,14 +170,19 @@ class FormContainer extends Component {
     }
 
 
-    handleLegalTabChange(e, { activeIndex }) {
+    handleLegalTabChange(e, { name }) {
         const state = this.state;
-        state.activeLegal = activeIndex;
+        state.activeLegal = name;
         this.setState(state);
     }
-    handleLogicTabChange(e, { activeIndex }) {
+    handleLogicTabChange(e, { name }) {
         const state = this.state;
-        state.activeLogic = activeIndex;
+        state.activeLogic = name;
+        this.setState(state);
+    }
+    handleMetaTabChange(e, { name }) {
+        const state = this.state;
+        state.activeMeta = name;
         this.setState(state);
     }
 
@@ -326,54 +343,114 @@ class FormContainer extends Component {
     }
     render() {
         const { text, grammar, model, logic, clogic, log, data, request, cstate, response, emit } = this.state;
-        const naturalLanguagePanes = [
-            { menuItem: 'Template',
-              render: () =>
-              <Tab.Pane>
+        const legalTabs = () => (
+            <div>
+              <Menu attached='top' tabular>
+                <Menu.Item
+                  name='template'
+                  active={this.state.activeLegal === 'template'}
+                  onClick={this.handleLegalTabChange}>Template</Menu.Item>
+                <Menu.Item
+                  name='sample'
+                  active={this.state.activeLegal === 'sample'}
+                  onClick={this.handleLegalTabChange}
+                >Sample Contract</Menu.Item>
+                <Menu.Item
+                  name='model'
+                  active={this.state.activeLegal === 'model'}
+                  onClick={this.handleLegalTabChange}
+                >Data Model</Menu.Item>
+                <Menu.Item
+                  name='status'
+                  active={this.state.activeLegal === 'status'}
+                  onClick={this.handleLegalTabChange}
+                  position='right'
+                >Status &nbsp;<StatusIcon log={this.state.log.text}/></Menu.Item>
+              </Menu>
+              { this.state.activeLegal === 'template' ?
+                <Tab.Pane attached='bottom'>
                   <InputGrammar
                     grammar={grammar}
                     handleTextChange={this.handleGrammarChange}/>
-              </Tab.Pane> },
-            { menuItem: 'Contract Sample', render: () =>
+                </Tab.Pane> :
+                this.state.activeLegal === 'sample' ?
                 <ParseForm text={text} grammar={grammar} log={log.text} data={data}
                            handleSampleChange={this.handleSampleChange}
-                           handleJSONChange={this.handleJSONChange}/> },
-            { menuItem: 'Model', render: () =>
-              <Tab.Pane>
-                <ModelForm model={model} handleModelChange={this.handleModelChange}/>
-              </Tab.Pane> },
-        ];
-        const logicPanes = [
-            { menuItem: 'Ergo', render: () =>
-              <Tab.Pane>
-                <LogicForm logic={logic}
-                           handleLogicChange={this.handleLogicChange}/>
-              </Tab.Pane> },
-            { menuItem: 'Execution', render: () =>
-              <ExecuteForm request={request} cstate={cstate} response={response} emit={emit}
-                           handleRequestChange={this.handleRequestChange}
-                           handleStateChange={this.handleStateChange}
-                           handleResponseChange={this.handleResponseChange}
-                           handleEmitChange={this.handleEmitChange}
-                           handleRunLogic={this.handleRunLogic}/> },
-            { menuItem: 'Model', render: () =>
-              <Tab.Pane>
-                <ModelForm model={model} handleModelChange={this.handleModelChange}/>
-              </Tab.Pane> },
-            { menuItem: 'Compiled Code',
-              render: () =>
-              <CompileForm compiledLogic={clogic.compiled}
-                           handleCompileChange={this.handleCompileChange}/> },
-            ];
-        const toppanes1 = <Tab panes={naturalLanguagePanes} activeIndex={this.state.activeLegal} onTabChange={this.handleLegalTabChange} />;
-        const toppanes2 = <Tab panes={logicPanes} activeIndex={this.state.activeLogic} onTabChange={this.handleLogicTabChange} />;
-        const bottompanes = () => [
-            { menuItem: 'Template Status', render: () => <Status log={log}/> },
-/*          { menuItem: 'Options', render: () =>
-              <Options
-                lineNumbers={this.state.options.lineNumbers}/>
-            }, */
-        ];
+                           handleJSONChange={this.handleJSONChange}/> :
+                this.state.activeLegal === 'model' ?
+                <Tab.Pane>
+                  <ModelForm model={model} handleModelChange={this.handleModelChange}/>
+                </Tab.Pane> : <Status log={log}/> }
+            </div>
+        );
+        const logicTabs = () => (
+            <div>
+              <Menu attached='top' tabular>
+                <Menu.Item
+                  name='ergo'
+                  active={this.state.activeLogic === 'ergo'}
+                  onClick={this.handleLogicTabChange}>Ergo</Menu.Item>
+                <Menu.Item
+                  name='execution'
+                  active={this.state.activeLogic === 'execution'}
+                  onClick={this.handleLogicTabChange}
+                >Execution</Menu.Item>
+                <Menu.Item
+                  name='model'
+                  active={this.state.activeLogic === 'model'}
+                  onClick={this.handleLogicTabChange}
+                >Data Model</Menu.Item>
+                <Menu.Item
+                  name='status'
+                  active={this.state.activeLogic === 'status'}
+                  onClick={this.handleLogicTabChange}
+                  position='right'
+                >Status &nbsp;<StatusIcon log={this.state.log.logic}/></Menu.Item>
+              </Menu>
+              { this.state.activeLogic === 'ergo' ?
+                <Tab.Pane attached='bottom'>
+                  <LogicForm logic={logic}
+                             handleLogicChange={this.handleLogicChange}/>
+                </Tab.Pane> :
+                this.state.activeLogic === 'execution' ?
+                <ExecuteForm request={request} cstate={cstate} response={response} emit={emit}
+                             handleRequestChange={this.handleRequestChange}
+                             handleStateChange={this.handleStateChange}
+                             handleResponseChange={this.handleResponseChange}
+                             handleEmitChange={this.handleEmitChange}
+                             handleRunLogic={this.handleRunLogic}/> :
+                this.state.activeLogic === 'model' ?
+                <Tab.Pane>
+                  <ModelForm model={model} handleModelChange={this.handleModelChange}/>
+                </Tab.Pane> : <Status log={log}/> }
+            </div>
+        );
+        const metaTabs = () => (
+            <div>
+              <Menu attached='top' tabular>
+                <Menu.Item
+                  name='package'
+                  active={this.state.activeMeta === 'package'}
+                  onClick={this.handleMetaTabChange}>Metadata</Menu.Item>
+                <Menu.Item
+                  name='readme'
+                  active={this.state.activeMeta === 'readme'}
+                  onClick={this.handleMetaTabChange}
+                >README</Menu.Item>
+              </Menu>
+              { this.state.activeMeta === 'package' ?
+                <Tab.Pane attached='bottom'>
+                  <InputJson
+                    json={this.state.clause ? JSON.stringify(this.state.clause.getTemplate().getMetadata().getPackageJson(),null,2) : 'null'}
+                    handleTextChange={this.handlePackageChange}/>
+                </Tab.Pane> :
+                <Tab.Pane attached='bottom'>
+                  <InputGrammar
+                    grammar={this.state.clause ? this.state.clause.getTemplate().getMetadata().getREADME() : 'null'}
+                    handleTextChange={this.handleREADMEChange}/>
+                </Tab.Pane> }
+            </div>
+        );
         const ModalAbout = () => (
             <Modal trigger={<Menu.Item>About</Menu.Item>}>
               <Modal.Header>Accord Project &middot; Template Studio (Experimental)</Modal.Header>
@@ -400,7 +477,7 @@ class FormContainer extends Component {
               </Modal.Content>
             </Modal>
         );
-        const templateMenu = () =>
+        const topMenu = () =>
               (<Menu fixed='top' inverted>
                  <Container>
                    <Menu.Item header>
@@ -444,10 +521,13 @@ class FormContainer extends Component {
                  <Menu.Item name='tech' active={this.state.activeItem === 'tech'} onClick={this.handleItemClick}>
                    Contract Logic <StatusIcon log={this.state.log.logic}/>
                  </Menu.Item>
+                 <Menu.Item name='metadata' active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
+                   Template Information
+                 </Menu.Item>
                </Menu>);
         return (
             <div>
-              {templateMenu()}
+              {topMenu()}
               <Container style={{ marginTop: '7em' }}>
                 <Grid>
                   <Grid.Row>
@@ -455,12 +535,7 @@ class FormContainer extends Component {
                     {viewMenu()}
                   </Grid.Column>
                   <Grid.Column width={13}>
-                    { this.state.activeItem === 'legal' ? toppanes1 : toppanes2 }
-                  </Grid.Column>
-                </Grid.Row>
-                <Grid.Row>
-                  <Grid.Column width={16}>
-                    <Tab menu={{ secondary: true, pointing: true }} panes={bottompanes()}/>
+                    { this.state.activeItem === 'legal' ? legalTabs() : this.state.activeItem === 'tech' ? logicTabs() : metaTabs() }
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
