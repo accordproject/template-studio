@@ -31,6 +31,11 @@ import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 
 import * as templateLibrary from '@accordproject/cicero-template-library/build/template-library.json';
+import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
+import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
+
+const ciceroVersion = ciceroPackageJson.version;
+const ergoVersion = ergoPackageJson.version;
 
 function getTemplates() {
     var templates = [];
@@ -381,8 +386,8 @@ class FormContainer extends Component {
                 <Divider/>
                 <Modal.Description>
                   <Header>Version Information</Header>
-                  <p>Cicero 0.8.0</p>
-                  <p>Ergo 0.4.3</p>
+                  <p>Cicero {ciceroVersion}</p>
+                  <p>Ergo {ergoVersion}</p>
                 </Modal.Description>
               </Modal.Content>
             </Modal>
