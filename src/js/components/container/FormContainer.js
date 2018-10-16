@@ -27,7 +27,7 @@ import { Status, StatusIcon } from '../status/Status';
 import Options from '../status/Options';
 import { UploadButton, DownloadButton, NewButton } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
-import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Grid, Dropdown, Menu, Modal, Icon, Rail } from 'semantic-ui-react';
+import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Input, Grid, Dropdown, Menu, Modal, Icon, Rail } from 'semantic-ui-react';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 
@@ -115,9 +115,10 @@ class FormContainer extends Component {
         super();
         this.state = {
             clause: null,
+            package: 'null',
             text: `[Please Select a Sample Template]`,
             data: 'null',
-            log: { text: 'Not yet parsed.', logic: 'Not yet compiled.' },
+            log: { text: 'Not yet parsed.', logic: 'Not yet compiled.', meta: 'Not yet loaded.' },
             grammar: `[Please Select a Sample Template]`,
             model: `[Please Select a Sample Template]`,
             logic: `[Please Select a Sample Template]`,
@@ -153,12 +154,56 @@ class FormContainer extends Component {
         this.handleResponseChange = this.handleResponseChange.bind(this);
         this.handleEmitChange = this.handleEmitChange.bind(this);
         this.handleLegalTabChange = this.handleLegalTabChange.bind(this);
-        this.handleLogicTabChange = this.handleLogicTabChange.bind(this); 
-        this.handleMetaTabChange = this.handleMetaTabChange.bind(this); 
-   }
+        this.handleLogicTabChange = this.handleLogicTabChange.bind(this);
+        this.handleMetaTabChange = this.handleMetaTabChange.bind(this);
+        this.handleNameChange = this.handleNameChange.bind(this);
+        this.handleVersionChange = this.handleVersionChange.bind(this);
+    }
 
     handlePackageChange(text) {
-        // TBD
+        const state = this.state;
+        try {
+            const packageJson = JSON.parse(text);
+            state.clause.getTemplate().setPackageJson(packageJson);
+            state.package = JSON.stringify(packageJson,null,2);
+            state.log.meta = "package.json change successful!";
+            this.setState(state);
+        } catch (error){
+            console.log('ERROR'+JSON.stringify(error.message));
+            state.package = text;
+            state.log.meta = "[Change Template package.json] " + error;
+            this.setState(state);
+        }
+    }
+    handleNameChange(e, { name, value }) {
+        const state = this.state;
+        try {
+            const packageJson = JSON.parse(state.package);
+            packageJson.name = value;
+            state.clause.getTemplate().setPackageJson(packageJson);
+            state.package = JSON.stringify(packageJson,null,2);
+            state.log.meta = "Template Name change successful!";
+            this.setState(state);
+        } catch (error){
+            console.log('ERROR'+JSON.stringify(error.message));
+            state.log.meta = "[Change Template Name] " + error;
+            this.setState(state);
+        }
+    }
+    handleVersionChange(e, { name, value }) {
+        const state = this.state;
+        try {
+            const packageJson = JSON.parse(state.package);
+            packageJson.version = value;
+            state.clause.getTemplate().setPackageJson(packageJson);
+            state.package = JSON.stringify(packageJson,null,2);
+            state.log.meta = "Template version change successful!";
+            this.setState(state);
+        } catch (error){
+            console.log('ERROR'+JSON.stringify(error.message));
+            state.log.meta = "[Change Template Version] " + error;
+            this.setState(state);
+        }
     }
     handleREADMEChange(text) {
         // TBD
@@ -318,6 +363,7 @@ class FormContainer extends Component {
         Template.fromUrl(ROOT_URI+'/static/archives/'+templateName+'.cta').then((template) => { 
             console.log('Loaded template: ' + template.getIdentifier());
             state.clause = new Clause(template);
+            state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
             state.grammar = template.getTemplatizedGrammar();
             state.model = template.getModels();
             state.logic = template.getLogic();
@@ -329,6 +375,7 @@ class FormContainer extends Component {
             this.setState(state);
             this.handleSampleChange(state.text);
             this.handleLogicChange(state,state.logic);
+            this.handlePackageChange(state.package);
             this.handleRunInit(); // Initializes the contract state
         });
     }
@@ -431,24 +478,31 @@ class FormContainer extends Component {
                 <Menu.Item
                   name='package'
                   active={this.state.activeMeta === 'package'}
-                  onClick={this.handleMetaTabChange}>Metadata</Menu.Item>
+                  onClick={this.handleMetaTabChange}>package.json</Menu.Item>
                 <Menu.Item
                   name='readme'
                   active={this.state.activeMeta === 'readme'}
                   onClick={this.handleMetaTabChange}
                 >README</Menu.Item>
+                <Menu.Item
+                  name='status'
+                  active={this.state.activeMeta === 'status'}
+                  onClick={this.handleMetaTabChange}
+                  position='right'
+                >Status &nbsp;<StatusIcon log={this.state.log.meta}/></Menu.Item>
               </Menu>
               { this.state.activeMeta === 'package' ?
                 <Tab.Pane attached='bottom'>
                   <InputJson
-                    json={this.state.clause ? JSON.stringify(this.state.clause.getTemplate().getMetadata().getPackageJson(),null,2) : 'null'}
-                    handleTextChange={this.handlePackageChange}/>
+                    json={this.state.package}
+                    handleJSONChange={this.handlePackageChange}/>
                 </Tab.Pane> :
+                this.state.activeMeta === 'readme' ?
                 <Tab.Pane attached='bottom'>
                   <InputGrammar
                     grammar={this.state.clause ? this.state.clause.getTemplate().getMetadata().getREADME() : 'null'}
                     handleTextChange={this.handleREADMEChange}/>
-                </Tab.Pane> }
+                </Tab.Pane> : <Status log={log}/> }
             </div>
         );
         const ModalAbout = () => (
@@ -522,9 +576,31 @@ class FormContainer extends Component {
                    Contract Logic <StatusIcon log={this.state.log.logic}/>
                  </Menu.Item>
                  <Menu.Item name='metadata' active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
-                   Template Information
+                   Metadata <StatusIcon log={this.state.log.meta}/>
                  </Menu.Item>
                </Menu>);
+        const templateForm = () =>
+              (<Segment>
+                 <Header>Current Template</Header>
+                 <Form>
+                   <Form.Field>
+                     <label>Name</label>
+                     <Input placeholder='Name'
+                            onChange={this.handleNameChange}
+                            value={
+                                this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().name : ''
+                            }></Input>
+                   </Form.Field>
+                   <Form.Field>
+                     <label>Version Number</label>
+                     <Input placeholder='Version'
+                            onChange={this.handleVersionChange}
+                            value={
+                                this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().version : ''
+                            }></Input>
+                   </Form.Field>
+                 </Form>
+               </Segment>);
         return (
             <div>
               {topMenu()}
@@ -532,14 +608,19 @@ class FormContainer extends Component {
                 <Grid>
                   <Grid.Row>
                     <Grid.Column width={3}>
-                    {viewMenu()}
-                  </Grid.Column>
-                  <Grid.Column width={13}>
-                    { this.state.activeItem === 'legal' ? legalTabs() : this.state.activeItem === 'tech' ? logicTabs() : metaTabs() }
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-            </Container>
+                      {viewMenu()}
+                      <Divider hidden/>
+                      <Divider hidden/>
+                      <Divider hidden/>
+                      <Divider hidden/>
+                      {templateForm()}
+                    </Grid.Column>
+                    <Grid.Column width={13}>
+                      { this.state.activeItem === 'legal' ? legalTabs() : this.state.activeItem === 'tech' ? logicTabs() : metaTabs() }
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+              </Container>
             </div>
         );
     }

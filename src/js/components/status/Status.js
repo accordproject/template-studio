@@ -20,12 +20,12 @@ import { Segment, Icon, Form, Label, Message, Tab } from 'semantic-ui-react';
 
 const statusColor = (log) => (
     log.indexOf('success') != -1 ? 'green' :
-        log.indexOf('error') != -1 || log.indexOf('invalid') != -1 ? 'red' :
+        log.indexOf('error') != -1 || log.indexOf('Error') != -1 || log.indexOf('invalid') != -1 ? 'red' :
         'grey'
 );
 const statusIcon = (log) => (
     log.indexOf('success') != -1 ? 'check' :
-        log.indexOf('error') != -1 ? 'warning sign' :
+        log.indexOf('error') != -1 || log.indexOf('Error') != -1 || log.indexOf('invalid') != -1 ? 'warning sign' :
         'warning sign'
 );
 const newlines = (log) => (log.split('\n').map(function(item, key) {
@@ -55,9 +55,18 @@ const printLogicErrors = (log) => (
     : null
 );
 
+const printMetaErrors = (log) => (
+    log.indexOf('success') == -1 ? 
+        <Message>
+          <Message.Header>Metadata Error</Message.Header>
+          <Message.List><Segment>{newlines(log)}</Segment></Message.List>
+        </Message>
+    : null
+);
+
 const StatusTable = (log) => (
-    (log.text.indexOf('success') == -1 || log.logic.indexOf('success') == -1) ?
-        <div>{printTextErrors(log.text)}{printLogicErrors(log.logic)}</div>
+    (log.text.indexOf('success') == -1 || log.logic.indexOf('success') == -1 || log.meta.indexOf('success') == -1) ?
+        <div>{printTextErrors(log.text)}{printLogicErrors(log.logic)}{printLogicErrors(log.meta)}</div>
     : <Message><Message.Header>No Error</Message.Header></Message>
 );
 
