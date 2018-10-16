@@ -34,6 +34,7 @@ import moment from 'moment';
 import * as templateLibrary from '@accordproject/cicero-template-library/build/template-library.json';
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
 import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
+const semver = require('semver');
 
 const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
@@ -41,8 +42,25 @@ const ergoVersion = ergoPackageJson.version;
 function getTemplates() {
     var templates = [];
     for(var t in templateLibrary.default) {
-        if (templateLibrary.default[t].ciceroVersion === '^0.8.0')
-            templates.push({'key':t, 'value':t, 'text':t});
+        let currentT = t;
+        let currentTemplate = templateLibrary.default[t];
+        let currentName = currentTemplate.name;
+        let currentVersion = currentTemplate.version;
+        for (var t2 in templateLibrary.default) {
+            const newTemplate = templateLibrary.default[t2];
+            const newName = newTemplate.name;
+            const newVersion = newTemplate.version;
+            if (newName === currentName && semver.gt(newVersion, currentVersion)) {
+                currentT = t2;
+                currentTemplate = newTemplate;
+                currentName = currentTemplate.name;
+                currentVersion = currentTemplate.version;
+            }
+        }
+        if (currentTemplate.ciceroVersion === '^0.8.0' && currentTemplate.language === 0) {
+            if (templates.filter(t => t.key === currentT).length < 1)
+                templates.push({'key':currentT, 'value':currentT, 'text':currentT});
+        }
     }
     return templates;
 }
@@ -441,7 +459,7 @@ class FormContainer extends Component {
                   name='execution'
                   active={this.state.activeLogic === 'execution'}
                   onClick={this.handleLogicTabChange}
-                >Execution</Menu.Item>
+                >Contract Execution</Menu.Item>
                 <Menu.Item
                   name='model'
                   active={this.state.activeLogic === 'model'}
@@ -580,11 +598,10 @@ class FormContainer extends Component {
                  </Menu.Item>
                </Menu>);
         const templateForm = () =>
-              (<Segment>
+              (<Segment inverted color='grey'>
                  <Header>Current Template</Header>
-                 <Form>
+                 <Form inverted color='grey'>
                    <Form.Field>
-                     <label>Name</label>
                      <Input placeholder='Name'
                             onChange={this.handleNameChange}
                             value={
@@ -592,7 +609,7 @@ class FormContainer extends Component {
                             }></Input>
                    </Form.Field>
                    <Form.Field>
-                     <label>Version Number</label>
+                     <label>Version</label>
                      <Input placeholder='Version'
                             onChange={this.handleVersionChange}
                             value={
