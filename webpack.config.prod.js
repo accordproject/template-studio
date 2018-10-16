@@ -3,7 +3,7 @@ var webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-const ROOT_URI = 'https://template-studio.netlify.com'; // No end '/' please
+const ROOT_URI = 'https://studio.accordproject.org'; // No end '/' please
 
 function resolveRootURI() {
     if (process.env.CONTEXT === 'production') {
