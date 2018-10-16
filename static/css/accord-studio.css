@@ -37,3 +37,8 @@ span.response { color: green; }
 .ui.color1 {
   background-color: #008B8B;
 }
+.syntax-error {
+    width:200px;
+    border-bottom:2px solid red;
+    padding-bottom:2px;
+}

@@ -101,12 +101,21 @@ function generateText(input_state,data) {
     return state;
 }
 
-function compileLogic(logic,state) {
+function compileLogic(editor,logic,state) {
     const model = state.model;
     const compiledLogic = Ergo.compileToJavaScript(logic,model,'cicero',false);
+    state.markers.forEach(marker => marker.clear());
     if (compiledLogic.hasOwnProperty('error')) {
-        state.log.logic = compiledLogic.error.verbose;
+        const error = compiledLogic.error;
+        state.log.logic = error.verbose;
         state.logic = logic;
+        if (editor) {
+            console.log('ERROR'+JSON.stringify(error));
+            state.markers.push
+            (editor.markText({line:error.locstart.line-1,ch:error.locstart.character},
+                             {line:error.locend.line-1,ch:error.locend.character+1},
+                             {className: 'syntax-error', title: error.verbose}));
+        }
     } else {
         const compiledLogicLinked = Ergo.compileToJavaScript(logic,model,'cicero',true);
         state.clogic = { compiled: compiledLogic.success, compiledLinked : compiledLogicLinked.success };
@@ -155,7 +164,8 @@ class FormContainer extends Component {
             activeLegal: 'template',
             activeLogic: 'ergo',
             activeMeta: 'package',
-            clogic: { compiled: '', compiledLinked: '' }
+            clogic: { compiled: '', compiledLinked: '' },
+            markers: [] // For code mirror marking
         };
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
@@ -320,7 +330,7 @@ class FormContainer extends Component {
         }
     }
 
-    handleLogicChange(name,logic) {
+    handleLogicChange(editor,name,logic) {
         const state = this.state;
         const oldlogic = state.logic;
         var newlogic = [];
@@ -331,7 +341,7 @@ class FormContainer extends Component {
                 newlogic.push({name : m.name, content: m.content });
             }
         }
-        this.setState(compileLogic(newlogic,state));
+        this.setState(compileLogic(editor,newlogic,state));
     }
 
     handleRunLogic() {
@@ -404,10 +414,10 @@ class FormContainer extends Component {
             state.request = template.getMetadata().getRequest();
             state.log.text = 'Not yet parsed.';
             state.data = 'null';
-            state = compileLogic(state.logic, state);
+            state = compileLogic(null,state.logic, state);
             this.setState(state);
             this.handleSampleChange(state.text);
-            this.handleLogicChange(state,state.logic);
+            this.handleLogicChange(null,state,state.logic);
             this.handlePackageChange(state.package);
             this.handleInitLogic(); // Initializes the contract state
         });
