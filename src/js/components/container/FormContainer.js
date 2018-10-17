@@ -456,7 +456,7 @@ class FormContainer extends Component {
                   active={this.state.activeLegal === 'status'}
                   onClick={this.handleLegalTabChange}
                   position='right'
-                >Errors &nbsp;<StatusIcon log={this.state.log.text}/></Menu.Item>
+                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
               </Menu>
               { this.state.activeLegal === 'template' ?
                 <Tab.Pane attached='bottom'>
@@ -496,7 +496,7 @@ class FormContainer extends Component {
                   active={this.state.activeLogic === 'status'}
                   onClick={this.handleLogicTabChange}
                   position='right'
-                >Errors &nbsp;<StatusIcon log={this.state.log.logic}/></Menu.Item>
+                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
               </Menu>
               { this.state.activeLogic === 'ergo' ?
                 <Tab.Pane attached='bottom'>
@@ -534,7 +534,7 @@ class FormContainer extends Component {
                   active={this.state.activeMeta === 'status'}
                   onClick={this.handleMetaTabChange}
                   position='right'
-                >Errors &nbsp;<StatusIcon log={this.state.log.meta}/></Menu.Item>
+                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
               </Menu>
               { this.state.activeMeta === 'readme' ?
                 <Tab.Pane attached='bottom'>
@@ -590,7 +590,7 @@ class FormContainer extends Component {
                                selection
                                options={templates}
                                onChange={this.handleSelectTemplate}/>
-                     <Label color='grey' pointing='left' as='a' href='https://templates.accordproject.org' target='_blank'>Load template<br/>from library</Label>
+                     <Label color='grey' pointing='left'>Load template<br/>from library</Label>
                    </Menu.Item>
                    <Menu.Item position='right'>
                      <Dropdown item text='Help' simple position='right' direction='left'>

@@ -75,11 +75,12 @@ const StatusTable = (log) => (
 );
 
 const StatusIcon = ({ log }) => (
-    log.indexOf('success') == -1
-        ? <Icon name={statusIcon(log)} color={statusColor(log)}/>
-        : null);
+    (isFailure(log)
+     ? <Icon name='warning sign' color='red'/>
+     : null)
+);
 StatusIcon.propTypes = {
-    log: PropTypes.string.isRequired
+    log: PropTypes.object.isRequired
 };
 
 const StatusLabel = ({ log }) => (
