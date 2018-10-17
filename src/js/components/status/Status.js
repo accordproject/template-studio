@@ -16,7 +16,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Icon, Form, Label, Message, Tab } from 'semantic-ui-react';
+import { Segment, Icon, Label, Message, Tab, Card } from 'semantic-ui-react';
+
+const isFailure = (log) => (
+    log.text.indexOf('success') == -1 || log.logic.indexOf('success') == -1 || log.meta.indexOf('success') == -1
+);
 
 const statusColor = (log) => (
     log.indexOf('success') != -1 ? 'green' :
@@ -70,14 +74,23 @@ const StatusTable = (log) => (
     : <Message><Message.Header>No Error</Message.Header></Message>
 );
 
-const StatusIcon = ({ log }) => (<Icon name={statusIcon(log)} color={statusColor(log)}/>);
+const StatusIcon = ({ log }) => (
+    log.indexOf('success') == -1
+        ? <Icon name={statusIcon(log)} color={statusColor(log)}/>
+        : null);
 StatusIcon.propTypes = {
     log: PropTypes.string.isRequired
 };
+
+const StatusLabel = ({ log }) => (
+    (isFailure(log) ?
+        <Card.Meta><Icon name='warning sign' color='red'/> Errors</Card.Meta>
+     : <Card.Meta><Icon name='check' color='green'/> No Errors</Card.Meta>)
+);
 
 const Status = ({ log }) => StatusTable(log);
 Status.propTypes = {
     log: PropTypes.object.isRequired
 };
 
-export {StatusIcon, Status};
+export { StatusIcon, Status, StatusLabel };

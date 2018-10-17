@@ -21,7 +21,7 @@ import saveAs from 'file-saver';
 require("babel-core/register");
 require("babel-polyfill");
 
-class DownloadButton extends Dropdown {
+class DownloadLabel extends Label {
     constructor(props) {
         super(props);
         this.downloadCta = this.downloadCta.bind(this);
@@ -37,7 +37,9 @@ class DownloadButton extends Dropdown {
             console.log("CLAUSE MISSING!");
         }
     }
-    render() { return (<Dropdown.Item onClick={() => this.downloadCta(this.props.clause)}> <Icon name="download"/> Download</Dropdown.Item>); }
+    render() {
+        return (<Label color='blue' onClick={() => this.downloadCta(this.props.clause)}>
+                  <Icon name="download"/> Download</Label>); }
 }
 
 class UploadButton extends Dropdown {
@@ -62,4 +64,4 @@ class NewButton extends Dropdown {
     render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}><Icon name="add"/> New</Dropdown.Item>; }
 }
 
-export { UploadButton, DownloadButton, NewButton };
+export { DownloadLabel, UploadButton, NewButton };

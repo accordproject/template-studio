@@ -23,11 +23,11 @@ import LogicForm from '../tabs/LogicForm';
 import CompileForm from '../tabs/CompileForm';
 import ParseForm from '../tabs/ParseForm';
 import ExecuteForm from '../tabs/ExecuteForm';
-import { Status, StatusIcon } from '../status/Status';
+import { Status, StatusIcon, StatusLabel } from '../status/Status';
 import Options from '../status/Options';
-import { UploadButton, DownloadButton, NewButton } from '../status/TemplateTab';
+import { UploadButton, DownloadLabel, NewButton } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
-import { Button, Form, Container, Divider, Segment, Tab, Header, Image, Input, Grid, Dropdown, Menu, Modal, Icon, Rail } from 'semantic-ui-react';
+import { Button, Form, Container, Divider, Segment, Tab, Label, Header, Image, Input, Grid, Dropdown, Menu, Modal, Icon, Card } from 'semantic-ui-react';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 
@@ -78,7 +78,7 @@ function parse(input_state,text) {
         state.text = text;
     } catch (error){
         state.data = 'null';
-        state.log.text = "[Parse Contract] " + error.message;
+        state.log.text = '[Parse Contract] ' + error.message;
         state.text = text;
     }
     return state;
@@ -96,7 +96,7 @@ function generateText(input_state,data) {
         state.log.text = 'GenerateText successful!';
     } catch (error){
         state.data = data;
-        state.log.text = "[Instantiate Contract] " + error.log;
+        state.log.text = '[Instantiate Contract] ' + error.log;
     }
     return state;
 }
@@ -161,10 +161,10 @@ class FormContainer extends Component {
             response: JSON.stringify(null, null, 2),
             emit: '[]',
             options: { lineNumbers: false },
-            activeItem: 'legal',
+            activeItem: 'metadata',
             activeLegal: 'template',
             activeLogic: 'ergo',
-            activeMeta: 'package',
+            activeMeta: 'readme',
             clogic: { compiled: '', compiledLinked: '' },
             markers: [] // For code mirror marking
         };
@@ -198,12 +198,12 @@ class FormContainer extends Component {
             const packageJson = JSON.parse(text);
             state.clause.getTemplate().setPackageJson(packageJson);
             state.package = JSON.stringify(packageJson,null,2);
-            state.log.meta = "package.json change successful!";
+            state.log.meta = 'package.json change successful!';
             this.setState(state);
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.package = text;
-            state.log.meta = "[Change Template package.json] " + error;
+            state.log.meta = '[Change Template package.json] ' + error;
             this.setState(state);
         }
     }
@@ -214,11 +214,11 @@ class FormContainer extends Component {
             packageJson.name = value;
             state.clause.getTemplate().setPackageJson(packageJson);
             state.package = JSON.stringify(packageJson,null,2);
-            state.log.meta = "Template Name change successful!";
+            state.log.meta = 'Template Name change successful!';
             this.setState(state);
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
-            state.log.meta = "[Change Template Name] " + error;
+            state.log.meta = '[Change Template Name] ' + error;
             this.setState(state);
         }
     }
@@ -229,11 +229,11 @@ class FormContainer extends Component {
             packageJson.version = value;
             state.clause.getTemplate().setPackageJson(packageJson);
             state.package = JSON.stringify(packageJson,null,2);
-            state.log.meta = "Template version change successful!";
+            state.log.meta = 'Template version change successful!';
             this.setState(state);
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
-            state.log.meta = "[Change Template Version] " + error;
+            state.log.meta = '[Change Template Version] ' + error;
             this.setState(state);
         }
     }
@@ -243,12 +243,12 @@ class FormContainer extends Component {
             const readme = text;
             state.clause.getTemplate().setReadme(readme);
             state.readme = readme
-            state.log.meta = "README change successful!";
+            state.log.meta = 'README change successful!';
             this.setState(state);
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.readme = text;
-            state.log.meta = "[Change Template README] " + error;
+            state.log.meta = '[Change Template README] ' + error;
             this.setState(state);
         }
     }
@@ -289,7 +289,7 @@ class FormContainer extends Component {
                 }
             } catch (error){
                 state.data = 'null';
-                state.log.text = "[Change Template] " + error.log;
+                state.log.text = '[Change Template] ' + error.log;
                 state.grammar = text;
                 this.setState(state);
             }
@@ -355,19 +355,19 @@ class FormContainer extends Component {
             const cstate = JSON.parse(state.cstate);
             const response = runLogic(compiledLogic,contract,request,cstate);
             if (response.hasOwnProperty('left')) {
-                state.log.logic = "Execution successful!";
+                state.log.logic = 'Execution successful!';
                 state.response = JSON.stringify(response.left.response,null,2);
                 state.cstate = JSON.stringify(response.left.state,null,2);
                 state.emit = JSON.stringify(response.left.emit,null,2);
             } else {
                 state.response = 'null';
                 state.emit = '[]';
-                state.log.logic = "[Ergo Error]" + JSON.stringify(response.right);
+                state.log.logic = '[Ergo Error]' + JSON.stringify(response.right);
             }
         } catch (error){
             state.response = 'null';
             state.emit = '[]';
-            state.log.logic = "[Cannot Run Template] " + JSON.stringify(error.message);
+            state.log.logic = '[Cannot Run Template] ' + JSON.stringify(error.message);
         }
         this.setState(state);
     }
@@ -381,19 +381,19 @@ class FormContainer extends Component {
             const contract = JSON.parse(state.data);
             const response = runInit(compiledLogic,contract);
             if (response.hasOwnProperty('left')) {
-                state.log.logic = "Execution successful!";
+                state.log.logic = 'Execution successful!';
                 state.response = JSON.stringify(response.left.response,null,2);
                 state.cstate = JSON.stringify(response.left.state,null,2);
                 state.emit = JSON.stringify(response.left.emit,null,2);
             } else {
                 state.response = 'null';
                 state.emit = '[]';
-                state.log.logic = "[Ergo Error]" + JSON.stringify(response.right);
+                state.log.logic = '[Ergo Error]' + JSON.stringify(response.right);
             }
         } catch (error){
             state.response = 'null';
             state.emit = '[]';
-            state.log.logic = "[Cannot Run Template] " + JSON.stringify(error.message);
+            state.log.logic = '[Cannot Run Template] ' + JSON.stringify(error.message);
         }
         this.setState(state);
     }
@@ -456,7 +456,7 @@ class FormContainer extends Component {
                   active={this.state.activeLegal === 'status'}
                   onClick={this.handleLegalTabChange}
                   position='right'
-                >Status &nbsp;<StatusIcon log={this.state.log.text}/></Menu.Item>
+                >Errors &nbsp;<StatusIcon log={this.state.log.text}/></Menu.Item>
               </Menu>
               { this.state.activeLegal === 'template' ?
                 <Tab.Pane attached='bottom'>
@@ -496,7 +496,7 @@ class FormContainer extends Component {
                   active={this.state.activeLogic === 'status'}
                   onClick={this.handleLogicTabChange}
                   position='right'
-                >Status &nbsp;<StatusIcon log={this.state.log.logic}/></Menu.Item>
+                >Errors &nbsp;<StatusIcon log={this.state.log.logic}/></Menu.Item>
               </Menu>
               { this.state.activeLogic === 'ergo' ?
                 <Tab.Pane attached='bottom'>
@@ -521,33 +521,33 @@ class FormContainer extends Component {
             <div>
               <Menu attached='top' tabular>
                 <Menu.Item
-                  name='package'
-                  active={this.state.activeMeta === 'package'}
-                  onClick={this.handleMetaTabChange}>package.json</Menu.Item>
-                <Menu.Item
                   name='readme'
                   active={this.state.activeMeta === 'readme'}
                   onClick={this.handleMetaTabChange}
                 >README</Menu.Item>
                 <Menu.Item
+                  name='package'
+                  active={this.state.activeMeta === 'package'}
+                  onClick={this.handleMetaTabChange}>package.json</Menu.Item>
+                <Menu.Item
                   name='status'
                   active={this.state.activeMeta === 'status'}
                   onClick={this.handleMetaTabChange}
                   position='right'
-                >Status &nbsp;<StatusIcon log={this.state.log.meta}/></Menu.Item>
+                >Errors &nbsp;<StatusIcon log={this.state.log.meta}/></Menu.Item>
               </Menu>
-              { this.state.activeMeta === 'package' ?
+              { this.state.activeMeta === 'readme' ?
+                <Tab.Pane attached='bottom'>
+                  <InputGrammar
+                    grammar={this.state.clause ? this.state.clause.getTemplate().getMetadata().getREADME() : 'null'}
+                    handleTextChange={this.handleREADMEChange}/>
+                </Tab.Pane> : this.state.activeMeta === 'package' ?
                 <Tab.Pane attached='bottom'>
                   <InputJson
                     json={this.state.package}
                     handleJSONChange={this.handlePackageChange}/>
                 </Tab.Pane> :
-                this.state.activeMeta === 'readme' ?
-                <Tab.Pane attached='bottom'>
-                  <InputGrammar
-                    grammar={this.state.clause ? this.state.clause.getTemplate().getMetadata().getREADME() : 'null'}
-                    handleTextChange={this.handleREADMEChange}/>
-                </Tab.Pane> : <Status log={log}/> }
+                <Status log={log}/> }
             </div>
         );
         const ModalAbout = () => (
@@ -562,7 +562,7 @@ class FormContainer extends Component {
                 <Divider/>
                 <Modal.Description>
                   <Header>Getting started</Header>
-                  <p>Search a template from the <a href="https://templates.accordproject.org" target='_blank'>Accord Project template library</a> (Search box at the top)</p>
+                  <p>Search a template from the <a href='https://templates.accordproject.org' target='_blank'>Accord Project template library</a> (Search box at the top)</p>
                   <p>Chose whether to edit the Natural Language or the Contract Logic (Tab on the left)</p>
                   <p>Edit the contract template and try it on a sample contract</p>
                   <p>Edit the Ergo contract logic and try it by executing a simple request</p>
@@ -580,7 +580,7 @@ class FormContainer extends Component {
               (<Menu fixed='top' inverted>
                  <Container>
                    <Menu.Item header>
-                     <Image size='mini' src='static/img/accordlogo.png' style={{ marginRight: '1.5em' }} />
+                     <Image size='mini' href='https://www.accordproject.org' src='static/img/accordlogo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
                      Accord Project &middot; Template Studio
                    </Menu.Item>
                    <Menu.Item>
@@ -590,22 +590,17 @@ class FormContainer extends Component {
                                selection
                                options={templates}
                                onChange={this.handleSelectTemplate}/>
-                     <Dropdown item text="Template" simple>
-                       <Dropdown.Menu>
-                         <NewButton clause={this.state.clause}/>
-                         <UploadButton clause={this.state.clause}/>
-                         <DownloadButton clause={this.state.clause}/>
-                       </Dropdown.Menu>
-                     </Dropdown>
-                     <Dropdown item text="Help" simple>
+                   </Menu.Item>
+                   <Menu.Item position='right'>
+                     <Dropdown item text='Help' simple position='right'>
                        <Dropdown.Menu>
                          <ModalAbout/>
                          <Header as='h4'>Documentation</Header>
                          <Menu.Item href='https://docs.accordproject.org/' target='_blank'>
-                           <Icon name="info"/> Accord Project Documentation
+                           <Icon name='info'/> Accord Project Documentation
                          </Menu.Item>
                          <Menu.Item href='https://docs.accordproject.org/docs/ergo-lang.html' target='_blank'>
-                           <Icon name="lab"/> Ergo Language Guide
+                           <Icon name='lab'/> Ergo Language Guide
                          </Menu.Item>
                        </Dropdown.Menu>
                      </Dropdown>
@@ -613,53 +608,61 @@ class FormContainer extends Component {
                  </Container>
                </Menu>);
         const viewMenu = () =>
-              (<Menu compact secondary vertical pointing>
+              (<Menu floated='right' compact secondary vertical pointing>
                  <Menu.Item name='legal' active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
-                   Natural Language <StatusIcon log={this.state.log.text}/>
+                   Natural Language
                  </Menu.Item>
                  <Menu.Item name='tech' active={this.state.activeItem === 'tech'} onClick={this.handleItemClick}>
-                   Contract Logic <StatusIcon log={this.state.log.logic}/>
+                   Contract Logic
                  </Menu.Item>
                  <Menu.Item name='metadata' active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
-                   Metadata <StatusIcon log={this.state.log.meta}/>
+                   Metadata
                  </Menu.Item>
                </Menu>);
         const templateForm = () =>
-              (<Segment inverted color='grey'>
-                 <Header>Current Template</Header>
-                 <Form inverted color='grey'>
-                   <Form.Field>
-                     <Input placeholder='Name'
+              (  <Card>
+                   <Card.Content>
+                     <Card.Header>Current Template</Card.Header>
+                     <StatusLabel log={this.state.log}/>
+                   </Card.Content>
+                   <Card.Content>
+                     <Input label={{ basic: true, content: 'Name' }} fluid placeholder='Name'
                             onChange={this.handleNameChange}
                             value={
                                 this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().name : ''
                             }></Input>
-                   </Form.Field>
-                   <Form.Field>
-                     <label>Version</label>
-                     <Input placeholder='Version'
+                     <br/>
+                     <Input label={{ basic: true, content: 'Version' }} fluid placeholder='Version'
                             onChange={this.handleVersionChange}
                             value={
                                 this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().version : ''
                             }></Input>
-                   </Form.Field>
-                 </Form>
-               </Segment>);
+                     <br/>
+                     <DownloadLabel clause={this.state.clause}/>
+                   </Card.Content>
+                 </Card>
+              );
         return (
             <div>
               {topMenu()}
               <Container style={{ marginTop: '7em' }}>
                 <Grid>
                   <Grid.Row>
-                    <Grid.Column width={3}>
-                      {viewMenu()}
-                      <Divider hidden/>
-                      <Divider hidden/>
-                      <Divider hidden/>
-                      <Divider hidden/>
-                      {templateForm()}
+                    <Grid.Column width={4}>
+                      <Grid>
+                        <Grid.Row>
+                          <Grid.Column>
+                            {viewMenu()}
+                          </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row>
+                          <Grid.Column>
+                            {templateForm()}
+                          </Grid.Column>
+                        </Grid.Row>
+                      </Grid>
                     </Grid.Column>
-                    <Grid.Column width={13}>
+                    <Grid.Column width={12}>
                       { this.state.activeItem === 'legal' ? legalTabs() : this.state.activeItem === 'tech' ? logicTabs() : metaTabs() }
                     </Grid.Column>
                   </Grid.Row>
