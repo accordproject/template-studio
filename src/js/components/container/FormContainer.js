@@ -593,7 +593,7 @@ class FormContainer extends Component {
                      <Label color='grey' pointing='left' as='a' href='https://templates.accordproject.org' target='_blank'>Load template<br/>from library</Label>
                    </Menu.Item>
                    <Menu.Item position='right'>
-                     <Dropdown item text='Help' simple position='right'>
+                     <Dropdown item text='Help' simple position='right' direction='left'>
                        <Dropdown.Menu>
                          <ModalAbout/>
                          <Header as='h4'>Documentation</Header>
