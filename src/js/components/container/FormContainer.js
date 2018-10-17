@@ -585,11 +585,12 @@ class FormContainer extends Component {
                    </Menu.Item>
                    <Menu.Item>
                      <Dropdown icon='search'
-                               placeholder='Template Search'
+                               placeholder='Search'
                                search
                                selection
                                options={templates}
                                onChange={this.handleSelectTemplate}/>
+                     <Label color='grey' pointing='left' as='a' href='https://templates.accordproject.org' target='_blank'>Load template<br/>from library</Label>
                    </Menu.Item>
                    <Menu.Item position='right'>
                      <Dropdown item text='Help' simple position='right'>
