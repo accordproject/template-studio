@@ -163,6 +163,7 @@ class FormContainer extends Component {
             options: { lineNumbers: false },
             activeItem: 'metadata',
             activeLegal: 'template',
+            activeModel: 'model',
             activeLogic: 'ergo',
             activeMeta: 'readme',
             clogic: { compiled: '', compiledLinked: '' },
@@ -186,6 +187,7 @@ class FormContainer extends Component {
         this.handleResponseChange = this.handleResponseChange.bind(this);
         this.handleEmitChange = this.handleEmitChange.bind(this);
         this.handleLegalTabChange = this.handleLegalTabChange.bind(this);
+        this.handleModelTabChange = this.handleModelTabChange.bind(this);
         this.handleLogicTabChange = this.handleLogicTabChange.bind(this);
         this.handleMetaTabChange = this.handleMetaTabChange.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
@@ -261,6 +263,11 @@ class FormContainer extends Component {
     handleLegalTabChange(e, { name }) {
         const state = this.state;
         state.activeLegal = name;
+        this.setState(state);
+    }
+    handleModelTabChange(e, { name }) {
+        const state = this.state;
+        state.activeModel = name;
         this.setState(state);
     }
     handleLogicTabChange(e, { name }) {
@@ -455,12 +462,7 @@ class FormContainer extends Component {
                   name='sample'
                   active={this.state.activeLegal === 'sample'}
                   onClick={this.handleLegalTabChange}
-                >Sample Contract</Menu.Item>
-                <Menu.Item
-                  name='model'
-                  active={this.state.activeLegal === 'model'}
-                  onClick={this.handleLegalTabChange}
-                >Data Model</Menu.Item>
+                >Test Contract</Menu.Item>
                 <Menu.Item
                   name='status'
                   active={this.state.activeLegal === 'status'}
@@ -477,11 +479,7 @@ class FormContainer extends Component {
                 this.state.activeLegal === 'sample' ?
                 <ParseForm text={text} grammar={grammar} log={log.text} data={data}
                            handleSampleChange={this.handleSampleChange}
-                           handleJSONChange={this.handleJSONChange}/> :
-                this.state.activeLegal === 'model' ?
-                <Tab.Pane>
-                  <ModelForm model={model} handleModelChange={this.handleModelChange}/>
-                </Tab.Pane> : <Status log={log}/> }
+                           handleJSONChange={this.handleJSONChange}/> : <Status log={log}/> }
             </div>
         );
         const logicTabs = () => (
@@ -495,12 +493,7 @@ class FormContainer extends Component {
                   name='execution'
                   active={this.state.activeLogic === 'execution'}
                   onClick={this.handleLogicTabChange}
-                >Contract Execution</Menu.Item>
-                <Menu.Item
-                  name='model'
-                  active={this.state.activeLogic === 'model'}
-                  onClick={this.handleLogicTabChange}
-                >Data Model</Menu.Item>
+                >Test Request</Menu.Item>
                 <Menu.Item
                   name='status'
                   active={this.state.activeLogic === 'status'}
@@ -520,8 +513,25 @@ class FormContainer extends Component {
                              handleResponseChange={this.handleResponseChange}
                              handleEmitChange={this.handleEmitChange}
                              handleRunLogic={this.handleRunLogic}
-                             handleInitLogic={this.handleInitLogic}/> :
-                this.state.activeLogic === 'model' ?
+                             handleInitLogic={this.handleInitLogic}/> : <Status log={log}/> }
+            </div>
+        );
+        const modelTabs = () => (
+            <div>
+              <Menu attached='top' tabular>
+                <Menu.Item
+                  name='model'
+                  active={this.state.activeModel === 'model'}
+                  onClick={this.handleModelTabChange}
+                >Data Model</Menu.Item>
+                <Menu.Item
+                  name='status'
+                  active={this.state.activeModel === 'status'}
+                  onClick={this.handleModelTabChange}
+                  position='right'
+                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
+              </Menu>
+              { this.state.activeModel === 'model' ?
                 <Tab.Pane>
                   <ModelForm model={model} handleModelChange={this.handleModelChange}/>
                 </Tab.Pane> : <Status log={log}/> }
@@ -655,6 +665,9 @@ class FormContainer extends Component {
                  <Menu.Item name='legal' active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
                    Natural Language
                  </Menu.Item>
+                 <Menu.Item name='model' active={this.state.activeItem === 'model'} onClick={this.handleItemClick}>
+                   Data Model
+                 </Menu.Item>
                  <Menu.Item name='tech' active={this.state.activeItem === 'tech'} onClick={this.handleItemClick}>
                    Contract Logic
                  </Menu.Item>
@@ -706,7 +719,10 @@ class FormContainer extends Component {
                       </Grid>
                     </Grid.Column>
                     <Grid.Column width={12}>
-                      { this.state.activeItem === 'legal' ? legalTabs() : this.state.activeItem === 'tech' ? logicTabs() : metaTabs() }
+                      { this.state.activeItem === 'legal' ? legalTabs()
+                        : this.state.activeItem === 'tech' ? logicTabs()
+                        : this.state.activeItem === 'model' ? modelTabs()
+                        : metaTabs() }
                     </Grid.Column>
                   </Grid.Row>
                 </Grid>

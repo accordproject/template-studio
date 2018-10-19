@@ -46,7 +46,7 @@ class ParseForm extends Form {
               />
               <Divider hidden/>
               <Form.Field>
-                <label>Deal Data (JSON)</label>
+                <label>Contract Data</label>
               </Form.Field>
               <InputJson
                 json={data}
