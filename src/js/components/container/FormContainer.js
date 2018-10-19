@@ -695,7 +695,7 @@ class FormContainer extends Component {
                  <Menu.Item name='model' active={this.state.activeItem === 'model'} onClick={this.handleItemClick}>
                    Data Model
                  </Menu.Item>
-                 <Menu.Item name='tech' active={this.state.activeItem === 'tech'} onClick={this.handleItemClick}>
+                 <Menu.Item name='logic' active={this.state.activeItem === 'logic'} onClick={this.handleItemClick}>
                    Contract Logic
                  </Menu.Item>
                  <Menu.Item name='metadata' active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
@@ -747,7 +747,7 @@ class FormContainer extends Component {
                     </Grid.Column>
                     <Grid.Column width={12}>
                       { this.state.activeItem === 'legal' ? legalTabs()
-                        : this.state.activeItem === 'tech' ? logicTabs()
+                        : this.state.activeItem === 'logic' ? logicTabs()
                         : this.state.activeItem === 'model' ? modelTabs()
                         : metaTabs() }
                     </Grid.Column>

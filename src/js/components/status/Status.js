@@ -65,25 +65,25 @@ const printErrors = (log) => (
 const ParseTable = (log) => (
     (parseFailure(log) ?
         <div>{printErrors(log.text)}</div>
-     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
+     : null)
 );
 
 const LogicTable = (log) => (
     (logicFailure(log) ?
         <div>{printErrors(log.logic)}</div>
-     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
+     : null)
 );
 
 const MetaTable = (log) => (
     (metaFailure(log) ?
         <div>{printErrors(log.meta)}</div>
-     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
+     : null)
 );
 
 const ExecuteTable = (log) => (
     (executeFailure(log) ?
         <div>{printErrors(log.execute)}</div>
-     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
+     : null)
 );
 
 const StatusLabel = ({ log }) => (
