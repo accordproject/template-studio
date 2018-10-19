@@ -258,7 +258,6 @@ class FormContainer extends Component {
         this.setState(parse(this.state, text));
     }
 
-
     handleLegalTabChange(e, { name }) {
         const state = this.state;
         state.activeLegal = name;
@@ -320,8 +319,19 @@ class FormContainer extends Component {
         // Emit should not be changed
     }
 
-    handleModelChange(text) {
-        // TBD
+    handleModelChange(editor,name,model) {
+        const state = this.state;
+        const oldmodel = state.model;
+        var newmodel = [];
+        for (const m of oldmodel) {
+            if (m.name === name) {
+                newmodel.push({name : name, content: model });
+            } else {
+                newmodel.push({name : m.name, content: m.content });
+            }
+        }
+        state.model = newmodel;
+        this.setState(compileLogic(editor,state.logic,state));
     }
 
     handleJSONChange(data) {
@@ -608,6 +618,38 @@ class FormContainer extends Component {
                    </Menu.Item>
                  </Container>
                </Menu>);
+        const bottomMenu = () =>
+              (<Menu fixed='bottom' color='grey' inverted>
+                 <Container>
+                   <Menu.Item header>
+                     <Image size='mini' href='https://www.accordproject.org' src='static/img/accordlogo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
+                     Accord Project &middot; Template Studio
+                   </Menu.Item>
+                   <Menu.Item>
+                     <Dropdown icon='search'
+                               placeholder='Search'
+                               search
+                               selection
+                               options={templates}
+                               onChange={this.handleSelectTemplate}/>
+                     <Label color='grey' pointing='left'>Load template<br/>from library</Label>
+                   </Menu.Item>
+                   <Menu.Item position='right'>
+                     <Dropdown item text='Help' simple position='right' direction='left'>
+                       <Dropdown.Menu>
+                         <ModalAbout/>
+                         <Header as='h4'>Documentation</Header>
+                         <Menu.Item href='https://docs.accordproject.org/' target='_blank'>
+                           <Icon name='info'/> Accord Project Documentation
+                         </Menu.Item>
+                         <Menu.Item href='https://docs.accordproject.org/docs/ergo-lang.html' target='_blank'>
+                           <Icon name='lab'/> Ergo Language Guide
+                         </Menu.Item>
+                       </Dropdown.Menu>
+                     </Dropdown>
+                   </Menu.Item>
+                 </Container>
+               </Menu>);
         const viewMenu = () =>
               (<Menu floated='right' compact secondary vertical pointing>
                  <Menu.Item name='legal' active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
@@ -668,6 +710,7 @@ class FormContainer extends Component {
                     </Grid.Column>
                   </Grid.Row>
                 </Grid>
+              {bottomMenu()}
               </Container>
             </div>
         );

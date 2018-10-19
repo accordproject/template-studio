@@ -30,8 +30,8 @@ class ModelForm extends Form {
         this.panesFromModel = this.panesFromModel.bind(this);
     }
 
-    handleModelChange(event) {
-        this.props.handleModelChange(event.target.value);
+    handleModelChange(editor,name,model) {
+        this.props.handleModelChange(editor,name,model);
     }
 
     panesFromModel(model) {
@@ -42,14 +42,14 @@ class ModelForm extends Form {
                              <Tab.Pane>
                                <InputErgo
                                  value={m.content}
-                                 handleErgoChange={this.handleModelChange}/>
+                                 handleErgoChange={(editor,model) => {this.handleModelChange(editor,m.name,model);}}/>
                              </Tab.Pane> });
         }
         return panes;
     }
     
     render() {
-        const { model } = this.props;
+        const { model, handleModelChange } = this.props;
         const panes = this.panesFromModel(model);
         return (
             <Form>
