@@ -23,11 +23,25 @@ import LogicForm from '../tabs/LogicForm';
 import CompileForm from '../tabs/CompileForm';
 import ParseForm from '../tabs/ParseForm';
 import ExecuteForm from '../tabs/ExecuteForm';
-import { Status, StatusIcon, StatusLabel } from '../status/Status';
+import {
+    parseFailure,
+    logicFailure,
+    metaFailure,
+    executeFailure,
+    templateFailure,
+    otherFailure,
+    anyFailure,
+    ParseStatus,
+    LogicStatus,
+    MetaStatus,
+    ExecuteStatus,
+    StatusLabel,
+    AllStatusLabel
+} from '../status/Status';
 import Options from '../status/Options';
 import { UploadButton, DownloadLabel, NewButton } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
-import { Button, Form, Container, Divider, Segment, Tab, Label, Header, Image, Input, Grid, Dropdown, Menu, Modal, Icon, Card } from 'semantic-ui-react';
+import { Button, Form, Container, Divider, Segment, Tab, Label, Header, Image, Input, Grid, Dropdown, Menu, Modal, Icon, Card, Message } from 'semantic-ui-react';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 
@@ -149,14 +163,11 @@ class FormContainer extends Component {
             readme: '',
             text: `[Please Select a Sample Template]`,
             data: 'null',
-            log: { text: 'Not yet parsed.', logic: 'Not yet compiled.', meta: 'Not yet loaded.' },
+            log: { text: 'Not yet parsed.', logic: 'Not yet compiled.', meta: 'Not yet loaded.', execute: '' },
             grammar: `[Please Select a Sample Template]`,
             model: `[Please Select a Sample Template]`,
             logic: `[Please Select a Sample Template]`,
-            request: JSON.stringify({
-                '$class': 'org.accordproject.helloworld.MyRequest',
-                'input': 'Accord Project'
-            },null,2),
+            request: 'null',
             cstate: 'null',
             response: JSON.stringify(null, null, 2),
             emit: '[]',
@@ -166,6 +177,7 @@ class FormContainer extends Component {
             activeModel: 'model',
             activeLogic: 'ergo',
             activeMeta: 'readme',
+            activeError: null,
             clogic: { compiled: '', compiledLinked: '' },
             markers: [] // For code mirror marking
         };
@@ -190,6 +202,7 @@ class FormContainer extends Component {
         this.handleModelTabChange = this.handleModelTabChange.bind(this);
         this.handleLogicTabChange = this.handleLogicTabChange.bind(this);
         this.handleMetaTabChange = this.handleMetaTabChange.bind(this);
+        this.handleErrorTabChange = this.handleErrorTabChange.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleVersionChange = this.handleVersionChange.bind(this);
     }
@@ -280,6 +293,11 @@ class FormContainer extends Component {
         state.activeMeta = name;
         this.setState(state);
     }
+    handleErrorTabChange(e, { name }) {
+        const state = this.state;
+        if (state.activeError === name) state.activeError = null; else state.activeError = name;
+        this.setState(state);
+    }
 
     handleGrammarChange(text) {
         const state = this.state;
@@ -339,6 +357,7 @@ class FormContainer extends Component {
         }
         state.model = newmodel;
         this.setState(compileLogic(editor,state.logic,state));
+//      this.setState(state);
     }
 
     handleJSONChange(data) {
@@ -372,19 +391,19 @@ class FormContainer extends Component {
             const cstate = JSON.parse(state.cstate);
             const response = runLogic(compiledLogic,contract,request,cstate);
             if (response.hasOwnProperty('left')) {
-                state.log.logic = 'Execution successful!';
+                state.log.execute = 'Execution successful!';
                 state.response = JSON.stringify(response.left.response,null,2);
                 state.cstate = JSON.stringify(response.left.state,null,2);
                 state.emit = JSON.stringify(response.left.emit,null,2);
             } else {
                 state.response = 'null';
                 state.emit = '[]';
-                state.log.logic = '[Ergo Error]' + JSON.stringify(response.right);
+                state.log.execute = '[Ergo Error]' + JSON.stringify(response.right);
             }
         } catch (error){
             state.response = 'null';
             state.emit = '[]';
-            state.log.logic = '[Cannot Run Template] ' + JSON.stringify(error.message);
+            state.log.execute = '[Cannot Run Template] ' + JSON.stringify(error.message);
         }
         this.setState(state);
     }
@@ -398,19 +417,19 @@ class FormContainer extends Component {
             const contract = JSON.parse(state.data);
             const response = runInit(compiledLogic,contract);
             if (response.hasOwnProperty('left')) {
-                state.log.logic = 'Execution successful!';
+                state.log.execute = 'Execution successful!';
                 state.response = JSON.stringify(response.left.response,null,2);
                 state.cstate = JSON.stringify(response.left.state,null,2);
                 state.emit = JSON.stringify(response.left.emit,null,2);
             } else {
                 state.response = 'null';
                 state.emit = '[]';
-                state.log.logic = '[Ergo Error]' + JSON.stringify(response.right);
+                state.log.execute = '[Ergo Error]' + JSON.stringify(response.right);
             }
         } catch (error){
             state.response = 'null';
             state.emit = '[]';
-            state.log.logic = '[Cannot Run Template] ' + JSON.stringify(error.message);
+            state.log.execute = '[Cannot Run Template] ' + JSON.stringify(error.message);
         }
         this.setState(state);
     }
@@ -429,7 +448,7 @@ class FormContainer extends Component {
             state.model = template.getModels();
             state.logic = template.getLogic();
             state.text = template.getMetadata().getSamples().default;
-            state.request = template.getMetadata().getRequest();
+            state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             state.log.text = 'Not yet parsed.';
             state.data = 'null';
             state = compileLogic(null,state.logic, state);
@@ -463,12 +482,10 @@ class FormContainer extends Component {
                   active={this.state.activeLegal === 'sample'}
                   onClick={this.handleLegalTabChange}
                 >Test Contract</Menu.Item>
-                <Menu.Item
-                  name='status'
-                  active={this.state.activeLegal === 'status'}
-                  onClick={this.handleLegalTabChange}
-                  position='right'
-                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
+                <Menu.Item href='https://docs.accordproject.org/docs/cicero-concepts.html#template-grammar' target='_blank'
+                  position='right'>
+                  <Icon name='info'/>
+                </Menu.Item>
               </Menu>
               { this.state.activeLegal === 'template' ?
                 <Tab.Pane attached='bottom'>
@@ -479,7 +496,7 @@ class FormContainer extends Component {
                 this.state.activeLegal === 'sample' ?
                 <ParseForm text={text} grammar={grammar} log={log.text} data={data}
                            handleSampleChange={this.handleSampleChange}
-                           handleJSONChange={this.handleJSONChange}/> : <Status log={log}/> }
+                           handleJSONChange={this.handleJSONChange}/> : null }
             </div>
         );
         const logicTabs = () => (
@@ -494,12 +511,10 @@ class FormContainer extends Component {
                   active={this.state.activeLogic === 'execution'}
                   onClick={this.handleLogicTabChange}
                 >Test Request</Menu.Item>
-                <Menu.Item
-                  name='status'
-                  active={this.state.activeLogic === 'status'}
-                  onClick={this.handleLogicTabChange}
-                  position='right'
-                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
+                <Menu.Item href='https://docs.accordproject.org/docs/cicero-concepts.html#template-logic' target='_blank'
+                  position='right'>
+                  <Icon name='info'/>
+                </Menu.Item>
               </Menu>
               { this.state.activeLogic === 'ergo' ?
                 <Tab.Pane attached='bottom'>
@@ -513,7 +528,7 @@ class FormContainer extends Component {
                              handleResponseChange={this.handleResponseChange}
                              handleEmitChange={this.handleEmitChange}
                              handleRunLogic={this.handleRunLogic}
-                             handleInitLogic={this.handleInitLogic}/> : <Status log={log}/> }
+                             handleInitLogic={this.handleInitLogic}/> : null }
             </div>
         );
         const modelTabs = () => (
@@ -524,17 +539,15 @@ class FormContainer extends Component {
                   active={this.state.activeModel === 'model'}
                   onClick={this.handleModelTabChange}
                 >Data Model</Menu.Item>
-                <Menu.Item
-                  name='status'
-                  active={this.state.activeModel === 'status'}
-                  onClick={this.handleModelTabChange}
-                  position='right'
-                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
+                <Menu.Item href='https://docs.accordproject.org/docs/cicero-concepts.html#template-model' target='_blank'
+                  position='right'>
+                  <Icon name='info'/>
+                </Menu.Item>
               </Menu>
               { this.state.activeModel === 'model' ?
                 <Tab.Pane>
                   <ModelForm model={model} handleModelChange={this.handleModelChange}/>
-                </Tab.Pane> : <Status log={log}/> }
+                </Tab.Pane> : null }
             </div>
         );
         const metaTabs = () => (
@@ -549,12 +562,10 @@ class FormContainer extends Component {
                   name='package'
                   active={this.state.activeMeta === 'package'}
                   onClick={this.handleMetaTabChange}>package.json</Menu.Item>
-                <Menu.Item
-                  name='status'
-                  active={this.state.activeMeta === 'status'}
-                  onClick={this.handleMetaTabChange}
-                  position='right'
-                >Errors &nbsp;<StatusIcon log={this.state.log}/></Menu.Item>
+                <Menu.Item href='https://docs.accordproject.org/docs/cicero-concepts.html#template-library' target='_blank'
+                  position='right'>
+                  <Icon name='info'/>
+                </Menu.Item>
               </Menu>
               { this.state.activeMeta === 'readme' ?
                 <Tab.Pane attached='bottom'>
@@ -566,8 +577,7 @@ class FormContainer extends Component {
                   <InputJson
                     json={this.state.package}
                     handleJSONChange={this.handlePackageChange}/>
-                </Tab.Pane> :
-                <Status log={log}/> }
+                </Tab.Pane> : null }
             </div>
         );
         const ModalAbout = () => (
@@ -629,37 +639,54 @@ class FormContainer extends Component {
                  </Container>
                </Menu>);
         const bottomMenu = () =>
-              (<Menu fixed='bottom' color='grey' inverted>
-                 <Container>
-                   <Menu.Item header>
-                     <Image size='mini' href='https://www.accordproject.org' src='static/img/accordlogo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
-                     Accord Project &middot; Template Studio
-                   </Menu.Item>
-                   <Menu.Item>
-                     <Dropdown icon='search'
-                               placeholder='Search'
-                               search
-                               selection
-                               options={templates}
-                               onChange={this.handleSelectTemplate}/>
-                     <Label color='grey' pointing='left'>Load template<br/>from library</Label>
-                   </Menu.Item>
-                   <Menu.Item position='right'>
-                     <Dropdown item text='Help' simple position='right' direction='left'>
-                       <Dropdown.Menu>
-                         <ModalAbout/>
-                         <Header as='h4'>Documentation</Header>
-                         <Menu.Item href='https://docs.accordproject.org/' target='_blank'>
-                           <Icon name='info'/> Accord Project Documentation
-                         </Menu.Item>
-                         <Menu.Item href='https://docs.accordproject.org/docs/ergo-lang.html' target='_blank'>
-                           <Icon name='lab'/> Ergo Language Guide
-                         </Menu.Item>
-                       </Dropdown.Menu>
-                     </Dropdown>
-                   </Menu.Item>
-                 </Container>
-               </Menu>);
+              (<Container>
+                 <Divider hidden/>
+                 <div className='ui bottom sticky fixed'>
+                   { this.state.activeError === 'parse' ? <ParseStatus log={log}/> :
+                     this.state.activeError === 'logic' ? <LogicStatus log={log}/> :
+                     this.state.activeError === 'meta' ? <MetaStatus log={log}/> :
+                     this.state.activeError === 'execute' ? <ExecuteStatus log={log}/> : null }
+                   <Menu attached='bottom'>
+                   <Container>
+                     <Menu.Item header>
+                       <AllStatusLabel log={this.state.log}/>
+                     </Menu.Item>
+                     { parseFailure(this.state.log) ?
+                       <Menu.Item
+                         name='parse'
+                         active={this.state.activeError === 'parse'}
+                         onClick={this.handleErrorTabChange}>
+                         <Icon name='warning sign' color='red'/>Natural Language
+                       </Menu.Item> : null }
+                     { logicFailure(this.state.log) ?
+                       <Menu.Item
+                         name='logic'
+                         active={this.state.activeError === 'logic'}
+                         onClick={this.handleErrorTabChange}>
+                         <Icon name='warning sign' color='red'/>Contract Logic
+                       </Menu.Item> : null }
+                     { metaFailure(this.state.log) ?
+                       <Menu.Item
+                         name='meta'
+                         active={this.state.activeError === 'meta'}
+                         onClick={this.handleErrorTabChange}>
+                         <Icon name='warning sign' color='red'/>Metadata
+                       </Menu.Item> : null }
+                     { templateFailure(log) && otherFailure(log) ?
+                       <Menu.Item header>
+                         &middot;
+                       </Menu.Item> : null }
+                       { executeFailure(this.state.log) ?
+                       <Menu.Item
+                         name='execute'
+                         active={this.state.activeError === 'execute'}
+                         onClick={this.handleErrorTabChange}>
+                         <Icon name='warning sign' color='red'/>Execution
+                       </Menu.Item> : null }
+                   </Container>
+                 </Menu>
+                 </div>
+               </Container>);
         const viewMenu = () =>
               (<Menu floated='right' compact secondary vertical pointing>
                  <Menu.Item name='legal' active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
@@ -701,7 +728,7 @@ class FormContainer extends Component {
         return (
             <div>
               {topMenu()}
-              <Container style={{ marginTop: '7em' }}>
+              <Container style={{ marginTop: '7em', marginBottom: '7em' }}>
                 <Grid>
                   <Grid.Row>
                     <Grid.Column width={4}>
@@ -726,8 +753,8 @@ class FormContainer extends Component {
                     </Grid.Column>
                   </Grid.Row>
                 </Grid>
-              {bottomMenu()}
               </Container>
+              {bottomMenu()}
             </div>
         );
     }

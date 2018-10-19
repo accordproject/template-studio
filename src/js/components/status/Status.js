@@ -18,80 +18,118 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Segment, Icon, Label, Message, Tab, Card } from 'semantic-ui-react';
 
-const isFailure = (log) => (
-    log.text.indexOf('success') == -1 || log.logic.indexOf('success') == -1 || log.meta.indexOf('success') == -1
+const parseFailure = (log) => (
+    log.text.indexOf('success') == -1
+);
+const logicFailure = (log) => (
+    log.logic.indexOf('success') == -1
+);
+const metaFailure = (log) => (
+    log.meta.indexOf('success') == -1
+);
+const executeFailure = (log) => (
+    log.execute.indexOf('success') == -1
 );
 
-const statusColor = (log) => (
-    log.indexOf('success') != -1 ? 'green' :
-        log.indexOf('error') != -1 || log.indexOf('Error') != -1 || log.indexOf('invalid') != -1 ? 'red' :
-        'grey'
+const templateFailure = (log) => (
+    parseFailure(log)
+        || logicFailure(log)
+        || metaFailure(log)
 );
-const statusIcon = (log) => (
-    log.indexOf('success') != -1 ? 'check' :
-        log.indexOf('error') != -1 || log.indexOf('Error') != -1 || log.indexOf('invalid') != -1 ? 'warning sign' :
-        'warning sign'
+const otherFailure = (log) => (
+    executeFailure(log)
 );
+
+const anyFailure = (log) => (
+    templateFailure(log)
+        || otherFailure(log)
+);
+
 const newlines = (log) => (log.split('\n').map(function(item, key) {
   return (
     <span key={key}>
       {item}
       <br/>
     </span>
-  )
+  );
 }));
 
-const printTextErrors = (log) => (
+const printErrors = (log) => (
     log.indexOf('success') == -1 ? 
-        <Message>
-          <Message.Header>Natural Language Error</Message.Header>
-          <Message.List><Segment>{newlines(log)}</Segment></Message.List>
+        <Message attached='top'>
+          <Message.List>{newlines(log)}</Message.List>
         </Message>
     : null
 );
 
-const printLogicErrors = (log) => (
-    log.indexOf('success') == -1 ? 
-        <Message>
-          <Message.Header>Contract Logic Error</Message.Header>
-          <Message.List><Segment>{newlines(log)}</Segment></Message.List>
-        </Message>
-    : null
+const ParseTable = (log) => (
+    (parseFailure(log) ?
+        <div>{printErrors(log.text)}</div>
+     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
 );
 
-const printMetaErrors = (log) => (
-    log.indexOf('success') == -1 ? 
-        <Message>
-          <Message.Header>Metadata Error</Message.Header>
-          <Message.List><Segment>{newlines(log)}</Segment></Message.List>
-        </Message>
-    : null
+const LogicTable = (log) => (
+    (logicFailure(log) ?
+        <div>{printErrors(log.logic)}</div>
+     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
 );
 
-const StatusTable = (log) => (
-    (log.text.indexOf('success') == -1 || log.logic.indexOf('success') == -1 || log.meta.indexOf('success') == -1) ?
-        <div>{printTextErrors(log.text)}{printLogicErrors(log.logic)}{printLogicErrors(log.meta)}</div>
-    : <Message><Message.Header>No Error</Message.Header></Message>
+const MetaTable = (log) => (
+    (metaFailure(log) ?
+        <div>{printErrors(log.meta)}</div>
+     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
 );
 
-const StatusIcon = ({ log }) => (
-    (isFailure(log)
-     ? <Icon name='warning sign' color='red'/>
-     : null)
+const ExecuteTable = (log) => (
+    (executeFailure(log) ?
+        <div>{printErrors(log.execute)}</div>
+     : <Message attached='top'><Message.Header>No Error</Message.Header></Message>)
 );
-StatusIcon.propTypes = {
-    log: PropTypes.object.isRequired
-};
 
 const StatusLabel = ({ log }) => (
-    (isFailure(log) ?
+    (templateFailure(log) ?
         <Card.Meta><Icon name='warning sign' color='red'/> Errors</Card.Meta>
      : <Card.Meta><Icon name='check' color='green'/> No Errors</Card.Meta>)
 );
 
-const Status = ({ log }) => StatusTable(log);
-Status.propTypes = {
+const AllStatusLabel = ({ log }) => (
+    (anyFailure(log) ?
+        <Card.Meta>Errors</Card.Meta>
+     : <Card.Meta><Icon name='check' color='green'/>No Errors</Card.Meta>)
+);
+
+const ParseStatus = ({ log }) => ParseTable(log);
+ParseStatus.propTypes = {
     log: PropTypes.object.isRequired
 };
 
-export { StatusIcon, Status, StatusLabel };
+const LogicStatus = ({ log }) => LogicTable(log);
+LogicStatus.propTypes = {
+    log: PropTypes.object.isRequired
+};
+
+const MetaStatus = ({ log }) => MetaTable(log);
+MetaStatus.propTypes = {
+    log: PropTypes.object.isRequired
+};
+
+const ExecuteStatus = ({ log }) => ExecuteTable(log);
+ExecuteStatus.propTypes = {
+    log: PropTypes.object.isRequired
+};
+
+export {
+    parseFailure,
+    logicFailure,
+    metaFailure,
+    executeFailure,
+    templateFailure,
+    otherFailure,
+    anyFailure,
+    ParseStatus,
+    LogicStatus,
+    MetaStatus,
+    ExecuteStatus,
+    StatusLabel,
+    AllStatusLabel
+};
