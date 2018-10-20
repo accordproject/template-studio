@@ -89,13 +89,13 @@ const ExecuteTable = (log) => (
 const StatusLabel = ({ log }) => (
     (templateFailure(log) ?
         <Card.Meta><Icon name='warning sign' color='red'/> Errors</Card.Meta>
-     : <Card.Meta><Icon name='check' color='green'/> No Errors</Card.Meta>)
+     : <Card.Meta><Icon name='check' color='green'/> Saved</Card.Meta>)
 );
 
 const AllStatusLabel = ({ log }) => (
     (anyFailure(log) ?
         <Card.Meta>Errors</Card.Meta>
-     : <Card.Meta><Icon name='check' color='green'/>No Errors</Card.Meta>)
+     : <Card.Meta>No Errors</Card.Meta>)
 );
 
 const ParseStatus = ({ log }) => ParseTable(log);

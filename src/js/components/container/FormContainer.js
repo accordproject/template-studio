@@ -117,26 +117,29 @@ function generateText(input_state,data) {
 
 function compileLogic(editor,logic,state) {
     const model = state.model;
-    const compiledLogic = Ergo.compileToJavaScript(logic,model,'cicero',false);
-    state.markers.forEach(marker => marker.clear());
-    state.markers = [];
-    if (compiledLogic.hasOwnProperty('error')) {
-        const error = compiledLogic.error;
-        state.log.logic = error.verbose;
-        state.logic = logic;
-        if (editor) {
-            console.log('ERROR'+JSON.stringify(error));
-            state.markers.push
-            (editor.markText({line:error.locstart.line-1,ch:error.locstart.character},
-                             {line:error.locend.line-1,ch:error.locend.character+1},
-                             {className: 'syntax-error', title: error.verbose}));
+    try {
+        const compiledLogic = Ergo.compileToJavaScript(logic,model,'cicero',false);
+        state.markers.forEach(marker => marker.clear());
+        state.markers = [];
+        if (compiledLogic.hasOwnProperty('error')) {
+            const error = compiledLogic.error;
+            state.log.logic = error.verbose;
+            if (editor) {
+                console.log('ERROR'+JSON.stringify(error));
+                state.markers.push
+                (editor.markText({line:error.locstart.line-1,ch:error.locstart.character},
+                                 {line:error.locend.line-1,ch:error.locend.character+1},
+                                 {className: 'syntax-error', title: error.verbose}));
+            }
+        } else {
+            const compiledLogicLinked = Ergo.compileToJavaScript(logic,model,'cicero',true);
+            state.clogic = { compiled: compiledLogic.success, compiledLinked : compiledLogicLinked.success };
+            state.log.logic = 'Compilation successful';
         }
-    } else {
-        const compiledLogicLinked = Ergo.compileToJavaScript(logic,model,'cicero',true);
-        state.clogic = { compiled: compiledLogic.success, compiledLinked : compiledLogicLinked.success };
-        state.logic = logic;
-        state.log.logic = 'Compilation successful';
+    } catch (error) {
+        state.log.logic = 'Compilation error ' + error.message;
     }
+    state.logic = logic;
     return state;
 }
 
@@ -152,6 +155,13 @@ function runInit(compiledLogic,contract) {
 	  const clauseCall = 'init(params);'; // Create the clause call
     const response = eval(compiledLogic + clauseCall); // Call the logic
     return response;
+}
+
+function updateModel(clause,name,content) {
+    console.log('Updating model' + name);
+    const modelManager = clause.getTemplate().getModelManager();
+    modelManager.updateModelFile(content,name,true);
+    return clause;
 }
 
 class FormContainer extends Component {
@@ -329,17 +339,14 @@ class FormContainer extends Component {
         state.request = text;
         return this.setState(state);
     }
-
+    handleResponseChange(text) {
+        // Response should not be changed
+    }
     handleStateChange(text) {
         const state = this.state;
         state.cstate = text;
         return this.setState(state); 
     }
-
-    handleResponseChange(text) {
-        // Response should not be changed
-    }
-
     handleEmitChange(text) {
         // Emit should not be changed
     }
@@ -350,14 +357,19 @@ class FormContainer extends Component {
         var newmodel = [];
         for (const m of oldmodel) {
             if (m.name === name) {
+                try {
+                    state.clause = updateModel(state.clause,name,model);
+                } catch (error) {
+                    state.log.text = "Cannot load model" + error.message;
+                }
                 newmodel.push({name : name, content: model });
+                state.log.text = "Load model successful";
             } else {
                 newmodel.push({name : m.name, content: m.content });
             }
         }
         state.model = newmodel;
         this.setState(compileLogic(editor,state.logic,state));
-//      this.setState(state);
     }
 
     handleJSONChange(data) {
