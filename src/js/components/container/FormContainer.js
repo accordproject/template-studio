@@ -82,7 +82,7 @@ function getTemplates() {
 }
 const templates = getTemplates();
 
-function parse(input_state,text) {
+function parseSample(input_state,text) {
     const state = input_state;
     const clause = input_state.clause;
     try {
@@ -280,7 +280,7 @@ class FormContainer extends Component {
 
     handleSampleChange(text) {
         const state = this.state;
-        this.setState(parse(this.state, text));
+        this.setState(parseSample(this.state, text));
     }
 
     handleLegalTabChange(e, { name }) {
@@ -369,6 +369,7 @@ class FormContainer extends Component {
             }
         }
         state.model = newmodel;
+        this.setState(parseSample(state, state.text));
         this.setState(compileLogic(editor,state.logic,state));
     }
 
