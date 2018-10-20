@@ -157,11 +157,16 @@ function runInit(compiledLogic,contract) {
     return response;
 }
 
+function updateSample(clause,sample) {
+    console.log('Updating sample' + sample);
+    const template = clause.getTemplate();
+    const samples = template.getMetadata().getSamples();
+    samples.default = sample;
+    template.setSamples(samples);
+}
 function updateModel(clause,name,content) {
-    console.log('Updating model' + name);
     const modelManager = clause.getTemplate().getModelManager();
     modelManager.updateModelFile(content,name,true);
-    return clause;
 }
 
 class FormContainer extends Component {
@@ -280,6 +285,8 @@ class FormContainer extends Component {
 
     handleSampleChange(text) {
         const state = this.state;
+        const clause = state.clause;
+        updateSample(clause,text);
         this.setState(parseSample(this.state, text));
     }
 
@@ -358,7 +365,7 @@ class FormContainer extends Component {
         for (const m of oldmodel) {
             if (m.name === name) {
                 try {
-                    state.clause = updateModel(state.clause,name,model);
+                    updateModel(state.clause,name,model);
                 } catch (error) {
                     state.log.text = "Cannot load model" + error.message;
                 }
