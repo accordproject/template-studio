@@ -31,3 +31,14 @@ span.response { color: green; }
 .ui.footer {
     text-align: right;
 }
+.github-fork-ribbon.right-top:before {
+    background-color: #008B8B;
+}
+.ui.color1 {
+  background-color: #008B8B;
+}
+.syntax-error {
+    width:200px;
+    border-bottom:2px solid red;
+    padding-bottom:2px;
+}

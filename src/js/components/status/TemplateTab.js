@@ -16,48 +16,57 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Icon, Table, Label, Button, Form, Modal } from 'semantic-ui-react';
+import { Icon, Label, Dropdown } from 'semantic-ui-react';
 import saveAs from 'file-saver';
 require("babel-core/register");
 require("babel-polyfill");
 
-class DownloadButton extends Button {
+class DownloadLabel extends Label {
     constructor(props) {
         super(props);
+        this.handleStatusChange = this.handleStatusChange.bind(this);
         this.downloadCta = this.downloadCta.bind(this);
     }
-    async downloadCta(name,clause) {
+    handleStatusChange(status) {
+        this.props.handleStatusChange(status);
+    }
+    async downloadCta(clause) {
         if (clause !== null) {
-            var cta = await clause.getTemplate().toArchive();
+            const template = clause.getTemplate();
+            const name = template.getMetadata().getName();
+            const cta = await template.toArchive();
             var blob = new Blob([cta], {type: "application/zip"});
             saveAs(blob, name);
+            this.handleStatusChange('saved');
         } else {
             console.log("CLAUSE MISSING!");
         }
     }
-    render() { return (<Button animated onClick={() => this.downloadCta(this.props.name,this.props.clause)}><Button.Content hidden>Download</Button.Content><Button.Content visible><Icon name='download'/></Button.Content></Button>); }
+    render() {
+        return (<Label color='blue' onClick={() => this.downloadCta(this.props.clause)}>
+                  <Icon name="download"/> Download</Label>); }
 }
 
-class UploadButton extends Button {
+class UploadButton extends Dropdown {
     constructor(props) {
         super(props);
         this.uploadCta = this.uploadCta.bind(this);
     }
-    async uploadCta(name,clause) {
+    async uploadCta(clause) {
         console.log("Upload TBD!");
     }
-    render() { return <Button animated onClick={() => this.uploadCta(this.props.name,this.props.clause)}><Button.Content hidden>Upload</Button.Content><Button.Content visible><Icon name='upload'/></Button.Content></Button>; }
+    render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.clause)}><Icon name="upload"/> Upload</Dropdown.Item>; }
 }
 
-class NewButton extends Button {
+class NewButton extends Dropdown {
     constructor(props) {
         super(props);
-        this.uploadCta = this.uploadCta.bind(this);
+        this.newCta = this.newCta.bind(this);
     }
-    async uploadCta(name,clause) {
+    async newCta(clause) {
         console.log("New TBD!");
     }
-    render() { return <Button animated onClick={() => this.uploadCta(this.props.name,this.props.clause)}><Button.Content hidden>New</Button.Content><Button.Content visible><Icon name='pencil'/></Button.Content></Button>; }
+    render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}><Icon name="add"/> New</Dropdown.Item>; }
 }
 
-export { UploadButton, DownloadButton, NewButton };
+export { DownloadLabel, UploadButton, NewButton };

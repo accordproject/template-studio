@@ -32,10 +32,10 @@ class CompileForm extends Form {
     render() {
         const { compiledLogic, handleCompiledChange } = this.props;
         return (<Tab.Pane>
-           <InputJs
-             js={compiledLogic}
-             handleJSChange={this.handleCompiledChange}/>
-         </Tab.Pane>);
+                  <InputJs
+                    js={compiledLogic}
+                    handleJSChange={this.handleCompiledChange}/>
+                </Tab.Pane>);
     }
 }
 
