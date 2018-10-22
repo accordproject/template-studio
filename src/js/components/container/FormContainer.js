@@ -107,6 +107,7 @@ function generateText(input_state,data) {
         const text = clause.generateText();
         state.text = text;
         state.data = data;
+        updateSample(clause,text);
         state.log.text = 'GenerateText successful!';
     } catch (error){
         state.data = data;
@@ -158,7 +159,7 @@ function runInit(compiledLogic,contract) {
 }
 
 function updateSample(clause,sample) {
-    console.log('Updating sample' + sample);
+    //console.log('Updating sample' + sample);
     const template = clause.getTemplate();
     const samples = template.getMetadata().getSamples();
     samples.default = sample;
@@ -167,6 +168,11 @@ function updateSample(clause,sample) {
 function updateModel(clause,name,content) {
     const modelManager = clause.getTemplate().getModelManager();
     modelManager.updateModelFile(content,name,true);
+}
+function updateLogic(clause,name,content) {
+    //console.log('updating script to' + content);
+    const scriptManager = clause.getTemplate().getScriptManager();
+    scriptManager.modifyScript(name,'.ergo',content);
 }
 
 class FormContainer extends Component {
@@ -367,10 +373,10 @@ class FormContainer extends Component {
                 try {
                     updateModel(state.clause,name,model);
                 } catch (error) {
-                    state.log.text = "Cannot load model" + error.message;
+                    state.log.text = 'Cannot load model' + error.message;
                 }
                 newmodel.push({name : name, content: model });
-                state.log.text = "Load model successful";
+                state.log.text = 'Load model successful';
             } else {
                 newmodel.push({name : m.name, content: m.content });
             }
@@ -393,11 +399,18 @@ class FormContainer extends Component {
         var newlogic = [];
         for (const m of oldlogic) {
             if (m.name === name) {
+                try {
+                    updateLogic(state.clause,name,logic);
+                } catch (error) {
+                    console.log('Cannot compile new logic' + logic);
+                    state.log.text = 'Cannot compile new logic' + error.message;
+                }
                 newlogic.push({name : name, content: logic });
             } else {
                 newlogic.push({name : m.name, content: m.content });
             }
         }
+        this.setState(parseSample(state, state.text));
         this.setState(compileLogic(editor,newlogic,state));
     }
 
@@ -465,7 +478,7 @@ class FormContainer extends Component {
             state.clause = new Clause(template);
             state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
             state.grammar = template.getTemplatizedGrammar();
-            state.model = template.getModels();
+            state.model = template.getModelManager().getModels();
             state.logic = template.getLogic();
             state.text = template.getMetadata().getSamples().default;
             state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
