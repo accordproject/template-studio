@@ -21,7 +21,6 @@
     "codemirror": "^5.40.2",
     "file-saver": "^2.0.0-rc.3",
     "lodash": "^4.17.4",
-    "nearley": "2.13.0",
     "randexp": "^0.4.6",
     "re-resizable": "^4.9.0",
     "react": "^16.0.0",
