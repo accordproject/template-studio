@@ -39,9 +39,29 @@ import {
     AllStatusLabel
 } from '../status/Status';
 import Options from '../status/Options';
-import { UploadButton, DownloadLabel, NewButton } from '../status/TemplateTab';
+import {
+    UploadButton,
+    DownloadLabel,
+    NewButton
+} from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
-import { Button, Form, Container, Divider, Segment, Tab, Label, Header, Image, Input, Grid, Dropdown, Menu, Modal, Icon, Card, Message } from 'semantic-ui-react';
+import {
+    Form,
+    Container,
+    Divider,
+    Tab,
+    Label,
+    Header,
+    Image,
+    Input,
+    Grid,
+    Dropdown,
+    Menu,
+    Modal,
+    Icon,
+    Card,
+    Confirm
+} from 'semantic-ui-react';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 
@@ -107,7 +127,9 @@ function generateText(input_state,data) {
         const text = clause.generateText();
         state.text = text;
         state.data = data;
-        updateSample(clause,text);
+        if (updateSample(clause,text)) {
+            state.status = 'changed';
+        }
         state.log.text = 'GenerateText successful!';
     } catch (error){
         state.data = data;
@@ -162,17 +184,32 @@ function updateSample(clause,sample) {
     //console.log('Updating sample' + sample);
     const template = clause.getTemplate();
     const samples = template.getMetadata().getSamples();
-    samples.default = sample;
-    template.setSamples(samples);
+    if (samples.default !== sample) {
+        samples.default = sample;
+        template.setSamples(samples);
+        return true;
+    } else {
+        return false;
+    }
 }
 function updateModel(clause,name,content) {
     const modelManager = clause.getTemplate().getModelManager();
-    modelManager.updateModelFile(content,name,true);
+    if (modelManager.getModelFile(name).definitions !== content) {
+        modelManager.updateModelFile(content,name,true);
+        return true;
+    } else {
+        return false;
+    }
 }
 function updateLogic(clause,name,content) {
     //console.log('updating script to' + content);
     const scriptManager = clause.getTemplate().getScriptManager();
-    scriptManager.modifyScript(name,'.ergo',content);
+    if (scriptManager.getScript(name).getContents() !== content) {
+        scriptManager.modifyScript(name,'.ergo',content);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 class FormContainer extends Component {
@@ -200,8 +237,11 @@ class FormContainer extends Component {
             activeMeta: 'readme',
             activeError: null,
             clogic: { compiled: '', compiledLinked: '' },
+            status: 'empty',
+            confirm: { flag: false, temp: null },
             markers: [] // For code mirror marking
         };
+        this.handleStatusChange = this.handleStatusChange.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -213,6 +253,8 @@ class FormContainer extends Component {
         this.handleInitLogic = this.handleInitLogic.bind(this);
         this.handleCompileChange = this.handleCompileChange.bind(this);
         this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
+        this.handleSelectTemplateConfirmed = this.handleSelectTemplateConfirmed.bind(this);
+        this.handleSelectTemplateAborted = this.handleSelectTemplateAborted.bind(this);
         this.loadTemplate = this.loadTemplate.bind(this);
         this.handleItemClick = this.handleItemClick.bind(this);
         this.handleRequestChange = this.handleRequestChange.bind(this);
@@ -228,6 +270,11 @@ class FormContainer extends Component {
         this.handleVersionChange = this.handleVersionChange.bind(this);
     }
 
+    handleStatusChange(status) {
+        const state = this.state;
+        state.status = status;
+        this.setState(state);
+    }
     handlePackageChange(text) {
         const state = this.state;
         try {
@@ -277,8 +324,12 @@ class FormContainer extends Component {
         const state = this.state;
         try {
             const readme = text;
-            state.clause.getTemplate().setReadme(readme);
-            state.readme = readme
+            const template = state.clause.getTemplate();
+            if (template.getMetadata().getREADME() != text) {
+                state.status = 'changed';
+                template.setReadme(readme);
+            }
+            state.readme = readme;
             state.log.meta = 'README change successful!';
             this.setState(state);
         } catch (error){
@@ -292,7 +343,9 @@ class FormContainer extends Component {
     handleSampleChange(text) {
         const state = this.state;
         const clause = state.clause;
-        updateSample(clause,text);
+        if (updateSample(clause,text)) {
+            state.status = 'changed';
+        }
         this.setState(parseSample(this.state, text));
     }
 
@@ -329,6 +382,7 @@ class FormContainer extends Component {
                 state.data = JSON.stringify(state.clause.getData(),null,2);
                 state.log.text = 'Grammar change successful!';
                 state.grammar = text;
+                state.status = 'changed';
                 if (state.data !== 'null') {
                     const template = state.clause.getTemplate();
                     state.clause.getTemplate().buildGrammar(text);
@@ -371,12 +425,14 @@ class FormContainer extends Component {
         for (const m of oldmodel) {
             if (m.name === name) {
                 try {
-                    updateModel(state.clause,name,model);
+                    if (updateModel(state.clause,name,model)) {
+                        state.status = 'changed';
+                        state.log.text = 'Load model successful';
+                    }
                 } catch (error) {
                     state.log.text = 'Cannot load model' + error.message;
                 }
                 newmodel.push({name : name, content: model });
-                state.log.text = 'Load model successful';
             } else {
                 newmodel.push({name : m.name, content: m.content });
             }
@@ -400,7 +456,9 @@ class FormContainer extends Component {
         for (const m of oldlogic) {
             if (m.name === name) {
                 try {
-                    updateLogic(state.clause,name,logic);
+                    if (updateLogic(state.clause,name,logic)) {
+                        state.status = 'changed';
+                    }
                 } catch (error) {
                     console.log('Cannot compile new logic' + logic);
                     state.log.text = 'Cannot compile new logic' + error.message;
@@ -467,8 +525,27 @@ class FormContainer extends Component {
         this.setState(state);
     }
 
+    handleSelectTemplateConfirmed() {
+        const state = this.state;
+        const data = state.confirm.temp;
+        state.confirm = { flag: false, temp: null };
+        this.loadTemplate(data);
+    }
+
+    handleSelectTemplateAborted(event, data) {
+        const state = this.state;
+        state.confirm = { flag: false, temp: null };
+        this.setState(state);
+    }
+
     handleSelectTemplate(event, data) {
-        this.loadTemplate(data.value);
+        const state = this.state;
+        if (state.status === 'changed') {
+            state.confirm = { flag: true, temp: data.value };
+            this.setState(state);
+        } else {
+            this.loadTemplate(data.value);
+        }
     }
 
     loadTemplate(templateName) {
@@ -484,6 +561,7 @@ class FormContainer extends Component {
             state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             state.log.text = 'Not yet parsed.';
             state.data = 'null';
+            state.status = 'loaded';
             state = compileLogic(null,state.logic, state);
             this.setState(state);
             this.handleSampleChange(state.text);
@@ -495,6 +573,13 @@ class FormContainer extends Component {
 
     componentDidMount() {
         this.loadTemplate('helloworld@0.6.0');
+    }
+    componentDidUpdate () {
+        if (this.state.status === 'changed') {
+            window.onbeforeunload = () => true;
+        } else {
+            window.onbeforeunload = undefined;
+        }
     }
     handleItemClick(e, { name }) {
         const state = this.state;
@@ -647,6 +732,7 @@ class FormContainer extends Component {
                      Accord Project &middot; Template Studio
                    </Menu.Item>
                    <Menu.Item>
+                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Download button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
                      <Dropdown icon='search'
                                placeholder='Search'
                                search
@@ -739,7 +825,7 @@ class FormContainer extends Component {
               (  <Card>
                    <Card.Content>
                      <Card.Header>Current Template</Card.Header>
-                     <StatusLabel log={this.state.log}/>
+                     <StatusLabel log={this.state.log} status={this.state.status}/>
                    </Card.Content>
                    <Card.Content>
                      <Input label={{ basic: true, content: 'Name' }} fluid placeholder='Name'
@@ -754,7 +840,7 @@ class FormContainer extends Component {
                                 this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().version : ''
                             }></Input>
                      <br/>
-                     <DownloadLabel clause={this.state.clause}/>
+                     <DownloadLabel handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
                    </Card.Content>
                  </Card>
               );

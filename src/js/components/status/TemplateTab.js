@@ -24,7 +24,11 @@ require("babel-polyfill");
 class DownloadLabel extends Label {
     constructor(props) {
         super(props);
+        this.handleStatusChange = this.handleStatusChange.bind(this);
         this.downloadCta = this.downloadCta.bind(this);
+    }
+    handleStatusChange(status) {
+        this.props.handleStatusChange(status);
     }
     async downloadCta(clause) {
         if (clause !== null) {
@@ -33,6 +37,7 @@ class DownloadLabel extends Label {
             const cta = await template.toArchive();
             var blob = new Blob([cta], {type: "application/zip"});
             saveAs(blob, name);
+            this.handleStatusChange('saved');
         } else {
             console.log("CLAUSE MISSING!");
         }

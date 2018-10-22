@@ -86,10 +86,13 @@ const ExecuteTable = (log) => (
      : null)
 );
 
-const StatusLabel = ({ log }) => (
-    (templateFailure(log) ?
-        <Card.Meta><Icon name='warning sign' color='red'/> Errors</Card.Meta>
-     : <Card.Meta><Icon name='check' color='green'/> Saved</Card.Meta>)
+const StatusLabel = ({ status, log }) => (
+    (anyFailure(log) ? <Card.Meta><Icon name='warning sign' color='red'/> Errors</Card.Meta>
+     : status === 'changed' ? <Card.Meta><Icon name='edit' color='orange'/> Changed</Card.Meta>
+     : status === 'empty' ? <Card.Meta><Icon name='check' color='grey'/> Loading</Card.Meta>
+     : status === 'loaded' ? <Card.Meta><Icon name='check' color='green'/> Loaded</Card.Meta>
+     : status === 'saved' ? <Card.Meta><Icon name='check' color='green'/> Saved</Card.Meta>
+     : <Card.Meta><Icon name='question' color='grey'/> Unknown</Card.Meta>)
 );
 
 const AllStatusLabel = ({ log }) => (
