@@ -61,7 +61,10 @@ import {
     Modal,
     Icon,
     Card,
-    Confirm
+    Confirm,
+    Dimmer,
+    Loader,
+    Segment
 } from 'semantic-ui-react';
 
 import ModelFile from 'composer-concerto/lib/introspect/modelfile';
@@ -138,7 +141,7 @@ function generateText(input_state,data) {
         state.log.text = 'GenerateText successful!';
     } catch (error){
         state.data = data;
-        state.log.text = '[Instantiate Contract] ' + error.log;
+        state.log.text = '[Instantiate Contract] ' + error.message;
     }
     return state;
 }
@@ -244,6 +247,7 @@ class FormContainer extends Component {
             activeError: null,
             clogic: { compiled: '', compiledLinked: '' },
             status: 'empty',
+            loading: false,
             confirm: { flag: false, temp: null },
             markers: [] // For code mirror marking
         };
@@ -542,7 +546,6 @@ class FormContainer extends Component {
     }
 
     handleSelectTemplateConfirmed() {
-        const state = this.state;
         const data = state.confirm.temp;
         state.confirm = { flag: false, temp: null };
         this.loadTemplate(data);
@@ -566,6 +569,8 @@ class FormContainer extends Component {
 
     loadTemplate(templateName) {
         let state = this.state;
+        state.loading = true;
+        this.setState(state);
         Template.fromUrl(ROOT_URI+'/static/archives/'+templateName+'.cta').then((template) => { 
             console.log('Loaded template: ' + template.getIdentifier());
             state.templateName = templateName;
@@ -585,6 +590,8 @@ class FormContainer extends Component {
             this.handleLogicChange(null,state,state.logic);
             this.handlePackageChange(state.package);
             this.handleInitLogic(); // Initializes the contract state
+            state.loading = false;
+            this.setState(state);
         });
     }
 
@@ -604,7 +611,7 @@ class FormContainer extends Component {
         this.setState(state);
     }
     render() {
-        const { text, grammar, model, logic, clogic, log, data, request, cstate, response, emit } = this.state;
+        const { text, grammar, model, logic, clogic, log, data, request, cstate, response, emit, loading } = this.state;
         const legalTabs = () => (
             <div>
               <Menu attached='top' tabular>
@@ -862,35 +869,43 @@ class FormContainer extends Component {
                    </Card.Content>
                  </Card>
               );
+        const dimmableContainer = () => (
+              <Container style={{ marginTop: '7em', marginBottom: '7em' }}>
+                <Dimmer.Dimmable dimmed={loading}>
+                  <Dimmer active={loading} inverted>
+                    <Loader>Loading Template</Loader>
+                  </Dimmer>
+                  <Grid>
+                    <Grid.Row>
+                      <Grid.Column width={4}>
+                        <Grid>
+                          <Grid.Row>
+                            <Grid.Column>
+                              {viewMenu()}
+                            </Grid.Column>
+                          </Grid.Row>
+                          <Grid.Row>
+                            <Grid.Column>
+                              {templateForm()}
+                            </Grid.Column>
+                          </Grid.Row>
+                        </Grid>
+                      </Grid.Column>
+                      <Grid.Column width={12}>
+                        { this.state.activeItem === 'legal' ? legalTabs()
+                          : this.state.activeItem === 'logic' ? logicTabs()
+                          : this.state.activeItem === 'model' ? modelTabs()
+                          : metaTabs() }
+                      </Grid.Column>
+                    </Grid.Row>
+                  </Grid>
+                </Dimmer.Dimmable>
+              </Container>
+        );
         return (
             <div>
               {topMenu()}
-              <Container style={{ marginTop: '7em', marginBottom: '7em' }}>
-                <Grid>
-                  <Grid.Row>
-                    <Grid.Column width={4}>
-                      <Grid>
-                        <Grid.Row>
-                          <Grid.Column>
-                            {viewMenu()}
-                          </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row>
-                          <Grid.Column>
-                            {templateForm()}
-                          </Grid.Column>
-                        </Grid.Row>
-                      </Grid>
-                    </Grid.Column>
-                    <Grid.Column width={12}>
-                      { this.state.activeItem === 'legal' ? legalTabs()
-                        : this.state.activeItem === 'logic' ? logicTabs()
-                        : this.state.activeItem === 'model' ? modelTabs()
-                        : metaTabs() }
-                    </Grid.Column>
-                  </Grid.Row>
-                </Grid>
-              </Container>
+              {dimmableContainer()}
               {bottomMenu()}
             </div>
         );
