@@ -41,7 +41,8 @@ import {
 import Options from '../status/Options';
 import {
     UploadButton,
-    DownloadLabel,
+    ResetButton,
+    DownloadButton,
     NewButton
 } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
@@ -62,16 +63,20 @@ import {
     Card,
     Confirm
 } from 'semantic-ui-react';
+
+import ModelFile from 'composer-concerto/lib/introspect/modelfile';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
+import semver from 'semver';
 
 import * as templateLibrary from '@accordproject/cicero-template-library/build/template-library.json';
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
 import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
-const semver = require('semver');
 
 const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
+
+const DEFAULT_TEMPLATE = 'helloworld@0.6.0';
 
 function getTemplates() {
     var templates = [];
@@ -192,9 +197,10 @@ function updateSample(clause,sample) {
         return false;
     }
 }
-function updateModel(clause,name,content) {
+function updateModel(clause,name,oldcontent,content) {
     const modelManager = clause.getTemplate().getModelManager();
-    if (modelManager.getModelFile(name).definitions !== content) {
+    if (oldcontent !== content) {
+        modelManager.validateModelFile(content,name);
         modelManager.updateModelFile(content,name,true);
         return true;
     } else {
@@ -202,7 +208,6 @@ function updateModel(clause,name,content) {
     }
 }
 function updateLogic(clause,name,content) {
-    //console.log('updating script to' + content);
     const scriptManager = clause.getTemplate().getScriptManager();
     if (scriptManager.getScript(name).getContents() !== content) {
         scriptManager.modifyScript(name,'.ergo',content);
@@ -216,6 +221,7 @@ class FormContainer extends Component {
     constructor() {
         super();
         this.state = {
+            templateName: null,
             clause: null,
             package: 'null',
             readme: '',
@@ -242,6 +248,7 @@ class FormContainer extends Component {
             markers: [] // For code mirror marking
         };
         this.handleStatusChange = this.handleStatusChange.bind(this);
+        this.handleResetChange = this.handleResetChange.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -274,6 +281,9 @@ class FormContainer extends Component {
         const state = this.state;
         state.status = status;
         this.setState(state);
+    }
+    handleResetChange() {
+        this.loadTemplate(this.state.templateName);
     }
     handlePackageChange(text) {
         const state = this.state;
@@ -422,14 +432,17 @@ class FormContainer extends Component {
         const state = this.state;
         const oldmodel = state.model;
         var newmodel = [];
+        let modelfails = false;
         for (const m of oldmodel) {
             if (m.name === name) {
                 try {
-                    if (updateModel(state.clause,name,model)) {
+                    if (updateModel(state.clause,name,m.content,model)) {
                         state.status = 'changed';
                         state.log.text = 'Load model successful';
                     }
                 } catch (error) {
+                    modelfails = true;
+                    console.log('ERROR!' + error.message);
                     state.log.text = 'Cannot load model' + error.message;
                 }
                 newmodel.push({name : name, content: model });
@@ -438,8 +451,12 @@ class FormContainer extends Component {
             }
         }
         state.model = newmodel;
-        this.setState(parseSample(state, state.text));
-        this.setState(compileLogic(editor,state.logic,state));
+        if (!modelfails) {
+            this.setState(parseSample(state, state.text));
+            this.setState(compileLogic(editor,state.logic,state));
+        } else {
+            this.setState(state);
+        }
     }
 
     handleJSONChange(data) {
@@ -460,7 +477,6 @@ class FormContainer extends Component {
                         state.status = 'changed';
                     }
                 } catch (error) {
-                    console.log('Cannot compile new logic' + logic);
                     state.log.text = 'Cannot compile new logic' + error.message;
                 }
                 newlogic.push({name : name, content: logic });
@@ -552,6 +568,7 @@ class FormContainer extends Component {
         let state = this.state;
         Template.fromUrl(ROOT_URI+'/static/archives/'+templateName+'.cta').then((template) => { 
             console.log('Loaded template: ' + template.getIdentifier());
+            state.templateName = templateName;
             state.clause = new Clause(template);
             state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
             state.grammar = template.getTemplatizedGrammar();
@@ -572,7 +589,7 @@ class FormContainer extends Component {
     }
 
     componentDidMount() {
-        this.loadTemplate('helloworld@0.6.0');
+        this.loadTemplate(DEFAULT_TEMPLATE);
     }
     componentDidUpdate () {
         if (this.state.status === 'changed') {
@@ -628,7 +645,7 @@ class FormContainer extends Component {
                   name='execution'
                   active={this.state.activeLogic === 'execution'}
                   onClick={this.handleLogicTabChange}
-                >Test Request</Menu.Item>
+                >Test Execution</Menu.Item>
                 <Menu.Item href='https://docs.accordproject.org/docs/cicero-concepts.html#template-logic' target='_blank'
                   position='right'>
                   <Icon name='info'/>
@@ -840,7 +857,8 @@ class FormContainer extends Component {
                                 this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().version : ''
                             }></Input>
                      <br/>
-                     <DownloadLabel handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
+                     <DownloadButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
+                     <ResetButton handleResetChange={this.handleResetChange}/>
                    </Card.Content>
                  </Card>
               );

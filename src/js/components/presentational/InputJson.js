@@ -35,7 +35,7 @@ class InputJson extends TextArea {
 
     render() {
         const { json, handleJSONChange } = this.props;
-        const options = {lineWrapping: false, lineNumbers: true, mode: {name: "javascript", json: true}, theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
+        const options = {lineWrapping: true, lineNumbers: true, mode: {name: "javascript", json: true}, theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
         console.log('json:'+json);
         return (
             <Resizable
