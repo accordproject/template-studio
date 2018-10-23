@@ -546,6 +546,7 @@ class FormContainer extends Component {
     }
 
     handleSelectTemplateConfirmed() {
+        const state = this.state;
         const data = state.confirm.temp;
         state.confirm = { flag: false, temp: null };
         this.loadTemplate(data);
