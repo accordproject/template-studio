@@ -21,6 +21,9 @@ import { Segment, Icon, Label, Message, Tab, Card } from 'semantic-ui-react';
 const parseFailure = (log) => (
     log.text.indexOf('success') == -1
 );
+const modelFailure = (log) => (
+    log.model.indexOf('success') == -1
+);
 const logicFailure = (log) => (
     log.logic.indexOf('success') == -1
 );
@@ -74,6 +77,12 @@ const LogicTable = (log) => (
      : null)
 );
 
+const ModelTable = (log) => (
+    (modelFailure(log) ?
+        <div>{printErrors(log.model)}</div>
+     : null)
+);
+
 const MetaTable = (log) => (
     (metaFailure(log) ?
         <div>{printErrors(log.meta)}</div>
@@ -111,6 +120,11 @@ LogicStatus.propTypes = {
     log: PropTypes.object.isRequired
 };
 
+const ModelStatus = ({ log }) => ModelTable(log);
+ModelStatus.propTypes = {
+    log: PropTypes.object.isRequired
+};
+
 const MetaStatus = ({ log }) => MetaTable(log);
 MetaStatus.propTypes = {
     log: PropTypes.object.isRequired
@@ -124,6 +138,7 @@ ExecuteStatus.propTypes = {
 export {
     parseFailure,
     logicFailure,
+    modelFailure,
     metaFailure,
     executeFailure,
     templateFailure,
@@ -131,6 +146,7 @@ export {
     anyFailure,
     ParseStatus,
     LogicStatus,
+    ModelStatus,
     MetaStatus,
     ExecuteStatus,
     StatusLabel,

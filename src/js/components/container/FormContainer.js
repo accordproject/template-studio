@@ -25,6 +25,7 @@ import ParseForm from '../tabs/ParseForm';
 import ExecuteForm from '../tabs/ExecuteForm';
 import {
     parseFailure,
+    modelFailure,
     logicFailure,
     metaFailure,
     executeFailure,
@@ -33,6 +34,7 @@ import {
     anyFailure,
     ParseStatus,
     LogicStatus,
+    ModelStatus,
     MetaStatus,
     ExecuteStatus,
     StatusLabel,
@@ -230,7 +232,11 @@ class FormContainer extends Component {
             readme: '',
             text: `[Please Select a Sample Template]`,
             data: 'null',
-            log: { text: 'Not yet parsed.', logic: 'Not yet compiled.', meta: 'Not yet loaded.', execute: '' },
+            log: { text: 'Not yet parsed.',
+                   model: 'Not yet validate',
+                   logic: 'Not yet compiled.',
+                   meta: 'Not yet loaded.',
+                   execute: '' },
             grammar: `[Please Select a Sample Template]`,
             model: `[Please Select a Sample Template]`,
             logic: `[Please Select a Sample Template]`,
@@ -442,12 +448,12 @@ class FormContainer extends Component {
                 try {
                     if (updateModel(state.clause,name,m.content,model)) {
                         state.status = 'changed';
-                        state.log.text = 'Load model successful';
+                        state.log.model = 'Load model successful';
                     }
                 } catch (error) {
                     modelfails = true;
                     console.log('ERROR!' + error.message);
-                    state.log.text = 'Cannot load model' + error.message;
+                    state.log.model = 'Cannot load model' + error.message;
                 }
                 newmodel.push({name : name, content: model });
             } else {
@@ -481,7 +487,7 @@ class FormContainer extends Component {
                         state.status = 'changed';
                     }
                 } catch (error) {
-                    state.log.text = 'Cannot compile new logic' + error.message;
+                    state.log.logic = 'Cannot compile new logic' + error.message;
                 }
                 newlogic.push({name : name, content: logic });
             } else {
@@ -793,6 +799,7 @@ class FormContainer extends Component {
                  <div className='ui bottom sticky fixed'>
                    { this.state.activeError === 'parse' ? <ParseStatus log={log}/> :
                      this.state.activeError === 'logic' ? <LogicStatus log={log}/> :
+                     this.state.activeError === 'model' ? <ModelStatus log={log}/> :
                      this.state.activeError === 'meta' ? <MetaStatus log={log}/> :
                      this.state.activeError === 'execute' ? <ExecuteStatus log={log}/> : null }
                    <Menu attached='bottom'>
@@ -813,6 +820,13 @@ class FormContainer extends Component {
                          active={this.state.activeError === 'logic'}
                          onClick={this.handleErrorTabChange}>
                          <Icon name='warning sign' color='red'/>Contract Logic
+                       </Menu.Item> : null }
+                     { modelFailure(this.state.log) ?
+                       <Menu.Item
+                         name='model'
+                         active={this.state.activeError === 'model'}
+                         onClick={this.handleErrorTabChange}>
+                         <Icon name='warning sign' color='red'/>Data Model
                        </Menu.Item> : null }
                      { metaFailure(this.state.log) ?
                        <Menu.Item
