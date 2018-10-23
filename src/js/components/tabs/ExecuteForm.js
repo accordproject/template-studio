@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import InputJson from '../presentational/InputJson';
 import InputGrammar from '../presentational/InputGrammar';
 import TextArea from 'semantic-ui-react';
-import { Form, Segment, Divider, Grid, Button, Tab } from 'semantic-ui-react';
+import { Form, Divider, Grid, Button, Tab, Icon } from 'semantic-ui-react';
 
 class ExecuteForm extends Form {
     constructor(props) {
@@ -60,14 +60,10 @@ class ExecuteForm extends Form {
         const { request, cstate, response, emit,
                 handleRequestChange, handleStateChange, handleResponseChange, handleEmitChange, handleRunLogic, handleInitLogic } = this.props;
         return (<Tab.Pane>
+                        <Button size='small' type='submit' color='blue' onClick={this.handleRunLogic} compact><Icon name="send"/> Send Request</Button>
+                        <Button size='small' type='submit' color='blue' onClick={this.handleInitLogic} compact><Icon name="redo" flipped="horizontally"/> Reset Contract</Button>
                   <Grid>
                     <Divider hidden/>
-                    <Grid.Row columns={1}>
-                      <Grid.Column>
-                        <Button type='submit' color='blue' onClick={this.handleRunLogic} compact>Send Request</Button>
-                        <Button type='submit' color='blue' onClick={this.handleInitLogic} compact>Reset Contract</Button>
-                      </Grid.Column>
-                    </Grid.Row>
                     <Grid.Row columns={2}>
                       <Grid.Column>
                         <Form.Field>
@@ -80,17 +76,6 @@ class ExecuteForm extends Form {
                       </Grid.Column>
                       <Grid.Column>
                         <Form.Field>
-                          <label>State</label>
-                        </Form.Field>
-                        <InputJson
-                          json={cstate}
-                          handleJSONChange={this.handleStateChange}
-                        />
-                      </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row columns={1}>
-                      <Grid.Column>
-                        <Form.Field>
                           <label>Response</label>
                         </Form.Field>
                         <InputJson
@@ -99,7 +84,16 @@ class ExecuteForm extends Form {
                         />
                       </Grid.Column>
                     </Grid.Row>
-                    <Grid.Row columns={1}>
+                    <Grid.Row columns={2}>
+                      <Grid.Column>
+                        <Form.Field>
+                          <label>Contract State</label>
+                        </Form.Field>
+                        <InputJson
+                          json={cstate}
+                          handleJSONChange={this.handleStateChange}
+                        />
+                      </Grid.Column>
                       <Grid.Column>
                         <Form.Field>
                           <label>Obligations</label>

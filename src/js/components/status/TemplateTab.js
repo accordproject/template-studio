@@ -16,12 +16,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Label, Dropdown } from 'semantic-ui-react';
+import { Icon, Button, Dropdown } from 'semantic-ui-react';
 import saveAs from 'file-saver';
 require("babel-core/register");
 require("babel-polyfill");
 
-class DownloadLabel extends Label {
+class DownloadButton extends Button {
     constructor(props) {
         super(props);
         this.handleStatusChange = this.handleStatusChange.bind(this);
@@ -43,8 +43,21 @@ class DownloadLabel extends Label {
         }
     }
     render() {
-        return (<Label color='blue' onClick={() => this.downloadCta(this.props.clause)}>
-                  <Icon name="download"/> Download</Label>); }
+        return (<Button size='tiny' color='blue' onClick={() => this.downloadCta(this.props.clause)}>
+                  <Icon name="download"/> Download</Button>); }
+}
+
+class ResetButton extends Button {
+    constructor(props) {
+        super(props);
+        this.handleResetChange = this.handleResetChange.bind(this);
+    }
+    handleResetChange() {
+        this.props.handleResetChange();
+    }
+    render() {
+        return (<Button size='tiny' onClick={this.handleResetChange}>
+                  <Icon name="redo" flipped="horizontally"/> Reset</Button>); }
 }
 
 class UploadButton extends Dropdown {
@@ -69,4 +82,4 @@ class NewButton extends Dropdown {
     render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}><Icon name="add"/> New</Dropdown.Item>; }
 }
 
-export { DownloadLabel, UploadButton, NewButton };
+export { DownloadButton, ResetButton, UploadButton, NewButton };
