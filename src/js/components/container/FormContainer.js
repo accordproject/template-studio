@@ -508,13 +508,15 @@ class FormContainer extends Component {
                 state.emit = JSON.stringify(response.left.emit,null,2);
             } else {
                 state.response = 'null';
+                state.cstate = 'null';
                 state.emit = '[]';
                 state.log.execute = '[Ergo Error]' + JSON.stringify(response.right);
             }
         } catch (error){
             state.response = 'null';
+            state.cstate = 'null';
             state.emit = '[]';
-            state.log.execute = '[Cannot Run Template] ' + JSON.stringify(error.message);
+            state.log.execute = '[Error Executing Template] ' + JSON.stringify(error.message);
         }
         this.setState(state);
     }
@@ -534,13 +536,15 @@ class FormContainer extends Component {
                 state.emit = JSON.stringify(response.left.emit,null,2);
             } else {
                 state.response = 'null';
+                state.cstate = 'null';
                 state.emit = '[]';
                 state.log.execute = '[Ergo Error]' + JSON.stringify(response.right);
             }
         } catch (error){
             state.response = 'null';
+            state.cstate = 'null';
             state.emit = '[]';
-            state.log.execute = '[Cannot Run Template] ' + JSON.stringify(error.message);
+            state.log.execute = '[Error Executing Template] ' + JSON.stringify(error.message);
         }
         this.setState(state);
     }
@@ -591,6 +595,7 @@ class FormContainer extends Component {
             this.handleLogicChange(null,state,state.logic);
             this.handlePackageChange(state.package);
             this.handleInitLogic(); // Initializes the contract state
+            state = this.state;
             state.loading = false;
             this.setState(state);
         });
