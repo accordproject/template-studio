@@ -2,7 +2,7 @@
 
 A simple Web-based editor for Accord Project templates.
 
-<img src="https://raw.githubusercontent.com/accordproject/template-studio/studio.png" width="350">
+<img src="https://raw.githubusercontent.com/accordproject/template-studio/master/studio.png" width="350">
 
 # For template authors
 
