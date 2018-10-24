@@ -481,6 +481,7 @@ class FormContainer extends Component {
         }
         state.model = newmodel;
         if (!modelfails) {
+            state.log.model = 'Model loaded successfully';
             this.setState(parseSample(state, state.text));
             this.setState(compileLogic(editor,state.logic,state));
         } else {
@@ -614,6 +615,7 @@ class FormContainer extends Component {
             state.status = 'loaded';
             state = compileLogic(null,state.logic, state);
             this.setState(state);
+            this.handleModelChange(null,state,state.model);
             this.handleSampleChange(state.text);
             this.handleLogicChange(null,state,state.logic);
             this.handlePackageChange(state.package);
