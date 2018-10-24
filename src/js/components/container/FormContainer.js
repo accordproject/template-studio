@@ -44,7 +44,7 @@ import Options from '../status/Options';
 import {
     UploadButton,
     ResetButton,
-    DownloadButton,
+    SaveButton,
     NewButton
 } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
@@ -255,10 +255,13 @@ class FormContainer extends Component {
             status: 'empty',
             loading: false,
             confirm: { flag: false, temp: null },
+            confirmreset: { flag: false, temp: null },
             markers: [] // For code mirror marking
         };
         this.handleStatusChange = this.handleStatusChange.bind(this);
         this.handleResetChange = this.handleResetChange.bind(this);
+        this.handleResetConfirmed = this.handleResetConfirmed.bind(this);
+        this.handleResetAborted = this.handleResetAborted.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -293,7 +296,23 @@ class FormContainer extends Component {
         this.setState(state);
     }
     handleResetChange() {
+        const state = this.state;
+        if (state.status === 'changed') {
+            state.confirmreset = { flag: true, temp: null };
+            this.setState(state);
+        } else {
+            this.loadTemplate(this.state.templateName);
+        }
+    }
+    handleResetConfirmed() {
+        const state = this.state;
+        state.confirmreset = { flag: false, temp: null };
         this.loadTemplate(this.state.templateName);
+    }
+    handleResetAborted() {
+        const state = this.state;
+        state.confirmreset = { flag: false, temp: null };
+        this.setState(state);
     }
     handlePackageChange(text) {
         const state = this.state;
@@ -561,13 +580,11 @@ class FormContainer extends Component {
         state.confirm = { flag: false, temp: null };
         this.loadTemplate(data);
     }
-
-    handleSelectTemplateAborted(event, data) {
+    handleSelectTemplateAborted() {
         const state = this.state;
         state.confirm = { flag: false, temp: null };
         this.setState(state);
     }
-
     handleSelectTemplate(event, data) {
         const state = this.state;
         if (state.status === 'changed') {
@@ -768,7 +785,7 @@ class FormContainer extends Component {
                      Accord Project &middot; Template Studio
                    </Menu.Item>
                    <Menu.Item>
-                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Download button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
+                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
                      <Dropdown icon='search'
                                placeholder='Search'
                                search
@@ -884,7 +901,8 @@ class FormContainer extends Component {
                                 this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().version : ''
                             }></Input>
                      <br/>
-                     <DownloadButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
+                     <SaveButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
+                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
                      <ResetButton handleResetChange={this.handleResetChange}/>
                    </Card.Content>
                  </Card>
