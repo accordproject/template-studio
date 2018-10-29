@@ -127,14 +127,21 @@ async function buildTemplates(selectedTemplate) {
                 const template = await Template.fromDirectory(templatePath);
 
                 if(!process.env.SKIP_GENERATION) {
-                    const archive = await template.toArchive();
-                    const destPath = path.dirname(dest);
+                    const language = template.getMetadata().getLanguage();
+                    let archive;
+                    // Only produce Ergo archives
+                    if (language === 0) {
+                        archive = await template.toArchive('ergo');
+                        const destPath = path.dirname(dest);
     
-                    await fs.ensureDir(destPath);
-                    const archiveFileName = `${template.getIdentifier()}.cta`;
-                    const archiveFilePath = `${archiveDir}/${archiveFileName}`;
-                    await writeFile(archiveFilePath, archive);
-                    console.log('Copied: ' + archiveFileName);
+                        await fs.ensureDir(destPath);
+                        const archiveFileName = `${template.getIdentifier()}.cta`;
+                        const archiveFilePath = `${archiveDir}/${archiveFileName}`;
+                        await writeFile(archiveFilePath, archive);
+                        console.log('Copied: ' + archiveFileName);
+                    } else {
+                        console.log('Skipping: ' + template.getIdentifier() + ' (in JavaScript)');
+                    }
                 }
             } catch (err) {
                 console.log(err);
