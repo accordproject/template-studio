@@ -15,20 +15,19 @@
   "author": "accordproject.org",
   "license": "Apache-2.0",
   "dependencies": {
-    "@accordproject/cicero-core": "0.8.0-20181023160346",
+    "@accordproject/cicero-core": "0.9.1",
     "@accordproject/cicero-template-library": "git+https://git@github.com/accordproject/cicero-template-library.git",
-    "@accordproject/ergo-compiler": "0.4.4",
+    "@accordproject/ergo-compiler": "0.5.2",
     "codemirror": "^5.40.2",
     "file-saver": "^2.0.0-rc.3",
     "lodash": "^4.17.4",
     "randexp": "^0.4.6",
     "re-resizable": "^4.9.0",
-    "react": "^16.0.0",
+    "react": "^16.6.0",
     "react-codemirror2": "^5.1.0",
-    "react-dom": "^16.0.0",
-    "react-inspector": "^2.1.4",
+    "react-dom": "^16.6.0",
+    "react-inspector": "^2.3.0",
     "react-resizable": "^1.7.5",
-    "react-sortable-pane": "^1.0.2",
     "semantic-ui-react": "^0.82.5"
   },
   "devDependencies": {
@@ -37,7 +36,7 @@
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
@@ -49,8 +48,8 @@
     "raw-loader": "^0.5.1",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.18.2",
-    "webpack": "^4.16.3",
-    "webpack-cli": "^3.1.0",
+    "webpack": "^4.23.1",
+    "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10"
   }
 }
