@@ -81,7 +81,7 @@ import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
 const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
 
-const DEFAULT_TEMPLATE = 'helloworld@0.6.0';
+const DEFAULT_TEMPLATE = 'helloworld@0.7.0';
 
 function getTemplates() {
     var templates = [];
@@ -103,7 +103,7 @@ function getTemplates() {
             }
         }
         // Make sure it's the right ciceroVersion and uses Ergo
-        if (currentTemplate.ciceroVersion === '^0.8.0' && currentTemplate.language === 0) {
+        if (semver.satisfies(ciceroVersion,currentTemplate.ciceroVersion) && currentTemplate.language === 0) {
             if (templates.filter(t => t.key === currentT).length < 1)
                 templates.push({'key':currentT, 'value':currentT, 'text':currentT});
         }
@@ -600,8 +600,9 @@ class FormContainer extends Component {
         let state = this.state;
         state.loading = true;
         this.setState(state);
-        Template.fromUrl(ROOT_URI+'/static/archives/'+templateName+'.cta').then((template) => { 
-            console.log('Loaded template: ' + template.getIdentifier());
+        const templateUrl = 'ap://'+templateName+'#hash';
+        Template.fromUrl(templateUrl).then((template) => { 
+            console.log('Loading template: ' + templateUrl);
             state.templateName = templateName;
             state.clause = new Clause(template);
             state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
