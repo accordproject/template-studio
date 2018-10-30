@@ -44,7 +44,7 @@ import Options from '../status/Options';
 import {
     UploadButton,
     ResetButton,
-    SaveButton,
+    DownloadButton,
     NewButton
 } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
@@ -192,6 +192,18 @@ function runInit(compiledLogic,contract) {
 
 function updateSample(clause,sample) {
     //console.log('Updating sample' + sample);
+    const template = clause.getTemplate();
+    const samples = template.getMetadata().getSamples();
+    if (samples.default !== sample) {
+        samples.default = sample;
+        template.setSamples(samples);
+        return true;
+    } else {
+        return false;
+    }
+}
+function updateRequest(clause,request) {
+    //console.log('Updating request' + request);
     const template = clause.getTemplate();
     const samples = template.getMetadata().getSamples();
     if (samples.default !== sample) {
@@ -385,7 +397,7 @@ class FormContainer extends Component {
         if (updateSample(clause,text)) {
             state.status = 'changed';
         }
-        this.setState(parseSample(this.state, text));
+        this.setState(parseSample(state, text));
     }
 
     handleLegalTabChange(e, { name }) {
@@ -417,21 +429,32 @@ class FormContainer extends Component {
     handleGrammarChange(text) {
         const state = this.state;
         if (text !== state.grammar) {
+            state.grammar = text;
             try {
+                state.status = 'changed';
                 state.data = JSON.stringify(state.clause.getData(),null,2);
                 state.log.text = 'Grammar change successful!';
-                state.grammar = text;
-                state.status = 'changed';
                 if (state.data !== 'null') {
                     const template = state.clause.getTemplate();
                     state.clause.getTemplate().buildGrammar(text);
-                    this.setState(generateText(state,state.data));
+                    const newstate = generateText(state,state.data);
+                    if (newstate.log.text.indexOf('successful') === -1) {
+                        throw new Error('Error generating text from this new grammar');
+                    }
+                    this.setState(newstate);
                 }
-            } catch (error){
-                state.data = 'null';
-                state.log.text = '[Change Template] ' + error.log;
-                state.grammar = text;
-                this.setState(state);
+            } catch (error1) {
+                try {
+                    console.log('Error building grammar' + error1.message);
+                    state.status = 'changed';
+                    const template = state.clause.getTemplate();
+                    template.buildGrammar(text);
+                    state.log.text = '[Change Template] ' + error1.message;
+                    this.setState(parseSample(state, state.text));
+                } catch (error2) {
+                    state.log.text = '[Change Template] ' + error2.message;
+                    this.setState(state);
+                }
             }
         }
     }
@@ -442,6 +465,9 @@ class FormContainer extends Component {
 
     handleRequestChange(text) {
         const state = this.state;
+        if (updateRequest(state.clause,text)) {
+            state.status = 'changed';
+        }
         state.request = text;
         return this.setState(state);
     }
@@ -482,8 +508,12 @@ class FormContainer extends Component {
         state.model = newmodel;
         if (!modelfails) {
             state.log.model = 'Model loaded successfully';
-            this.setState(parseSample(state, state.text));
-            this.setState(compileLogic(editor,state.logic,state));
+            try {
+                this.setState(parseSample(state, state.text));
+                this.setState(compileLogic(editor,state.logic,state));
+            } catch (error) {
+                this.setState(state);
+            }
         } else {
             this.setState(state);
         }
@@ -788,7 +818,7 @@ class FormContainer extends Component {
                      Accord Project &middot; Template Studio
                    </Menu.Item>
                    <Menu.Item>
-                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
+                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Download button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
                      <Dropdown icon='search'
                                placeholder='Search'
                                search
@@ -904,8 +934,8 @@ class FormContainer extends Component {
                                 this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().version : ''
                             }></Input>
                      <br/>
-                     <SaveButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
-                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
+                     <DownloadButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
+                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Download button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
                      <ResetButton handleResetChange={this.handleResetChange}/>
                    </Card.Content>
                  </Card>
