@@ -44,7 +44,7 @@ import Options from '../status/Options';
 import {
     UploadButton,
     ResetButton,
-    DownloadButton,
+    SaveButton,
     NewButton
 } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
@@ -66,7 +66,8 @@ import {
     Confirm,
     Dimmer,
     Loader,
-    Segment
+    Segment,
+    Button
 } from 'semantic-ui-react';
 
 import { ModelFile } from 'composer-concerto';
@@ -766,7 +767,7 @@ class FormContainer extends Component {
                   name='model'
                   active={this.state.activeModel === 'model'}
                   onClick={this.handleModelTabChange}
-                >Data Model</Menu.Item>
+                >Model</Menu.Item>
                 <Menu.Item href='https://docs.accordproject.org/docs/cicero-concepts.html#template-model' target='_blank'
                   position='right'>
                   <Icon name='info'/>
@@ -821,7 +822,7 @@ class FormContainer extends Component {
                 <Modal.Description>
                   <Header>Getting started</Header>
                   <p>Search a template from the <a href='https://templates.accordproject.org' target='_blank'>Accord Project template library</a> (Search box at the top)</p>
-                  <p>Chose whether to edit the Natural Language or the Contract Logic (Tab on the left)</p>
+                  <p>Chose whether to edit the Contract Text or the Logic (Tab on the left)</p>
                   <p>Edit the contract template and try it on a sample contract</p>
                   <p>Edit the Ergo contract logic and try it by executing a simple request</p>
                 </Modal.Description>
@@ -842,17 +843,17 @@ class FormContainer extends Component {
                      Accord Project &middot; Template Studio
                    </Menu.Item>
                    <Menu.Item>
-                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Download button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
+                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
                      <Dropdown icon='search'
-                               placeholder='Search'
+                               className='icon'
+                               floating labeled button
+                               text='Select a Template'
                                search
-                               selection
                                options={templates}
                                onChange={this.handleSelectTemplate}/>
-                     <Label color='grey' pointing='left'>Load template<br/>from library</Label>
                    </Menu.Item>
-                   <Menu.Item position='right'>
-                     <Dropdown item text='Help' simple position='right' direction='left'>
+                   <Menu.Item>
+                     <Dropdown item text='Help' simple>
                        <Dropdown.Menu>
                          <ModalAbout/>
                          <Header as='h4'>Documentation</Header>
@@ -877,7 +878,7 @@ class FormContainer extends Component {
                      this.state.activeError === 'meta' ? <MetaStatus log={log}/> :
                      this.state.activeError === 'execute' ? <ExecuteStatus log={log}/> : null }
                    <Menu fixed='bottom' color='grey' inverted>
-                   <Container>
+                   <Container fluid>
                      <Menu.Item header>
                        <AllStatusLabel log={this.state.log}/>
                      </Menu.Item>
@@ -886,21 +887,21 @@ class FormContainer extends Component {
                          name='parse'
                          active={this.state.activeError === 'parse'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Natural Language
+                         <Icon name='warning sign' color='red'/>Contract Text
                        </Menu.Item> : null }
                      { logicFailure(this.state.log) ?
                        <Menu.Item
                          name='logic'
                          active={this.state.activeError === 'logic'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Contract Logic
+                         <Icon name='warning sign' color='red'/>Logic
                        </Menu.Item> : null }
                      { modelFailure(this.state.log) ?
                        <Menu.Item
                          name='model'
                          active={this.state.activeError === 'model'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Data Model
+                         <Icon name='warning sign' color='red'/>Model
                        </Menu.Item> : null }
                      { metaFailure(this.state.log) ?
                        <Menu.Item
@@ -925,15 +926,15 @@ class FormContainer extends Component {
                  </div>
                </Container>);
         const viewMenu = () =>
-              (<Menu floated='right' compact secondary vertical pointing>
+              (<Menu fluid vertical pointing>
                  <Menu.Item name='legal' active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
-                   Natural Language
+                   Contract Text
                  </Menu.Item>
                  <Menu.Item name='model' active={this.state.activeItem === 'model'} onClick={this.handleItemClick}>
-                   Data Model
+                   Model
                  </Menu.Item>
                  <Menu.Item name='logic' active={this.state.activeItem === 'logic'} onClick={this.handleItemClick}>
-                   Contract Logic
+                   Logic
                  </Menu.Item>
                  <Menu.Item name='metadata' active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
                    Metadata
@@ -946,20 +947,19 @@ class FormContainer extends Component {
                      <StatusLabel log={this.state.log} status={this.state.status}/>
                    </Card.Content>
                    <Card.Content>
-                     <Input label={{ basic: true, content: 'Name' }} fluid placeholder='Name'
+                     <Input size='small' label={{ content: 'Name' }} fluid placeholder='Name'
                             onChange={this.handleNameChange}
                             value={
                                 this.state.templateName
                             }></Input>
-                     <br/>
-                     <Input label={{ basic: true, content: 'Version' }} fluid placeholder='Version'
+                     <Input size='small' label={{ content: 'Version' }} fluid placeholder='Version'
                             onChange={this.handleVersionChange}
                             value={
                                 this.state.templateVersion
                             }></Input>
                      <br/>
-                     <DownloadButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
-                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Download button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
+                     <SaveButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
+                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
                      <ResetButton handleResetChange={this.handleResetChange}/>
                    </Card.Content>
                  </Card>
@@ -972,7 +972,7 @@ class FormContainer extends Component {
                   </Dimmer>
                   <Grid padded>
                     <Grid.Row>
-                      <Grid.Column width={4}>
+                      <Grid.Column width={3}>
                         <Grid>
                           <Grid.Row>
                             <Grid.Column>
@@ -986,7 +986,7 @@ class FormContainer extends Component {
                           </Grid.Row>
                         </Grid>
                       </Grid.Column>
-                      <Grid.Column width={12}>
+                      <Grid.Column width={13}>
                         { this.state.activeItem === 'legal' ? legalTabs()
                           : this.state.activeItem === 'logic' ? logicTabs()
                           : this.state.activeItem === 'model' ? modelTabs()
