@@ -69,7 +69,7 @@ import {
     Segment
 } from 'semantic-ui-react';
 
-import ModelFile from 'composer-concerto/lib/introspect/modelfile';
+import { ModelFile } from 'composer-concerto';
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 import semver from 'semver';
@@ -214,11 +214,20 @@ function updateRequest(clause,request) {
         return false;
     }
 }
-function updateModel(clause,name,oldcontent,content) {
+function updateModel(clause,name,oldcontent,newcontent,grammar) {
     const modelManager = clause.getTemplate().getModelManager();
-    if (oldcontent !== content) {
-        modelManager.validateModelFile(content,name);
-        modelManager.updateModelFile(content,name,true);
+    if (oldcontent !== newcontent) {
+        modelManager.validateModelFile(newcontent,name);
+        const oldNamespace = new ModelFile(modelManager, oldcontent, name).getNamespace();
+        const newNamespace = new ModelFile(modelManager, newcontent, name).getNamespace();
+        if (oldNamespace === newNamespace) {
+            modelManager.updateModelFile(newcontent,name,true);
+        } else {
+            modelManager.deleteModelFile(oldNamespace);
+            modelManager.addModelFile(newcontent,name,true);
+        }
+        // XXX Have to re-generate the grammar if the model changes
+        clause.getTemplate().buildGrammar(grammar);
         return true;
     } else {
         return false;
@@ -493,14 +502,14 @@ class FormContainer extends Component {
         for (const m of oldmodel) {
             if (m.name === name) {
                 try {
-                    if (updateModel(state.clause,name,m.content,model)) {
+                    if (updateModel(state.clause,name,m.content,model,state.grammar)) {
                         state.status = 'changed';
                         state.log.model = 'Load model successful';
                     }
                 } catch (error) {
                     modelfails = true;
                     console.log('ERROR!' + error.message);
-                    state.log.model = 'Cannot load model' + error.message;
+                    state.log.model = 'Cannot load model: ' + error.message;
                 }
                 newmodel.push({name : name, content: model });
             } else {
@@ -508,11 +517,16 @@ class FormContainer extends Component {
             }
         }
         state.model = newmodel;
+        this.setState(state);
         if (!modelfails) {
             state.log.model = 'Model loaded successfully';
             try {
                 this.setState(parseSample(state, state.text));
-                this.setState(compileLogic(editor,state.logic,state));
+                try {
+                    this.setState(compileLogic(editor,state.logic,state));
+                } catch (error) {
+                    this.setState(state);
+                }
             } catch (error) {
                 this.setState(state);
             }
