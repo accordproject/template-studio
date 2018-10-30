@@ -36,7 +36,7 @@ class DownloadButton extends Button {
             const name = template.getMetadata().getName();
             const cta = await template.toArchive('ergo');
             var blob = new Blob([cta], {type: "application/zip"});
-            saveAs(blob, name);
+            saveAs(blob, name + '.cta');
             this.handleStatusChange('saved');
         } else {
             console.log("CLAUSE MISSING!");
