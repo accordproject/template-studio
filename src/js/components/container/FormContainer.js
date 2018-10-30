@@ -349,6 +349,7 @@ class FormContainer extends Component {
             state.clause.getTemplate().setPackageJson(packageJson);
             state.package = JSON.stringify(packageJson,null,2);
             state.log.meta = 'Template Name change successful!';
+            state.status = 'changed';
             this.setState(state);
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
@@ -364,6 +365,7 @@ class FormContainer extends Component {
             state.clause.getTemplate().setPackageJson(packageJson);
             state.package = JSON.stringify(packageJson,null,2);
             state.log.meta = 'Template version change successful!';
+            state.status = 'changed';
             this.setState(state);
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
