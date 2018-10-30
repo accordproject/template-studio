@@ -44,7 +44,7 @@ import Options from '../status/Options';
 import {
     UploadButton,
     ResetButton,
-    SaveButton,
+    ExportButton,
     NewButton
 } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
@@ -66,8 +66,7 @@ import {
     Confirm,
     Dimmer,
     Loader,
-    Segment,
-    Button
+    Segment
 } from 'semantic-ui-react';
 
 import { ModelFile } from 'composer-concerto';
@@ -243,7 +242,12 @@ function updateLogic(clause,name,content) {
         return false;
     }
 }
-
+const defaultlog =
+      { text: 'Not yet parsed.',
+        model: 'Not yet validate',
+        logic: 'Not yet compiled.',
+        meta: 'Not yet loaded.',
+        execute: '' };
 class FormContainer extends Component {
     constructor() {
         super();
@@ -255,11 +259,7 @@ class FormContainer extends Component {
             readme: '',
             text: `[Please Select a Sample Template]`,
             data: 'null',
-            log: { text: 'Not yet parsed.',
-                   model: 'Not yet validate',
-                   logic: 'Not yet compiled.',
-                   meta: 'Not yet loaded.',
-                   execute: '' },
+            log: defaultlog,
             grammar: `[Please Select a Sample Template]`,
             model: `[Please Select a Sample Template]`,
             logic: `[Please Select a Sample Template]`,
@@ -279,12 +279,16 @@ class FormContainer extends Component {
             loading: false,
             confirm: { flag: false, temp: null },
             confirmreset: { flag: false, temp: null },
+            confirmnew: { flag: false, temp: null },
             markers: [] // For code mirror marking
         };
         this.handleStatusChange = this.handleStatusChange.bind(this);
         this.handleResetChange = this.handleResetChange.bind(this);
         this.handleResetConfirmed = this.handleResetConfirmed.bind(this);
         this.handleResetAborted = this.handleResetAborted.bind(this);
+        this.handleNewChange = this.handleNewChange.bind(this);
+        this.handleNewConfirmed = this.handleNewConfirmed.bind(this);
+        this.handleNewAborted = this.handleNewAborted.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -337,6 +341,27 @@ class FormContainer extends Component {
         state.confirmreset = { flag: false, temp: null };
         this.setState(state);
     }
+
+    handleNewChange() {
+        const state = this.state;
+        if (state.status === 'changed') {
+            state.confirmnew = { flag: true, temp: null };
+            this.setState(state);
+        } else {
+            this.loadTemplate('empty@0.1.0');
+        }
+    }
+    handleNewConfirmed() {
+        const state = this.state;
+        state.confirmnew = { flag: false, temp: null };
+        this.loadTemplate('empty@0.1.0');
+    }
+    handleNewAborted() {
+        const state = this.state;
+        state.confirmnew = { flag: false, temp: null };
+        this.setState(state);
+    }
+
     handlePackageChange(text) {
         const state = this.state;
         try {
@@ -664,7 +689,6 @@ class FormContainer extends Component {
             state.logic = template.getLogic();
             state.text = template.getMetadata().getSamples().default;
             state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
-            state.log.text = 'Not yet parsed.';
             state.data = 'null';
             state.status = 'loaded';
             state = compileLogic(null,state.logic, state);
@@ -678,7 +702,9 @@ class FormContainer extends Component {
             state.loading = false;
             this.setState(state);
         }, reason => {
-            console.log(reason); // Error!
+            console.log('LOAD FAILED!' + reason.message); // Error!
+            state.loading = false;
+            this.setState(state);
         });
     }
 
@@ -843,7 +869,7 @@ class FormContainer extends Component {
                      Accord Project &middot; Template Studio
                    </Menu.Item>
                    <Menu.Item>
-                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
+                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
                      <Dropdown icon='search'
                                className='icon'
                                floating labeled button
@@ -851,6 +877,9 @@ class FormContainer extends Component {
                                search
                                options={templates}
                                onChange={this.handleSelectTemplate}/>
+                   </Menu.Item>
+                   <Menu.Item>
+                     <NewButton handleNewChange={this.handleNewChange}/>
                    </Menu.Item>
                    <Menu.Item>
                      <Dropdown item text='Help' simple>
@@ -957,9 +986,10 @@ class FormContainer extends Component {
                             value={
                                 this.state.templateVersion
                             }></Input>
-                     <br/>
-                     <SaveButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
-                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Save button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
+                   </Card.Content>
+                   <Card.Content>
+                     <ExportButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
+                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
                      <ResetButton handleResetChange={this.handleResetChange}/>
                    </Card.Content>
                  </Card>
@@ -972,7 +1002,7 @@ class FormContainer extends Component {
                   </Dimmer>
                   <Grid padded>
                     <Grid.Row>
-                      <Grid.Column width={3}>
+                      <Grid.Column width={4}>
                         <Grid>
                           <Grid.Row>
                             <Grid.Column>
@@ -986,7 +1016,7 @@ class FormContainer extends Component {
                           </Grid.Row>
                         </Grid>
                       </Grid.Column>
-                      <Grid.Column width={13}>
+                      <Grid.Column width={12}>
                         { this.state.activeItem === 'legal' ? legalTabs()
                           : this.state.activeItem === 'logic' ? logicTabs()
                           : this.state.activeItem === 'model' ? modelTabs()

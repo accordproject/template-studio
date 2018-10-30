@@ -21,7 +21,7 @@ import saveAs from 'file-saver';
 require("babel-core/register");
 require("babel-polyfill");
 
-class SaveButton extends Button {
+class ExportButton extends Button {
     constructor(props) {
         super(props);
         this.handleStatusChange = this.handleStatusChange.bind(this);
@@ -44,7 +44,7 @@ class SaveButton extends Button {
     }
     render() {
         return (<Button size='mini' color='blue' onClick={() => this.downloadCta(this.props.clause)}>
-                  <Icon name="download"/> Save</Button>); }
+                  <Icon name="download"/> Export</Button>); }
 }
 
 class ResetButton extends Button {
@@ -60,6 +60,19 @@ class ResetButton extends Button {
                   <Icon name="redo" flipped="horizontally"/> Reset</Button>); }
 }
 
+class NewButton extends Button {
+    constructor(props) {
+        super(props);
+        this.handleNewChange = this.handleNewChange.bind(this);
+    }
+    handleNewChange() {
+        this.props.handleNewChange();
+    }
+    render() {
+        return (<Button color='blue' onClick={this.handleNewChange}>
+                  <Icon name="pencil"/> New</Button>); }
+}
+
 class UploadButton extends Dropdown {
     constructor(props) {
         super(props);
@@ -71,15 +84,4 @@ class UploadButton extends Dropdown {
     render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.clause)}><Icon name="upload"/> Upload</Dropdown.Item>; }
 }
 
-class NewButton extends Dropdown {
-    constructor(props) {
-        super(props);
-        this.newCta = this.newCta.bind(this);
-    }
-    async newCta(clause) {
-        console.log("New TBD!");
-    }
-    render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}><Icon name="add"/> New</Dropdown.Item>; }
-}
-
-export { SaveButton, ResetButton, UploadButton, NewButton };
+export { ExportButton, ResetButton, UploadButton, NewButton };
