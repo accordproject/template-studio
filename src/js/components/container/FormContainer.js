@@ -202,13 +202,13 @@ function updateSample(clause,sample) {
         return false;
     }
 }
-function updateRequest(clause,request) {
+function updateRequest(clause,oldrequest,request) {
     //console.log('Updating request' + request);
-    const template = clause.getTemplate();
-    const samples = template.getMetadata().getSamples();
-    if (samples.default !== sample) {
-        samples.default = sample;
-        template.setSamples(samples);
+    if (oldrequest !== request) {
+        try {
+            clause.getTemplate().setRequest(JSON.parse(request));
+        } catch (error) {
+        }
         return true;
     } else {
         return false;
@@ -476,7 +476,7 @@ class FormContainer extends Component {
 
     handleRequestChange(text) {
         const state = this.state;
-        if (updateRequest(state.clause,text)) {
+        if (updateRequest(state.clause,state.request,text)) {
             state.status = 'changed';
         }
         state.request = text;
