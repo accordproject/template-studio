@@ -44,8 +44,7 @@ import Options from '../status/Options';
 import {
     UploadButton,
     ResetButton,
-    ExportButton,
-    NewButton
+    ExportButton
 } from '../status/TemplateTab';
 import { Template, Clause } from '@accordproject/cicero-core';
 import {
@@ -66,7 +65,8 @@ import {
     Confirm,
     Dimmer,
     Loader,
-    Segment
+    Segment,
+    Button
 } from 'semantic-ui-react';
 
 import { ModelFile } from 'composer-concerto';
@@ -252,6 +252,7 @@ class FormContainer extends Component {
     constructor() {
         super();
         this.state = {
+            originalTemplateName: '',
             templateName: '',
             templateVersion: '',
             clause: null,
@@ -328,13 +329,14 @@ class FormContainer extends Component {
             state.confirmreset = { flag: true, temp: null };
             this.setState(state);
         } else {
-            this.loadTemplate(this.state.templateName + '@' + this.state.templateVersion);
+            this.loadTemplate(this.state.originalTemplateName);
         }
     }
     handleResetConfirmed() {
         const state = this.state;
         state.confirmreset = { flag: false, temp: null };
-        this.loadTemplate(this.state.templateName + '@' + this.state.templateVersion);
+        this.setState(state);
+        this.loadTemplate(this.state.originalTemplateName);
     }
     handleResetAborted() {
         const state = this.state;
@@ -354,6 +356,7 @@ class FormContainer extends Component {
     handleNewConfirmed() {
         const state = this.state;
         state.confirmnew = { flag: false, temp: null };
+        this.setState(state);
         this.loadTemplate('empty@0.1.0');
     }
     handleNewAborted() {
@@ -678,8 +681,9 @@ class FormContainer extends Component {
         state.loading = true;
         this.setState(state);
         const templateUrl = 'ap://'+fullTemplateName+'#hash';
+        console.log('Loading template: ' + templateUrl);
         Template.fromUrl(templateUrl).then((template) => { 
-            console.log('Loading template: ' + templateUrl);
+            state.originalTemplateName = fullTemplateName;
             state.templateName = fullTemplateName.split('@').slice(0, -1).join('@');
             state.templateVersion = fullTemplateName.split('@').pop();
             state.clause = new Clause(template);
@@ -836,7 +840,7 @@ class FormContainer extends Component {
             </div>
         );
         const ModalAbout = () => (
-            <Modal trigger={<Menu.Item>About</Menu.Item>}>
+            <Modal trigger={<Menu.Item><Icon name='question'/> About</Menu.Item>}>
               <Modal.Header>Accord Project &middot; Template Studio (Experimental)</Modal.Header>
               <Modal.Content>
                 <Modal.Description>
@@ -879,9 +883,21 @@ class FormContainer extends Component {
                                onChange={this.handleSelectTemplate}/>
                    </Menu.Item>
                    <Menu.Item>
-                     <NewButton handleNewChange={this.handleNewChange}/>
-                   </Menu.Item>
-                   <Menu.Item>
+                     <Dropdown item text='New Template' simple>
+                       <Dropdown.Menu>
+                         <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmnew.flag} onCancel={this.handleNewAborted} onConfirm={this.handleNewConfirmed} />
+                         <Menu.Item onClick={this.handleNewChange}>
+                             <Icon name="file outline"/> Empty
+                         </Menu.Item>
+                         <Header as='h4'>Upload</Header>
+                         <Menu.Item>
+                           <Icon name='world'/> from URL
+                         </Menu.Item>
+                         <Menu.Item>
+                           <Icon name='upload'/> from local file
+                         </Menu.Item>
+                       </Dropdown.Menu>
+                     </Dropdown>
                      <Dropdown item text='Help' simple>
                        <Dropdown.Menu>
                          <ModalAbout/>

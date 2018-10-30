@@ -60,19 +60,6 @@ class ResetButton extends Button {
                   <Icon name="redo" flipped="horizontally"/> Reset</Button>); }
 }
 
-class NewButton extends Button {
-    constructor(props) {
-        super(props);
-        this.handleNewChange = this.handleNewChange.bind(this);
-    }
-    handleNewChange() {
-        this.props.handleNewChange();
-    }
-    render() {
-        return (<Button color='blue' onClick={this.handleNewChange}>
-                  <Icon name="pencil"/> New</Button>); }
-}
-
 class UploadButton extends Dropdown {
     constructor(props) {
         super(props);
@@ -84,4 +71,4 @@ class UploadButton extends Dropdown {
     render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.clause)}><Icon name="upload"/> Upload</Dropdown.Item>; }
 }
 
-export { ExportButton, ResetButton, UploadButton, NewButton };
+export { ExportButton, ResetButton, UploadButton };
