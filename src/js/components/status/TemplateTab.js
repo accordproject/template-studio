@@ -21,7 +21,7 @@ import saveAs from 'file-saver';
 require("babel-core/register");
 require("babel-polyfill");
 
-class SaveButton extends Button {
+class DownloadButton extends Button {
     constructor(props) {
         super(props);
         this.handleStatusChange = this.handleStatusChange.bind(this);
@@ -44,7 +44,7 @@ class SaveButton extends Button {
     }
     render() {
         return (<Button size='tiny' color='blue' onClick={() => this.downloadCta(this.props.clause)}>
-                  <Icon name="download"/> Save</Button>); }
+                  <Icon name="download"/> Download</Button>); }
 }
 
 class ResetButton extends Button {
@@ -82,4 +82,4 @@ class NewButton extends Dropdown {
     render() { return <Dropdown.Item onClick={() => this.newCta(this.props.clause)}><Icon name="add"/> New</Dropdown.Item>; }
 }
 
-export { SaveButton, ResetButton, UploadButton, NewButton };
+export { DownloadButton, ResetButton, UploadButton, NewButton };
