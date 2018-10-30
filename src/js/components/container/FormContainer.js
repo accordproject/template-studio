@@ -247,7 +247,8 @@ class FormContainer extends Component {
     constructor() {
         super();
         this.state = {
-            templateName: null,
+            templateName: '',
+            templateVersion: '',
             clause: null,
             package: 'null',
             readme: '',
@@ -322,13 +323,13 @@ class FormContainer extends Component {
             state.confirmreset = { flag: true, temp: null };
             this.setState(state);
         } else {
-            this.loadTemplate(this.state.templateName);
+            this.loadTemplate(this.state.templateName + '@' + this.state.templateVersion);
         }
     }
     handleResetConfirmed() {
         const state = this.state;
         state.confirmreset = { flag: false, temp: null };
-        this.loadTemplate(this.state.templateName);
+        this.loadTemplate(this.state.templateName + '@' + this.state.templateVersion);
     }
     handleResetAborted() {
         const state = this.state;
@@ -341,6 +342,8 @@ class FormContainer extends Component {
             const packageJson = JSON.parse(text);
             state.clause.getTemplate().setPackageJson(packageJson);
             state.package = JSON.stringify(packageJson,null,2);
+            state.templateName = packageJson.name;
+            state.templateVersion = packageJson.version;
             state.log.meta = 'package.json change successful!';
             this.setState(state);
         } catch (error){
@@ -352,6 +355,7 @@ class FormContainer extends Component {
     }
     handleNameChange(e, { name, value }) {
         const state = this.state;
+        state.templateName = value;
         try {
             const packageJson = JSON.parse(state.package);
             packageJson.name = value;
@@ -368,6 +372,7 @@ class FormContainer extends Component {
     }
     handleVersionChange(e, { name, value }) {
         const state = this.state;
+        state.templateVersion = value;
         try {
             const packageJson = JSON.parse(state.package);
             packageJson.version = value;
@@ -642,14 +647,15 @@ class FormContainer extends Component {
         }
     }
 
-    loadTemplate(templateName) {
+    loadTemplate(fullTemplateName) {
         let state = this.state;
         state.loading = true;
         this.setState(state);
-        const templateUrl = 'ap://'+templateName+'#hash';
+        const templateUrl = 'ap://'+fullTemplateName+'#hash';
         Template.fromUrl(templateUrl).then((template) => { 
             console.log('Loading template: ' + templateUrl);
-            state.templateName = templateName;
+            state.templateName = fullTemplateName.split('@').slice(0, -1).join('@');
+            state.templateVersion = fullTemplateName.split('@').pop();
             state.clause = new Clause(template);
             state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
             state.grammar = template.getTemplatizedGrammar();
@@ -670,6 +676,8 @@ class FormContainer extends Component {
             state = this.state;
             state.loading = false;
             this.setState(state);
+        }, reason => {
+            console.log(reason); // Error!
         });
     }
 
@@ -828,7 +836,7 @@ class FormContainer extends Component {
         );
         const topMenu = () =>
               (<Menu fixed='top' inverted>
-                 <Container>
+                 <Container fluid>
                    <Menu.Item header>
                      <Image size='mini' href='https://www.accordproject.org' src='static/img/accordlogo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
                      Accord Project &middot; Template Studio
@@ -860,15 +868,15 @@ class FormContainer extends Component {
                  </Container>
                </Menu>);
         const bottomMenu = () =>
-              (<Container>
+              (<Container fluid>
                  <Divider hidden/>
-                 <div className='ui bottom sticky fixed'>
+                 <div className='ui bottom sticky fluid'>
                    { this.state.activeError === 'parse' ? <ParseStatus log={log}/> :
                      this.state.activeError === 'logic' ? <LogicStatus log={log}/> :
                      this.state.activeError === 'model' ? <ModelStatus log={log}/> :
                      this.state.activeError === 'meta' ? <MetaStatus log={log}/> :
                      this.state.activeError === 'execute' ? <ExecuteStatus log={log}/> : null }
-                   <Menu attached='bottom'>
+                   <Menu fixed='bottom' color='grey' inverted>
                    <Container>
                      <Menu.Item header>
                        <AllStatusLabel log={this.state.log}/>
@@ -941,13 +949,13 @@ class FormContainer extends Component {
                      <Input label={{ basic: true, content: 'Name' }} fluid placeholder='Name'
                             onChange={this.handleNameChange}
                             value={
-                                this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().name : ''
+                                this.state.templateName
                             }></Input>
                      <br/>
                      <Input label={{ basic: true, content: 'Version' }} fluid placeholder='Version'
                             onChange={this.handleVersionChange}
                             value={
-                                this.state.clause ? this.state.clause.getTemplate().getMetadata().getPackageJson().version : ''
+                                this.state.templateVersion
                             }></Input>
                      <br/>
                      <DownloadButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
@@ -957,12 +965,12 @@ class FormContainer extends Component {
                  </Card>
               );
         const dimmableContainer = () => (
-              <Container style={{ marginTop: '7em', marginBottom: '7em' }}>
+              <Container fluid style={{ marginTop: '7em', marginBottom: '7em' }}>
                 <Dimmer.Dimmable dimmed={loading}>
                   <Dimmer active={loading} inverted>
                     <Loader>Loading Template</Loader>
                   </Dimmer>
-                  <Grid>
+                  <Grid padded>
                     <Grid.Row>
                       <Grid.Column width={4}>
                         <Grid>
