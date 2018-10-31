@@ -973,14 +973,13 @@ class FormContainer extends Component {
         const bottomMenu = () =>
               (<Container fluid>
                  <Divider hidden/>
-                 <div className='ui bottom sticky fluid'>
+                 <div className='ui bottom sticky'>
                    { this.state.activeError === 'parse' ? <ParseStatus log={log}/> :
                      this.state.activeError === 'logic' ? <LogicStatus log={log}/> :
                      this.state.activeError === 'model' ? <ModelStatus log={log}/> :
                      this.state.activeError === 'meta' ? <MetaStatus log={log}/> :
                      this.state.activeError === 'execute' ? <ExecuteStatus log={log}/> : null }
                    <Menu fixed='bottom' color='grey' inverted>
-                   <Container fluid>
                      <Menu.Item header>
                        <AllStatusLabel log={this.state.log}/>
                      </Menu.Item>
@@ -1023,7 +1022,6 @@ class FormContainer extends Component {
                          onClick={this.handleErrorTabChange}>
                          <Icon name='warning sign' color='red'/>Execution
                        </Menu.Item> : null }
-                   </Container>
                  </Menu>
                  </div>
                </Container>);
@@ -1068,7 +1066,7 @@ class FormContainer extends Component {
                  </Card>
               );
         const dimmableContainer = () => (
-              <Container fluid style={{ marginTop: '7em', marginBottom: '7em' }}>
+              <Container fluid style={{ marginTop: '7em', marginBottom: '9em' }}>
                 <Dimmer.Dimmable dimmed={loading}>
                   <Dimmer active={loading} inverted>
                     <Loader>Loading Template</Loader>

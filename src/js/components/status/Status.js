@@ -16,7 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Icon, Label, Message, Tab, Card } from 'semantic-ui-react';
+import { Segment, Icon, Label, Message, Tab, Card, Menu } from 'semantic-ui-react';
 
 const parseFailure = (log) => (
     log.text.indexOf('success') == -1
@@ -48,20 +48,15 @@ const anyFailure = (log) => (
         || otherFailure(log)
 );
 
-const newlines = (log) => (log.split('\n').map(function(item, key) {
-  return (
-    <span key={key}>
-      {item}
-      <br/>
-    </span>
+const newlines = (log) => (
+    <pre>{log}</pre>
   );
-}));
 
 const printErrors = (log) => (
     log.indexOf('success') == -1 ? 
-        <Message attached='top'>
+        <Menu fixed='bottom' style={{ marginBottom: '2em' }} fluid>
           <Message.List>{newlines(log)}</Message.List>
-        </Message>
+        </Menu>
     : null
 );
 
