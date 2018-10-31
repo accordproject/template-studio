@@ -250,7 +250,8 @@ const defaultlog =
         model: 'Not yet validate',
         logic: 'Not yet compiled.',
         meta: 'Not yet loaded.',
-        execute: '' };
+        execute: '',
+        loading: 'Unknown Error' };
 class FormContainer extends Component {
     constructor() {
         super();
@@ -260,6 +261,7 @@ class FormContainer extends Component {
             newTemplateUpload: '',
             modalURLOpen: false,
             modalUploadOpen: false,
+            loadingFailed: false,
             templateName: '',
             templateVersion: '',
             templateType: 'clause',
@@ -291,6 +293,9 @@ class FormContainer extends Component {
             confirmnew: { flag: false, temp: null },
             markers: [] // For code mirror marking
         };
+        this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
+        this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
+        this.handleURLOpen = this.handleURLOpen.bind(this);
         this.handleURLChange = this.handleURLChange.bind(this);
         this.handleURLOpen = this.handleURLOpen.bind(this);
         this.handleURLAbort = this.handleURLAbort.bind(this);
@@ -336,6 +341,19 @@ class FormContainer extends Component {
         this.handleTypeChange = this.handleTypeChange.bind(this);
     }
 
+    handleLoadingFailed(message) {
+        const state = this.state;
+        state.loading = false;
+        state.loadingFailed = true;
+        state.log.loading = message;
+        this.setState(state);
+    }
+    handleLoadingFailedConfirm() {
+        const state = this.state;
+        state.log.loading = 'Unknown Error';
+        state.loadingFailed = false;
+        this.setState(state);
+    }
     handleStatusChange(status) {
         const state = this.state;
         state.status = status;
@@ -787,8 +805,7 @@ class FormContainer extends Component {
             promisedTemplate = Template.fromUrl(templateURL);
         } catch (error) {
             console.log('LOAD FAILED!' + error.message); // Error!
-            state.loading = false;
-            this.setState(state);
+            this.handleLoadingFailed(error.message);
             return;
         };
         promisedTemplate.then((template) => { 
@@ -817,8 +834,7 @@ class FormContainer extends Component {
             this.setState(state);
         }, reason => {
             console.log('LOAD FAILED!' + reason.message); // Error!
-            state.loading = false;
-            this.setState(state);
+            this.handleLoadingFailed(reason.message);
         });
     }
 
@@ -832,8 +848,7 @@ class FormContainer extends Component {
             promisedTemplate = Template.fromArchive(buffer);
         } catch (error) {
             console.log('LOAD FAILED!' + error.message); // Error!
-            state.loading = false;
-            this.setState(state);
+            this.handleLoadingFailed(error.message);
             return;
         };
         promisedTemplate.then((template) => { 
@@ -861,8 +876,7 @@ class FormContainer extends Component {
             this.setState(state);
         }, reason => {
             console.log('LOAD FAILED!' + reason.message); // Error!
-            state.loading = false;
-            this.setState(state);
+            this.handleLoadingFailed(reason.message);
         });
     }
 
@@ -1028,10 +1042,8 @@ class FormContainer extends Component {
               <Modal.Content>
                 <Input autoFocus
                        label={{ icon: 'linkify' }} labelPosition='left'
-                       onChange={this.handleURLChange}
-                       value={
-                           this.state.newTemplateURL
-                       }
+                       onChange={ this.handleURLChange }
+                       value={ this.state.newTemplateURL }
                        placeholder='e.g., https://templates.accordproject.org/archives/helloworld@0.7.0.cta'
                        fluid></Input>
               </Modal.Content>
@@ -1216,6 +1228,12 @@ class FormContainer extends Component {
               );
         const dimmableContainer = () => (
               <Container fluid style={{ marginTop: '7em', marginBottom: '9em' }}>
+                <Confirm header='Could not load template'
+                         content={this.state.log.loading}
+                         confirmButton={null}
+                         cancelButton='Cancel'
+                         open={this.state.loadingFailed}
+                         onCancel={this.handleLoadingFailedConfirm} />
                 <Dimmer.Dimmable dimmed={loading}>
                   <Dimmer active={loading} inverted>
                     <Loader>Loading Template</Loader>
