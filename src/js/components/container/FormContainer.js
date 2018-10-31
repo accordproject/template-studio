@@ -443,7 +443,7 @@ class FormContainer extends Component {
         const loadTemplate = this.loadTemplateFromBuffer;
         this.blobToBuffer(file, function (err, buffer) {
             if (err) throw err;
-            loadTemplateFromUrl(buffer);
+            this.loadTemplateFromUrl(buffer);
         });
         state.modalUploadOpen = false;
     }
