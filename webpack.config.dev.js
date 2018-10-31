@@ -42,6 +42,10 @@ module.exports = {
       {
         test: /\.(ne|cta)$/,
         use:['raw-loader']
+      },
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
       }
     ]
   },    
