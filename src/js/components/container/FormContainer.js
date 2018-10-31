@@ -42,7 +42,6 @@ import {
 } from '../status/Status';
 import Options from '../status/Options';
 import {
-    UploadButton,
     ResetButton,
     ExportButton
 } from '../status/TemplateTab';
@@ -951,7 +950,7 @@ class FormContainer extends Component {
                          </Menu.Item>
                          <Header as='h4'>Upload</Header>
                          <ModalURL/>
-                         <Menu.Item>
+                         <Menu.Item disabled>
                            <Icon name='upload'/> from local file
                          </Menu.Item>
                        </Dropdown.Menu>

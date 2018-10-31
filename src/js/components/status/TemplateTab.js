@@ -60,15 +60,4 @@ class ResetButton extends Button {
                   <Icon name="redo" flipped="horizontally"/> Reset</Button>); }
 }
 
-class UploadButton extends Dropdown {
-    constructor(props) {
-        super(props);
-        this.uploadCta = this.uploadCta.bind(this);
-    }
-    async uploadCta(clause) {
-        console.log("Upload TBD!");
-    }
-    render() { return <Dropdown.Item onClick={() => this.uploadCta(this.props.clause)}><Icon name="upload"/> Upload</Dropdown.Item>; }
-}
-
-export { ExportButton, ResetButton, UploadButton };
+export { ExportButton, ResetButton };
