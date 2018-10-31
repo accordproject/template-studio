@@ -81,7 +81,8 @@ import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
 const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
 
-const DEFAULT_TEMPLATE = 'helloworld@0.7.0';
+const DEFAULT_TEMPLATE = 'ap://helloworld@0.7.0#hash';
+const EMPTY_TEMPLATE = 'ap://empty@0.1.0#hash';
 
 function getTemplates() {
     var templates = [];
@@ -105,7 +106,7 @@ function getTemplates() {
         // Make sure it's the right ciceroVersion and uses Ergo
         if (semver.satisfies(ciceroVersion,currentTemplate.ciceroVersion) && currentTemplate.language === 0) {
             if (templates.filter(t => t.key === currentT).length < 1)
-                templates.push({'key':currentT, 'value':currentT, 'text':currentT});
+                templates.push({'key':currentT, 'value':'ap://'+currentT+'#hash', 'text':currentT});
         }
     }
     return templates;
@@ -252,7 +253,9 @@ class FormContainer extends Component {
     constructor() {
         super();
         this.state = {
-            originalTemplateName: '',
+            templateURL: '',
+            newTemplateURL: '',
+            modalURLOpen: false,
             templateName: '',
             templateVersion: '',
             clause: null,
@@ -283,6 +286,10 @@ class FormContainer extends Component {
             confirmnew: { flag: false, temp: null },
             markers: [] // For code mirror marking
         };
+        this.handleURLChange = this.handleURLChange.bind(this);
+        this.handleURLOpen = this.handleURLOpen.bind(this);
+        this.handleURLClose = this.handleURLClose.bind(this);
+        this.handleURLConfirm = this.handleURLConfirm.bind(this);
         this.handleStatusChange = this.handleStatusChange.bind(this);
         this.handleResetChange = this.handleResetChange.bind(this);
         this.handleResetConfirmed = this.handleResetConfirmed.bind(this);
@@ -323,20 +330,43 @@ class FormContainer extends Component {
         state.status = status;
         this.setState(state);
     }
+    handleURLChange(e, { name, value }) {
+        const state = this.state;
+        state.newTemplateURL = value;
+        state.modalURLOpen = true;
+        this.setState(state);
+    }
+    handleURLOpen() {
+        const state = this.state;
+        state.modalURLOpen = true;
+        this.setState(state);
+    }
+    handleURLClose() {
+        const state = this.state;
+        state.modalURLOpen = false;
+        this.setState(state);
+    }
+    handleURLConfirm() {
+        const state = this.state;
+        state.modalURLOpen = false;
+        const templateURL = state.newTemplateURL;
+        state.newTemplateURL = '';
+        this.loadTemplate(templateURL);
+    }
     handleResetChange() {
         const state = this.state;
         if (state.status === 'changed') {
             state.confirmreset = { flag: true, temp: null };
             this.setState(state);
         } else {
-            this.loadTemplate(this.state.originalTemplateName);
+            this.loadTemplate(this.state.templateURL);
         }
     }
     handleResetConfirmed() {
         const state = this.state;
         state.confirmreset = { flag: false, temp: null };
         this.setState(state);
-        this.loadTemplate(this.state.originalTemplateName);
+        this.loadTemplate(this.state.templateURL);
     }
     handleResetAborted() {
         const state = this.state;
@@ -350,14 +380,14 @@ class FormContainer extends Component {
             state.confirmnew = { flag: true, temp: null };
             this.setState(state);
         } else {
-            this.loadTemplate('empty@0.1.0');
+            this.loadTemplate(EMPTY_TEMPLATE);
         }
     }
     handleNewConfirmed() {
         const state = this.state;
         state.confirmnew = { flag: false, temp: null };
         this.setState(state);
-        this.loadTemplate('empty@0.1.0');
+        this.loadTemplate(EMPTY_TEMPLATE);
     }
     handleNewAborted() {
         const state = this.state;
@@ -676,17 +706,25 @@ class FormContainer extends Component {
         }
     }
 
-    loadTemplate(fullTemplateName) {
+    loadTemplate(templateURL) {
         let state = this.state;
         state.loading = true;
         this.setState(state);
-        const templateUrl = 'ap://'+fullTemplateName+'#hash';
-        console.log('Loading template: ' + templateUrl);
-        Template.fromUrl(templateUrl).then((template) => { 
-            state.originalTemplateName = fullTemplateName;
-            state.templateName = fullTemplateName.split('@').slice(0, -1).join('@');
-            state.templateVersion = fullTemplateName.split('@').pop();
+        console.log('Loading template: ' + templateURL);
+        let promisedTemplate;
+        try {
+            promisedTemplate = Template.fromUrl(templateURL);
+        } catch (error) {
+            console.log('LOAD FAILED!' + error.message); // Error!
+            state.loading = false;
+            this.setState(state);
+            return;
+        };
+        promisedTemplate.then((template) => { 
+            state.templateURL = templateURL;
             state.clause = new Clause(template);
+            state.templateName = state.clause.getTemplate().getMetadata().getName();
+            state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
             state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
             state.grammar = template.getTemplatizedGrammar();
             state.model = template.getModelManager().getModels();
@@ -865,6 +903,28 @@ class FormContainer extends Component {
               </Modal.Content>
             </Modal>
         );
+        const ModalURL = () => (
+            <Modal closeOnDimmerClick={false} open={this.state.modalURLOpen}
+                   onClose={this.handleURLClose}
+                   trigger={<Menu.Item onClick={this.handleURLOpen}><Icon name='world'/> from URL</Menu.Item>}>
+              <Header>Enter the link of the template archive:</Header>
+              <Modal.Content>
+                <Input autoFocus
+                       label={{ content: 'URL' }}
+                       onChange={this.handleURLChange}
+                       value={
+                           this.state.newTemplateURL
+                       }
+                       placeholder='https://templates.accordproject.org/archives/empty@0.1.0.cta'
+                       fluid></Input>
+              </Modal.Content>
+              <Modal.Actions>
+                <Button color='green' onClick={this.handleURLConfirm} inverted>
+                  <Icon name='checkmark' /> Upload
+                </Button>
+              </Modal.Actions>
+            </Modal>
+        );
         const topMenu = () =>
               (<Menu fixed='top' inverted>
                  <Container fluid>
@@ -890,9 +950,7 @@ class FormContainer extends Component {
                              <Icon name="file outline"/> Empty
                          </Menu.Item>
                          <Header as='h4'>Upload</Header>
-                         <Menu.Item>
-                           <Icon name='world'/> from URL
-                         </Menu.Item>
+                         <ModalURL/>
                          <Menu.Item>
                            <Icon name='upload'/> from local file
                          </Menu.Item>
