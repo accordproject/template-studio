@@ -904,10 +904,10 @@ class FormContainer extends Component {
             </Modal>
         );
         const ModalURL = () => (
-            <Modal closeOnDimmerClick={false} open={this.state.modalURLOpen}
+            <Modal open={this.state.modalURLOpen}
                    onClose={this.handleURLClose}
                    trigger={<Menu.Item onClick={this.handleURLOpen}><Icon name='world'/> from URL</Menu.Item>}>
-              <Header>Enter the link of the template archive:</Header>
+              <Header>Enter the link to the template archive:</Header>
               <Modal.Content>
                 <Input autoFocus
                        label={{ content: 'URL' }}
@@ -937,7 +937,7 @@ class FormContainer extends Component {
                      <Dropdown icon='search'
                                className='icon'
                                floating labeled button
-                               text='Select a Template'
+                               text='Search Template Library'
                                search
                                options={templates}
                                onChange={this.handleSelectTemplate}/>
@@ -1044,7 +1044,7 @@ class FormContainer extends Component {
                  </Menu.Item>
                </Menu>);
         const templateForm = () =>
-              (  <Card>
+              (  <Card fluid>
                    <Card.Content>
                      <Card.Header>Current Template</Card.Header>
                      <StatusLabel log={this.state.log} status={this.state.status}/>
