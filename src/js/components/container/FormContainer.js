@@ -86,6 +86,33 @@ const ergoVersion = ergoPackageJson.version;
 const DEFAULT_TEMPLATE = 'ap://helloworld@0.7.0#hash';
 const EMPTY_TEMPLATE = 'ap://empty@0.1.0#hash';
 
+function getUrlVars() {
+    let vars = {};
+    window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = decodeURIComponent(value);
+    });
+    return vars;
+}
+function getUrlParam(parameter, defaultvalue){
+    let urlparameter = defaultvalue;
+    try {
+        if(window.location.href.indexOf(parameter) > -1){
+            if (getUrlVars()[parameter]) {
+                urlparameter = getUrlVars()[parameter];
+            } else {
+                throw new Error('Cannot parse template URL parameter');
+            }
+        } else {
+            console.log('Did not find template URL parameter when loading studio, using default: ' + urlparameter);
+        }
+    } catch (error) {
+        console.log('Did not find template URL parameter when loading studio, using default: ' + urlparameter);
+    }
+    return urlparameter;
+}
+function initUrl() {
+    return getUrlParam('template',DEFAULT_TEMPLATE);
+}
 function getTemplates() {
     var templates = [];
     for(var t in templateLibrary.default) {
@@ -324,7 +351,7 @@ class FormContainer extends Component {
         this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
         this.handleSelectTemplateConfirmed = this.handleSelectTemplateConfirmed.bind(this);
         this.handleSelectTemplateAborted = this.handleSelectTemplateAborted.bind(this);
-        this.loadTemplate = this.loadTemplate.bind(this);
+        this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
         this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
         this.handleItemClick = this.handleItemClick.bind(this);
         this.handleRequestChange = this.handleRequestChange.bind(this);
@@ -380,7 +407,7 @@ class FormContainer extends Component {
         state.modalURLOpen = false;
         const templateURL = state.newTemplateURL;
         state.newTemplateURL = '';
-        this.loadTemplate(templateURL);
+        this.loadTemplateFromUrl(templateURL);
     }
     handleUploadOpen() {
         const state = this.state;
@@ -416,7 +443,7 @@ class FormContainer extends Component {
         const loadTemplate = this.loadTemplateFromBuffer;
         this.blobToBuffer(file, function (err, buffer) {
             if (err) throw err;
-            loadTemplate(buffer);
+            loadTemplateFromUrl(buffer);
         });
         state.modalUploadOpen = false;
     }
@@ -426,14 +453,14 @@ class FormContainer extends Component {
             state.confirmreset = { flag: true, temp: null };
             this.setState(state);
         } else {
-            this.loadTemplate(this.state.templateURL);
+            this.loadTemplateFromUrl(this.state.templateURL);
         }
     }
     handleResetConfirmed() {
         const state = this.state;
         state.confirmreset = { flag: false, temp: null };
         this.setState(state);
-        this.loadTemplate(this.state.templateURL);
+        this.loadTemplateFromUrl(this.state.templateURL);
     }
     handleResetAborted() {
         const state = this.state;
@@ -447,14 +474,14 @@ class FormContainer extends Component {
             state.confirmnew = { flag: true, temp: null };
             this.setState(state);
         } else {
-            this.loadTemplate(EMPTY_TEMPLATE);
+            this.loadTemplateFromUrl(EMPTY_TEMPLATE);
         }
     }
     handleNewConfirmed() {
         const state = this.state;
         state.confirmnew = { flag: false, temp: null };
         this.setState(state);
-        this.loadTemplate(EMPTY_TEMPLATE);
+        this.loadTemplateFromUrl(EMPTY_TEMPLATE);
     }
     handleNewAborted() {
         const state = this.state;
@@ -778,7 +805,7 @@ class FormContainer extends Component {
         const state = this.state;
         const data = state.confirm.temp;
         state.confirm = { flag: false, temp: null };
-        this.loadTemplate(data);
+        this.loadTemplateFromUrl(data);
     }
     handleSelectTemplateAborted() {
         const state = this.state;
@@ -791,11 +818,11 @@ class FormContainer extends Component {
             state.confirm = { flag: true, temp: data.value };
             this.setState(state);
         } else {
-            this.loadTemplate(data.value);
+            this.loadTemplateFromUrl(data.value);
         }
     }
 
-    loadTemplate(templateURL) {
+    loadTemplateFromUrl(templateURL) {
         let state = this.state;
         state.loading = true;
         this.setState(state);
@@ -806,7 +833,7 @@ class FormContainer extends Component {
         } catch (error) {
             console.log('LOAD FAILED!' + error.message); // Error!
             this.handleLoadingFailed(error.message);
-            return;
+            return false;
         };
         promisedTemplate.then((template) => { 
             state.templateURL = templateURL;
@@ -832,9 +859,11 @@ class FormContainer extends Component {
             state = this.state;
             state.loading = false;
             this.setState(state);
+            return true;
         }, reason => {
             console.log('LOAD FAILED!' + reason.message); // Error!
             this.handleLoadingFailed(reason.message);
+            return false;
         });
     }
 
@@ -849,7 +878,7 @@ class FormContainer extends Component {
         } catch (error) {
             console.log('LOAD FAILED!' + error.message); // Error!
             this.handleLoadingFailed(error.message);
-            return;
+            return false;
         };
         promisedTemplate.then((template) => { 
             state.clause = new Clause(template);
@@ -874,14 +903,18 @@ class FormContainer extends Component {
             state = this.state;
             state.loading = false;
             this.setState(state);
+            return true;
         }, reason => {
             console.log('LOAD FAILED!' + reason.message); // Error!
             this.handleLoadingFailed(reason.message);
+            return false;
         });
     }
 
     componentDidMount() {
-        this.loadTemplate(DEFAULT_TEMPLATE);
+        if (!this.loadTemplateFromUrl(initUrl())) {
+            this.loadTemplateFromUrl(DEFAULT_TEMPLATE)
+        }
     }
     componentDidUpdate () {
         if (this.state.status === 'changed') {
