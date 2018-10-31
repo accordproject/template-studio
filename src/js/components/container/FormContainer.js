@@ -1023,19 +1023,22 @@ class FormContainer extends Component {
         const ModalURL = () => (
             <Modal size='small' open={this.state.modalURLOpen}
                    onClose={this.handleURLAbort}
-                   trigger={<Menu.Item onClick={this.handleURLOpen}><Icon name='world'/> from URL</Menu.Item>}>
-              <Header>Enter the link to the template archive:</Header>
+                   trigger={<Menu.Item onClick={this.handleURLOpen}><Icon name='world'/>...from URL</Menu.Item>}>
+              <Header>Enter the URL of the template archive to load:</Header>
               <Modal.Content>
                 <Input autoFocus
-                       label={{ content: 'URL' }}
+                       label={{ icon: 'linkify' }} labelPosition='left'
                        onChange={this.handleURLChange}
                        value={
                            this.state.newTemplateURL
                        }
-                       placeholder='https://templates.accordproject.org/archives/empty@0.1.0.cta'
+                       placeholder='e.g., https://templates.accordproject.org/archives/helloworld@0.7.0.cta'
                        fluid></Input>
               </Modal.Content>
               <Modal.Actions>
+                <Button color='red' onClick={this.handleURLAbort} inverted>
+                  <Icon name='close' /> Cancel
+                </Button>
                 <Button color='green' onClick={this.handleURLConfirm} inverted>
                   <Icon name='checkmark' /> Upload
                 </Button>
@@ -1045,8 +1048,8 @@ class FormContainer extends Component {
         const ModalUpload = () => (
             <Modal size='small' open={this.state.modalUploadOpen}
                    onClose={this.handleUploadClose}
-                   trigger={<Menu.Item onClick={this.handleUploadOpen}><Icon name='upload'/> from archive</Menu.Item>}>
-              <Header>Upload an archive:</Header>
+                   trigger={<Menu.Item onClick={this.handleUploadOpen}><Icon name='upload'/>...from disk</Menu.Item>}>
+              <Header>Upload a template archive (.cta file) from your machine:</Header>
               <Modal.Content>
                 <FileUpload handleUploadConfirm={this.handleUploadConfirm}/>
               </Modal.Content>
@@ -1076,7 +1079,7 @@ class FormContainer extends Component {
                          <Menu.Item onClick={this.handleNewChange}>
                              <Icon name="file outline"/> Empty
                          </Menu.Item>
-                         <Header as='h4'>Upload</Header>
+                         <Header as='h4'>Import</Header>
                          <ModalURL/>
                          <ModalUpload/>
                        </Dropdown.Menu>
@@ -1174,20 +1177,7 @@ class FormContainer extends Component {
                    </Card.Content>
                    <Card.Content>
                      <Form>
-                       <Form.Field control={Input} label='Name'
-                                   onChange={this.handleNameChange}
-                                   value={
-                                       this.state.templateName
-                                   }>
-                       </Form.Field>
-                       <Form.Field control={Input} label='Version'
-                                   onChange={this.handleVersionChange}
-                                   value={
-                                       this.state.templateVersion
-                                   }>
-                       </Form.Field>
                        <Form.Group inline>
-                         <label>Type</label>
                          <Form.Field
                            control={Radio}
                            label='full contract'
@@ -1203,6 +1193,18 @@ class FormContainer extends Component {
                            onChange={this.handleTypeChange}
                          />
                        </Form.Group>
+                       <Form.Field control={Input} label='Name'
+                                   onChange={this.handleNameChange}
+                                   value={
+                                       this.state.templateName
+                                   }>
+                       </Form.Field>
+                       <Form.Field control={Input} label='Version'
+                                   onChange={this.handleVersionChange}
+                                   value={
+                                       this.state.templateVersion
+                                   }>
+                       </Form.Field>
                      </Form>
                    </Card.Content>
                    <Card.Content>
