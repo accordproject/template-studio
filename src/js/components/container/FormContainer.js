@@ -18,6 +18,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import InputGrammar from '../presentational/InputGrammar';
 import InputJson from '../presentational/InputJson';
+import FileUpload from '../presentational/FileUpload';
 import ModelForm from '../tabs/ModelForm';
 import LogicForm from '../tabs/LogicForm';
 import CompileForm from '../tabs/CompileForm';
@@ -254,7 +255,9 @@ class FormContainer extends Component {
         this.state = {
             templateURL: '',
             newTemplateURL: '',
+            newTemplateUpload: '',
             modalURLOpen: false,
+            modalUploadOpen: false,
             templateName: '',
             templateVersion: '',
             clause: null,
@@ -287,8 +290,12 @@ class FormContainer extends Component {
         };
         this.handleURLChange = this.handleURLChange.bind(this);
         this.handleURLOpen = this.handleURLOpen.bind(this);
-        this.handleURLClose = this.handleURLClose.bind(this);
+        this.handleURLAbort = this.handleURLAbort.bind(this);
         this.handleURLConfirm = this.handleURLConfirm.bind(this);
+        this.handleUploadOpen = this.handleUploadOpen.bind(this);
+        this.handleUploadClose = this.handleUploadClose.bind(this);
+        this.handleUploadConfirm = this.handleUploadConfirm.bind(this);
+        this.blobToBuffer = this.blobToBuffer.bind(this);
         this.handleStatusChange = this.handleStatusChange.bind(this);
         this.handleResetChange = this.handleResetChange.bind(this);
         this.handleResetConfirmed = this.handleResetConfirmed.bind(this);
@@ -310,6 +317,7 @@ class FormContainer extends Component {
         this.handleSelectTemplateConfirmed = this.handleSelectTemplateConfirmed.bind(this);
         this.handleSelectTemplateAborted = this.handleSelectTemplateAborted.bind(this);
         this.loadTemplate = this.loadTemplate.bind(this);
+        this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
         this.handleItemClick = this.handleItemClick.bind(this);
         this.handleRequestChange = this.handleRequestChange.bind(this);
         this.handleStateChange = this.handleStateChange.bind(this);
@@ -340,7 +348,7 @@ class FormContainer extends Component {
         state.modalURLOpen = true;
         this.setState(state);
     }
-    handleURLClose() {
+    handleURLAbort() {
         const state = this.state;
         state.modalURLOpen = false;
         this.setState(state);
@@ -351,6 +359,44 @@ class FormContainer extends Component {
         const templateURL = state.newTemplateURL;
         state.newTemplateURL = '';
         this.loadTemplate(templateURL);
+    }
+    handleUploadOpen() {
+        const state = this.state;
+        state.modalUploadOpen = true;
+        this.setState(state);
+    }
+    handleUploadClose() {
+        const state = this.state;
+        state.modalUploadOpen = false;
+        this.setState(state);
+    }
+    blobToBuffer(blob, cb) {
+        if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
+            throw new Error('first argument must be a Blob');
+        }
+        if (typeof cb !== 'function') {
+            throw new Error('second argument must be a function');
+        }
+        
+        var reader = new FileReader();
+        
+        function onLoadEnd (e) {
+            reader.removeEventListener('loadend', onLoadEnd, false);
+            if (e.error) cb(e.error);
+            else cb(null, Buffer.from(reader.result));
+        }
+        
+        reader.addEventListener('loadend', onLoadEnd, false);
+        reader.readAsArrayBuffer(blob);
+    }
+    handleUploadConfirm(file) {
+        const state = this.state;
+        const loadTemplate = this.loadTemplateFromBuffer;
+        this.blobToBuffer(file, function (err, buffer) {
+            if (err) throw err;
+            loadTemplate(buffer);
+        });
+        state.modalUploadOpen = false;
     }
     handleResetChange() {
         const state = this.state;
@@ -749,6 +795,49 @@ class FormContainer extends Component {
         });
     }
 
+    loadTemplateFromBuffer(buffer) {
+        let state = this.state;
+        state.loading = true;
+        this.setState(state);
+        console.log('Loading template from Buffer');
+        let promisedTemplate;
+        try {
+            promisedTemplate = Template.fromArchive(buffer);
+        } catch (error) {
+            console.log('LOAD FAILED!' + error.message); // Error!
+            state.loading = false;
+            this.setState(state);
+            return;
+        };
+        promisedTemplate.then((template) => { 
+            state.clause = new Clause(template);
+            state.templateName = state.clause.getTemplate().getMetadata().getName();
+            state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
+            state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
+            state.grammar = template.getTemplatizedGrammar();
+            state.model = template.getModelManager().getModels();
+            state.logic = template.getLogic();
+            state.text = template.getMetadata().getSamples().default;
+            state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
+            state.data = 'null';
+            state.status = 'loaded';
+            state = compileLogic(null,state.logic, state);
+            this.setState(state);
+            this.handleModelChange(null,state,state.model);
+            this.handleSampleChange(state.text);
+            this.handleLogicChange(null,state,state.logic);
+            this.handlePackageChange(state.package);
+            this.handleInitLogic(); // Initializes the contract state
+            state = this.state;
+            state.loading = false;
+            this.setState(state);
+        }, reason => {
+            console.log('LOAD FAILED!' + reason.message); // Error!
+            state.loading = false;
+            this.setState(state);
+        });
+    }
+
     componentDidMount() {
         this.loadTemplate(DEFAULT_TEMPLATE);
     }
@@ -903,8 +992,8 @@ class FormContainer extends Component {
             </Modal>
         );
         const ModalURL = () => (
-            <Modal open={this.state.modalURLOpen}
-                   onClose={this.handleURLClose}
+            <Modal size='small' open={this.state.modalURLOpen}
+                   onClose={this.handleURLAbort}
                    trigger={<Menu.Item onClick={this.handleURLOpen}><Icon name='world'/> from URL</Menu.Item>}>
               <Header>Enter the link to the template archive:</Header>
               <Modal.Content>
@@ -922,6 +1011,16 @@ class FormContainer extends Component {
                   <Icon name='checkmark' /> Upload
                 </Button>
               </Modal.Actions>
+            </Modal>
+        );
+        const ModalUpload = () => (
+            <Modal size='small' open={this.state.modalUploadOpen}
+                   onClose={this.handleUploadClose}
+                   trigger={<Menu.Item onClick={this.handleUploadOpen}><Icon name='upload'/> from archive file</Menu.Item>}>
+              <Header>Upload an archive:</Header>
+              <Modal.Content>
+                <FileUpload handleUploadConfirm={this.handleUploadConfirm}/>
+              </Modal.Content>
             </Modal>
         );
         const topMenu = () =>
@@ -950,9 +1049,7 @@ class FormContainer extends Component {
                          </Menu.Item>
                          <Header as='h4'>Upload</Header>
                          <ModalURL/>
-                         <Menu.Item disabled>
-                           <Icon name='upload'/> from local file
-                         </Menu.Item>
+                         <ModalUpload/>
                        </Dropdown.Menu>
                      </Dropdown>
                      <Dropdown item text='Help' simple>
