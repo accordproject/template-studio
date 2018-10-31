@@ -1016,7 +1016,7 @@ class FormContainer extends Component {
         const ModalUpload = () => (
             <Modal size='small' open={this.state.modalUploadOpen}
                    onClose={this.handleUploadClose}
-                   trigger={<Menu.Item onClick={this.handleUploadOpen}><Icon name='upload'/> from archive file</Menu.Item>}>
+                   trigger={<Menu.Item onClick={this.handleUploadOpen}><Icon name='upload'/> from archive</Menu.Item>}>
               <Header>Upload an archive:</Header>
               <Modal.Content>
                 <FileUpload handleUploadConfirm={this.handleUploadConfirm}/>
@@ -1032,10 +1032,10 @@ class FormContainer extends Component {
                    </Menu.Item>
                    <Menu.Item>
                      <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
-                     <Dropdown icon='search'
-                               className='icon'
-                               floating labeled button
-                               text='Search Template Library'
+                     <Dropdown style={{'width': '270px'}} icon='search'
+                               className='ui icon fixed'
+                               placeholder='Search Template Library'
+                               labeled button
                                search
                                options={templates}
                                onChange={this.handleSelectTemplate}/>
