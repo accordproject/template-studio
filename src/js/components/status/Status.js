@@ -54,7 +54,7 @@ const newlines = (log) => (
 
 const printErrors = (log) => (
     log.indexOf('success') == -1 ? 
-        <Menu fixed='bottom' style={{ marginBottom: '2em' }} fluid>
+        <Menu fixed='bottom' style={{ marginBottom: '2.3em' }} fluid>
           <Message.List>{newlines(log)}</Message.List>
         </Menu>
     : null
