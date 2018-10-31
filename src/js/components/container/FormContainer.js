@@ -440,10 +440,10 @@ class FormContainer extends Component {
     }
     handleUploadConfirm(file) {
         const state = this.state;
-        const loadTemplate = this.loadTemplateFromBuffer;
+        const loadTemplateFun = this.loadTemplateFromBuffer;
         this.blobToBuffer(file, function (err, buffer) {
             if (err) throw err;
-            this.loadTemplateFromUrl(buffer);
+            loadTemplateFun(buffer);
         });
         state.modalUploadOpen = false;
     }
