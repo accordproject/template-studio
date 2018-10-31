@@ -66,7 +66,9 @@ import {
     Dimmer,
     Loader,
     Segment,
-    Button
+    Button,
+    Checkbox,
+    Radio
 } from 'semantic-ui-react';
 
 import { ModelFile } from 'composer-concerto';
@@ -260,6 +262,7 @@ class FormContainer extends Component {
             modalUploadOpen: false,
             templateName: '',
             templateVersion: '',
+            templateType: 'clause',
             clause: null,
             package: 'null',
             readme: '',
@@ -330,6 +333,7 @@ class FormContainer extends Component {
         this.handleErrorTabChange = this.handleErrorTabChange.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleVersionChange = this.handleVersionChange.bind(this);
+        this.handleTypeChange = this.handleTypeChange.bind(this);
     }
 
     handleStatusChange(status) {
@@ -448,8 +452,11 @@ class FormContainer extends Component {
             state.package = JSON.stringify(packageJson,null,2);
             state.templateName = packageJson.name;
             state.templateVersion = packageJson.version;
+            state.templateType = packageJson.cicero.template;
             state.log.meta = 'package.json change successful!';
             this.setState(state);
+            // Make sure to try re-parsing
+            this.setState(parseSample(state, state.text));
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.package = text;
@@ -488,6 +495,25 @@ class FormContainer extends Component {
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.log.meta = '[Change Template Version] ' + error;
+            this.setState(state);
+        }
+    }
+    handleTypeChange(e, { name, value }) {
+        const state = this.state;
+        state.templateType = value;
+        try {
+            const packageJson = JSON.parse(state.package);
+            packageJson.cicero.template = value;
+            state.clause.getTemplate().setPackageJson(packageJson);
+            state.package = JSON.stringify(packageJson,null,2);
+            state.log.meta = 'Template kind change successful!';
+            state.status = 'changed';
+            this.setState(state);
+            // Make sure to try re-parsing
+            this.setState(parseSample(state, state.text));
+        } catch (error){
+            console.log('ERROR'+JSON.stringify(error.message));
+            state.log.meta = '[Change Template Type] ' + error;
             this.setState(state);
         }
     }
@@ -770,6 +796,7 @@ class FormContainer extends Component {
             state.clause = new Clause(template);
             state.templateName = state.clause.getTemplate().getMetadata().getName();
             state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
+            state.templateType = state.clause.getTemplate().getMetadata().getTemplateType();
             state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
             state.grammar = template.getTemplatizedGrammar();
             state.model = template.getModelManager().getModels();
@@ -813,6 +840,7 @@ class FormContainer extends Component {
             state.clause = new Clause(template);
             state.templateName = state.clause.getTemplate().getMetadata().getName();
             state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
+            state.templateType = state.clause.getTemplate().getMetadata().getTemplateType();
             state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
             state.grammar = template.getTemplatizedGrammar();
             state.model = template.getModelManager().getModels();
@@ -1034,7 +1062,7 @@ class FormContainer extends Component {
                      <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
                      <Dropdown style={{'width': '270px'}} icon='search'
                                className='ui icon fixed'
-                               placeholder='Search Template Library'
+                               text='Search Accord Templates'
                                labeled button
                                search
                                options={templates}
@@ -1144,16 +1172,37 @@ class FormContainer extends Component {
                      <StatusLabel log={this.state.log} status={this.state.status}/>
                    </Card.Content>
                    <Card.Content>
-                     <Input size='small' label={{ content: 'Name' }} fluid placeholder='Name'
-                            onChange={this.handleNameChange}
-                            value={
-                                this.state.templateName
-                            }></Input>
-                     <Input size='small' label={{ content: 'Version' }} fluid placeholder='Version'
-                            onChange={this.handleVersionChange}
-                            value={
-                                this.state.templateVersion
-                            }></Input>
+                     <Form>
+                       <Form.Field control={Input} label='Name'
+                                   onChange={this.handleNameChange}
+                                   value={
+                                       this.state.templateName
+                                   }>
+                       </Form.Field>
+                       <Form.Field control={Input} label='Version'
+                                   onChange={this.handleVersionChange}
+                                   value={
+                                       this.state.templateVersion
+                                   }>
+                       </Form.Field>
+                       <Form.Group inline>
+                         <label>Type</label>
+                         <Form.Field
+                           control={Radio}
+                           label='full contract'
+                           value='contract'
+                           checked={this.state.templateType === 'contract'}
+                           onChange={this.handleTypeChange}
+                         />
+                         <Form.Field
+                           control={Radio}
+                           label='single clause'
+                           value='clause'
+                           checked={this.state.templateType === 'clause'}
+                           onChange={this.handleTypeChange}
+                         />
+                       </Form.Group>
+                     </Form>
                    </Card.Content>
                    <Card.Content>
                      <ExportButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
