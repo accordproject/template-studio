@@ -84,7 +84,8 @@ const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
 
 const DEFAULT_TEMPLATE = 'ap://helloworld@0.7.0#hash';
-const EMPTY_TEMPLATE = 'ap://empty@0.1.0#hash';
+const EMPTY_CLAUSE_TEMPLATE = 'ap://empty@0.2.0#hash';
+const EMPTY_CONTRACT_TEMPLATE = 'ap://empty-contract@0.1.0#hash';
 
 function getUrlVars() {
     let vars = {};
@@ -468,20 +469,21 @@ class FormContainer extends Component {
         this.setState(state);
     }
 
-    handleNewChange() {
+    handleNewChange(emptytemplate) {
         const state = this.state;
         if (state.status === 'changed') {
-            state.confirmnew = { flag: true, temp: null };
+            state.confirmnew = { flag: true, temp: emptytemplate };
             this.setState(state);
         } else {
-            this.loadTemplateFromUrl(EMPTY_TEMPLATE);
+            this.loadTemplateFromUrl(emptytemplate);
         }
     }
     handleNewConfirmed() {
         const state = this.state;
+        const emptytemplate = state.confirmnew.temp;
         state.confirmnew = { flag: false, temp: null };
         this.setState(state);
-        this.loadTemplateFromUrl(EMPTY_TEMPLATE);
+        this.loadTemplateFromUrl(emptytemplate);
     }
     handleNewAborted() {
         const state = this.state;
@@ -1121,8 +1123,11 @@ class FormContainer extends Component {
                      <Dropdown item text='New Template' simple>
                        <Dropdown.Menu>
                          <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmnew.flag} onCancel={this.handleNewAborted} onConfirm={this.handleNewConfirmed} />
-                         <Menu.Item onClick={this.handleNewChange}>
-                             <Icon name="file outline"/> Empty
+                         <Menu.Item onClick={() => this.handleNewChange(EMPTY_CONTRACT_TEMPLATE)}>
+                             <Icon name="file alternate outline"/> Empty Contract
+                         </Menu.Item>
+                         <Menu.Item onClick={() => this.handleNewChange(EMPTY_CLAUSE_TEMPLATE)}>
+                             <Icon name="file outline"/> Empty Clause
                          </Menu.Item>
                          <Header as='h4'>Import</Header>
                          <ModalURL/>
