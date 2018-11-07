@@ -126,7 +126,7 @@ async function buildTemplates(selectedTemplate) {
             try {
                 const template = await Template.fromDirectory(templatePath);
 
-                if(!process.env.SKIP_GENERATION) {
+                if(!process.env.SKIP_GENERATION && template.getMetadata().getName() === 'helloworld') {
                     const language = template.getMetadata().getLanguage();
                     let archive;
                     // Only produce Ergo archives
@@ -142,6 +142,8 @@ async function buildTemplates(selectedTemplate) {
                     } else {
                         console.log('Skipping: ' + template.getIdentifier() + ' (in JavaScript)');
                     }
+                } else {
+                    console.log('Skipping: ' + template.getIdentifier());
                 }
             } catch (err) {
                 console.log(err);
