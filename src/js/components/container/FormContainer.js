@@ -83,7 +83,7 @@ import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
 const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
 
-const DEFAULT_TEMPLATE = 'ap://helloworld@0.7.0#hash';
+const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.0.cta';
 const EMPTY_CLAUSE_TEMPLATE = 'ap://empty@0.2.0#hash';
 const EMPTY_CONTRACT_TEMPLATE = 'ap://empty-contract@0.1.0#hash';
 
@@ -183,20 +183,26 @@ function compileLogic(editor,logic,state) {
     const model = state.model;
     try {
         const compiledLogic = Ergo.compileToJavaScript(logic,model,'cicero',false);
-        state.markers.forEach(marker => marker.clear());
-        state.markers = [];
         if (compiledLogic.hasOwnProperty('error')) {
             const error = compiledLogic.error;
             state.log.logic = error.verbose;
             if (editor) {
                 console.log('ERROR'+JSON.stringify(error));
+                state.markers = [];
+                state.markersSource = [];
                 state.markers.push
                 (editor.markText({line:error.locstart.line-1,ch:error.locstart.character},
                                  {line:error.locend.line-1,ch:error.locend.character+1},
                                  {className: 'syntax-error', title: error.verbose}));
+                state.markersSource.push
+                ({ start: {line:error.locstart.line-1,ch:error.locstart.character},
+                   end: {line:error.locend.line-1,ch:error.locend.character+1},
+                   kind: {className: 'syntax-error', title: error.verbose}});
             }
         } else {
             const compiledLogicLinked = Ergo.compileToJavaScript(logic,model,'cicero',true);
+            state.markers.forEach(marker => marker.clear());
+            state.markersSource = [];
             state.clogic = { compiled: compiledLogic.success, compiledLinked : compiledLogicLinked.success };
             state.log.logic = 'Compilation successful';
         }
@@ -319,7 +325,8 @@ class FormContainer extends Component {
             confirm: { flag: false, temp: null },
             confirmreset: { flag: false, temp: null },
             confirmnew: { flag: false, temp: null },
-            markers: [] // For code mirror marking
+            markers: [], // For code mirror marking
+            markersSource: [] // For code mirror marking
         };
         this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
         this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
@@ -346,6 +353,8 @@ class FormContainer extends Component {
         this.handleModelChange = this.handleModelChange.bind(this);
         this.handleJSONChange = this.handleJSONChange.bind(this);
         this.handleLogicChange = this.handleLogicChange.bind(this);
+        this.handleErgoMounted = this.handleErgoMounted.bind(this);
+        this.handleModelMounted = this.handleModelMounted.bind(this);
         this.handleRunLogic = this.handleRunLogic.bind(this);
         this.handleInitLogic = this.handleInitLogic.bind(this);
         this.handleCompileChange = this.handleCompileChange.bind(this);
@@ -705,7 +714,7 @@ class FormContainer extends Component {
             try {
                 this.setState(parseSample(state, state.text));
                 try {
-                    this.setState(compileLogic(editor,state.logic,state));
+                    this.setState(compileLogic(null,state.logic,state));
                 } catch (error) {
                     this.setState(state);
                 }
@@ -744,6 +753,16 @@ class FormContainer extends Component {
         }
         this.setState(parseSample(state, state.text));
         this.setState(compileLogic(editor,newlogic,state));
+    }
+
+    handleErgoMounted(editor) {
+        const state = this.state;
+        // Refresh markers
+        state.markers = [];
+        state.markersSource.forEach(marker => state.markers.push(editor.markText(marker.start, marker.end, marker.kind)));
+    }
+
+    handleModelMounted(editor) {
     }
 
     handleRunLogic() {
@@ -981,6 +1000,7 @@ class FormContainer extends Component {
               { this.state.activeLogic === 'ergo' ?
                 <Tab.Pane attached='bottom'>
                   <LogicForm logic={logic}
+                             handleErgoMounted={this.handleErgoMounted}
                              handleLogicChange={this.handleLogicChange}/>
                 </Tab.Pane> :
                 this.state.activeLogic === 'execution' ?
@@ -1008,7 +1028,8 @@ class FormContainer extends Component {
               </Menu>
               { this.state.activeModel === 'model' ?
                 <Tab.Pane>
-                  <ModelForm model={model} handleModelChange={this.handleModelChange}/>
+                  <ModelForm model={model} handleModelChange={this.handleModelChange}
+                             handleErgoMounted={this.handleModelMounted}/>
                 </Tab.Pane> : null }
             </div>
         );

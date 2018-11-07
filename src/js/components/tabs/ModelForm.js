@@ -27,7 +27,12 @@ class ModelForm extends Form {
     constructor(props) {
         super(props);
         this.handleModelChange = this.handleModelChange.bind(this);
+        this.handleErgoMounted = this.handleErgoMounted.bind(this);
         this.panesFromModel = this.panesFromModel.bind(this);
+    }
+
+    handleErgoMounted(editor) {
+        this.props.handleErgoMounted(editor);
     }
 
     handleModelChange(editor,name,model) {
@@ -42,6 +47,7 @@ class ModelForm extends Form {
                              <Tab.Pane>
                                <InputErgo
                                  value={m.content}
+                                 handleErgoMounted={(editor) => {this.handleErgoMounted(editor);}}
                                  handleErgoChange={(editor,model) => {this.handleModelChange(editor,m.name,model);}}/>
                              </Tab.Pane> });
         }

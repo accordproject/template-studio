@@ -31,11 +31,16 @@ class LogicForm extends Form {
     constructor(props) {
         super(props);
         this.handleLogicChange = this.handleLogicChange.bind(this);
+        this.handleErgoMounted = this.handleErgoMounted.bind(this);
         this.panesFromLogic = this.panesFromLogic.bind(this);
     }
 
     handleLogicChange(editor,name,logic) {
         this.props.handleLogicChange(editor,name,logic);
+    }
+
+    handleErgoMounted(editor) {
+        this.props.handleErgoMounted(editor);
     }
 
     panesFromLogic(logic) {
@@ -46,6 +51,7 @@ class LogicForm extends Form {
                              <Tab.Pane>
                                <InputErgo
                                  value={m.content}
+                                 handleErgoMounted={(editor) => {this.handleErgoMounted(editor);}}
                                  handleErgoChange={(editor,logic) => {this.handleLogicChange(editor,m.name,logic);}}/>
                              </Tab.Pane> });
         }

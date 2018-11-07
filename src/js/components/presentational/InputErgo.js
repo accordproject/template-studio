@@ -59,6 +59,7 @@ class InputErgo extends TextArea {
     constructor(props) {
         super(props);
         this.handleErgoChange = this.handleErgoChange.bind(this);
+        this.handleErgoMounted = this.handleErgoMounted.bind(this);
         this.editor = null;
         this.marks = [];
     }
@@ -66,7 +67,11 @@ class InputErgo extends TextArea {
     handleErgoChange(editor,text) {
         this.props.handleErgoChange(editor,text);
     }
-
+    
+    handleErgoMounted(editor) {
+        this.props.handleErgoMounted(editor);
+    }
+    
     render() {
         const { value, handleErgoChange } = this.props;
         const options = {lineWrapping: true, lineNumbers: true, mode: "ergo", theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
@@ -81,6 +86,7 @@ class InputErgo extends TextArea {
               <ReactCodeMirror value={value}
                                editorDidMount={editor => {this.editor = editor;}}
                                onBeforeChange={(editor, data, value) => {this.handleErgoChange(editor,value);}}
+                               editorDidMount={(editor) => {this.handleErgoMounted(editor);}}
                                onChange={(editor, data, value) => { }}
                                options={options} />
             </Resizable>
