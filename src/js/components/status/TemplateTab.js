@@ -18,8 +18,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Button, Dropdown } from 'semantic-ui-react';
 import saveAs from 'file-saver';
-require("babel-core/register");
-require("babel-polyfill");
+require("@babel/core");
+require("@babel/polyfill");
 
 class ExportButton extends Button {
     constructor(props) {
