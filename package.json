@@ -15,7 +15,7 @@
   "author": "accordproject.org",
   "license": "Apache-2.0",
   "dependencies": {
-    "@accordproject/cicero-core": "0.9.6",
+    "@accordproject/cicero-core": "0.9.7",
     "@accordproject/cicero-template-library": "git+https://git@github.com/accordproject/cicero-template-library.git",
     "@accordproject/ergo-compiler": "0.5.4",
     "codemirror": "^5.40.2",
