@@ -98,7 +98,7 @@ async function buildTemplates(selectedTemplate) {
             if(pkgJson.name != selectedTemplate) {
                 selected = false;
             }
-            pkgJson.cicero.version = ciceroVersion;
+            pkgJson.cicero.version = '^' + ciceroVersion;
             fs.writeFileSync(file, JSON.stringify(pkgJson), 'utf8', function (err) {
                 if (err) {
                     return console.log(err);
@@ -125,8 +125,9 @@ async function buildTemplates(selectedTemplate) {
 
             try {
                 const template = await Template.fromDirectory(templatePath);
+                const templateName = template.getMetadata().getName();
 
-                if(!process.env.SKIP_GENERATION && template.getMetadata().getName() === 'helloworld') {
+                if(!process.env.SKIP_GENERATION && (templateName === 'helloworld' || templateName === 'empty' || templateName === 'empty-contract' )) {
                     const language = template.getMetadata().getLanguage();
                     let archive;
                     // Only produce Ergo archives
