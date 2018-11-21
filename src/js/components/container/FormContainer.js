@@ -83,9 +83,9 @@ import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
 const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
 
-const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.0.cta';
-const EMPTY_CLAUSE_TEMPLATE = ROOT_URI + '/static/archives/empty@0.2.0.cta';
-const EMPTY_CONTRACT_TEMPLATE = ROOT_URI + '/static/archives/empty-contract@0.1.0.cta';
+const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.1.cta';
+const EMPTY_CLAUSE_TEMPLATE = ROOT_URI + '/static/archives/empty@0.2.1.cta';
+const EMPTY_CONTRACT_TEMPLATE = ROOT_URI + '/static/archives/empty-contract@0.1.1.cta';
 
 function getUrlVars() {
     let vars = {};

@@ -98,7 +98,7 @@ async function buildTemplates(selectedTemplate) {
             if(pkgJson.name != selectedTemplate) {
                 selected = false;
             }
-            pkgJson.cicero.version = '^' + ciceroVersion;
+            //pkgJson.cicero.version = '^' + ciceroVersion;
             fs.writeFileSync(file, JSON.stringify(pkgJson), 'utf8', function (err) {
                 if (err) {
                     return console.log(err);
