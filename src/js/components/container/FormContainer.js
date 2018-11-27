@@ -46,7 +46,7 @@ import {
     ResetButton,
     ExportButton
 } from '../status/TemplateTab';
-import { Template, Clause } from '@accordproject/cicero-core';
+import { TemplateLibrary, Template, Clause } from '@accordproject/cicero-core';
 import {
     Form,
     Container,
@@ -76,7 +76,6 @@ import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 import moment from 'moment';
 import semver from 'semver';
 
-import * as templateLibrary from '@accordproject/cicero-template-library/build/template-library.json';
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
 import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
 
@@ -114,35 +113,6 @@ function getUrlParam(parameter, defaultvalue){
 function initUrl() {
     return getUrlParam('template',DEFAULT_TEMPLATE);
 }
-function getTemplates() {
-    var templates = [];
-    for(var t in templateLibrary.default) {
-        let currentT = t;
-        let currentTemplate = templateLibrary.default[t];
-        let currentName = currentTemplate.name;
-        let currentVersion = currentTemplate.version;
-        // Keep only the last version for any given template
-        for (var t2 in templateLibrary.default) {
-            const newTemplate = templateLibrary.default[t2];
-            const newName = newTemplate.name;
-            const newVersion = newTemplate.version;
-            if (newName === currentName && semver.gt(newVersion, currentVersion)) {
-                currentT = t2;
-                currentTemplate = newTemplate;
-                currentName = currentTemplate.name;
-                currentVersion = currentTemplate.version;
-            }
-        }
-        // Make sure it's the right ciceroVersion and uses Ergo
-        if (semver.satisfies(ciceroVersion,currentTemplate.ciceroVersion) && currentTemplate.language === 0) {
-            if (templates.filter(t => t.key === currentT).length < 1)
-                templates.push({'key':currentT, 'value':'ap://'+currentT+'#hash', 'text':currentT});
-        }
-    }
-    return templates;
-}
-const templates = getTemplates();
-
 function parseSample(input_state,text) {
     const state = input_state;
     const clause = input_state.clause;
@@ -228,7 +198,6 @@ function runInit(compiledLogic,contract) {
 }
 
 function updateSample(clause,sample) {
-    //console.log('Updating sample' + sample);
     const template = clause.getTemplate();
     const samples = template.getMetadata().getSamples();
     if (samples.default !== sample) {
@@ -240,7 +209,6 @@ function updateSample(clause,sample) {
     }
 }
 function updateRequest(clause,oldrequest,request) {
-    //console.log('Updating request' + request);
     if (oldrequest !== request) {
         try {
             clause.getTemplate().setRequest(JSON.parse(request));
@@ -290,6 +258,7 @@ class FormContainer extends Component {
     constructor() {
         super();
         this.state = {
+            templates: [],
             templateURL: '',
             newTemplateURL: '',
             newTemplateUpload: '',
@@ -361,6 +330,7 @@ class FormContainer extends Component {
         this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
         this.handleSelectTemplateConfirmed = this.handleSelectTemplateConfirmed.bind(this);
         this.handleSelectTemplateAborted = this.handleSelectTemplateAborted.bind(this);
+        this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
         this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
         this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
         this.handleItemClick = this.handleItemClick.bind(this);
@@ -843,6 +813,19 @@ class FormContainer extends Component {
         }
     }
 
+    loadTemplateLibrary() {
+        const templateLibrary = new TemplateLibrary();
+        const promisedIndex =
+              templateLibrary.getTemplateIndex({latestVersion: true, ciceroVersion: ciceroVersion});
+        return promisedIndex.then((templateIndex) => {
+            var templates = [];
+            for(var t in templateIndex) {
+                templates.push({'key':t, 'value':'ap://'+t+'#hash', 'text':t});
+            }
+            this.setState({templates:templates});
+        });
+    }
+
     loadTemplateFromUrl(templateURL) {
         let state = this.state;
         state.loading = true;
@@ -896,6 +879,7 @@ class FormContainer extends Component {
         let promisedTemplate;
         try {
             promisedTemplate = Template.fromArchive(buffer);
+            return true;
         } catch (error) {
             console.log('LOAD FAILED!' + error.message); // Error!
             this.handleLoadingFailed(error.message);
@@ -933,9 +917,11 @@ class FormContainer extends Component {
     }
 
     componentDidMount() {
-        if (!this.loadTemplateFromUrl(initUrl())) {
-            this.loadTemplateFromUrl(DEFAULT_TEMPLATE)
-        }
+        this.loadTemplateLibrary().then(() => {
+            if (!this.loadTemplateFromUrl(initUrl())) {
+                this.loadTemplateFromUrl(DEFAULT_TEMPLATE);
+            }
+        });
     }
     componentDidUpdate () {
         if (this.state.status === 'changed') {
@@ -1137,7 +1123,7 @@ class FormContainer extends Component {
                                text='Search Accord Templates'
                                labeled button
                                search
-                               options={templates}
+                               options={this.state.templates}
                                onChange={this.handleSelectTemplate}/>
                    </Menu.Item>
                    <Menu.Item>
