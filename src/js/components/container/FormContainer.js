@@ -1119,7 +1119,7 @@ class FormContainer extends Component {
                      <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
                      <Dropdown style={{'width': '270px'}} icon='search'
                                className='ui icon fixed'
-                               text='Search Accord Templates'
+                               text='Search Template Library'
                                labeled button
                                search
                                options={this.state.templates}
