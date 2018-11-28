@@ -879,7 +879,6 @@ class FormContainer extends Component {
         let promisedTemplate;
         try {
             promisedTemplate = Template.fromArchive(buffer);
-            return true;
         } catch (error) {
             console.log('LOAD FAILED!' + error.message); // Error!
             this.handleLoadingFailed(error.message);
