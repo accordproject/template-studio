@@ -1112,7 +1112,7 @@ class FormContainer extends Component {
               (<Menu fixed='top' inverted>
                  <Container fluid>
                    <Menu.Item header>
-                     <Image size='mini' href='https://www.accordproject.org' src='static/img/accordlogo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
+                     <Image size='mini' href='https://www.accordproject.org' src='static/img/logo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
                      Accord Project &middot; Template Studio
                    </Menu.Item>
                    <Menu.Item>
