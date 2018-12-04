@@ -36,6 +36,7 @@ const executeFailure = (log) => (
 
 const templateFailure = (log) => (
     parseFailure(log)
+        || modelFailure(log)
         || logicFailure(log)
         || metaFailure(log)
 );

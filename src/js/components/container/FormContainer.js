@@ -248,12 +248,12 @@ function updateLogic(clause,name,content) {
     }
 }
 const defaultlog =
-      { text: 'Not yet parsed.',
-        model: 'Not yet validate',
-        logic: 'Not yet compiled.',
-        meta: 'Not yet loaded.',
-        execute: '',
-        loading: 'Unknown Error' };
+      { text: 'success',
+        model: 'success',
+        logic: 'success',
+        meta: 'success',
+        execute: 'success',
+        loading: 'success' };
 class FormContainer extends Component {
     constructor() {
         super();
@@ -1164,7 +1164,7 @@ class FormContainer extends Component {
                      this.state.activeError === 'model' ? <ModelStatus log={log}/> :
                      this.state.activeError === 'meta' ? <MetaStatus log={log}/> :
                      this.state.activeError === 'execute' ? <ExecuteStatus log={log}/> : null }
-                   <Menu fixed='bottom' color='grey' inverted>
+                   <Menu fixed='bottom' color={ anyFailure(this.state.log) ? 'red' : 'grey' } inverted>
                      <Menu.Item header>
                        <AllStatusLabel log={this.state.log}/>
                      </Menu.Item>
@@ -1173,28 +1173,28 @@ class FormContainer extends Component {
                          name='parse'
                          active={this.state.activeError === 'parse'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Contract Text
+                         <Icon name='warning sign'/>Contract Text
                        </Menu.Item> : null }
                      { logicFailure(this.state.log) ?
                        <Menu.Item
                          name='logic'
                          active={this.state.activeError === 'logic'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Logic
+                         <Icon name='warning sign'/>Logic
                        </Menu.Item> : null }
                      { modelFailure(this.state.log) ?
                        <Menu.Item
                          name='model'
                          active={this.state.activeError === 'model'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Model
+                         <Icon name='warning sign'/>Model
                        </Menu.Item> : null }
                      { metaFailure(this.state.log) ?
                        <Menu.Item
                          name='meta'
                          active={this.state.activeError === 'meta'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Metadata
+                         <Icon name='warning sign'/>Metadata
                        </Menu.Item> : null }
                      { templateFailure(log) && otherFailure(log) ?
                        <Menu.Item header>
@@ -1205,7 +1205,7 @@ class FormContainer extends Component {
                          name='execute'
                          active={this.state.activeError === 'execute'}
                          onClick={this.handleErrorTabChange}>
-                         <Icon name='warning sign' color='red'/>Execution
+                         <Icon name='warning sign'/>Execution
                        </Menu.Item> : null }
                  </Menu>
                  </div>
