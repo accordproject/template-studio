@@ -18,12 +18,12 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import InputGrammar from '../presentational/InputGrammar';
 import InputJson from '../presentational/InputJson';
-import FileUpload from '../presentational/FileUpload';
 import ModelForm from '../tabs/ModelForm';
 import LogicForm from '../tabs/LogicForm';
 import CompileForm from '../tabs/CompileForm';
 import ParseForm from '../tabs/ParseForm';
 import ExecuteForm from '../tabs/ExecuteForm';
+import TopMenu from '../TopMenu';
 import {
     parseFailure,
     modelFailure,
@@ -53,13 +53,11 @@ import {
     Divider,
     Tab,
     Label,
-    Header,
     Image,
     Input,
     Grid,
     Dropdown,
     Menu,
-    Modal,
     Icon,
     Card,
     Confirm,
@@ -77,10 +75,8 @@ import moment from 'moment';
 import semver from 'semver';
 
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
-import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
 
 const ciceroVersion = ciceroPackageJson.version;
-const ergoVersion = ergoPackageJson.version;
 
 const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.1.cta';
 const EMPTY_CLAUSE_TEMPLATE = ROOT_URI + '/static/archives/empty@0.2.1.cta';
@@ -260,10 +256,7 @@ class FormContainer extends Component {
         this.state = {
             templates: [],
             templateURL: '',
-            newTemplateURL: '',
             newTemplateUpload: '',
-            modalURLOpen: false,
-            modalUploadOpen: false,
             loadingFailed: false,
             templateName: '',
             templateVersion: '',
@@ -299,15 +292,6 @@ class FormContainer extends Component {
         };
         this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
         this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
-        this.handleURLOpen = this.handleURLOpen.bind(this);
-        this.handleURLChange = this.handleURLChange.bind(this);
-        this.handleURLOpen = this.handleURLOpen.bind(this);
-        this.handleURLAbort = this.handleURLAbort.bind(this);
-        this.handleURLConfirm = this.handleURLConfirm.bind(this);
-        this.handleUploadOpen = this.handleUploadOpen.bind(this);
-        this.handleUploadClose = this.handleUploadClose.bind(this);
-        this.handleUploadConfirm = this.handleUploadConfirm.bind(this);
-        this.blobToBuffer = this.blobToBuffer.bind(this);
         this.handleStatusChange = this.handleStatusChange.bind(this);
         this.handleResetChange = this.handleResetChange.bind(this);
         this.handleResetConfirmed = this.handleResetConfirmed.bind(this);
@@ -365,67 +349,6 @@ class FormContainer extends Component {
         const state = this.state;
         state.status = status;
         this.setState(state);
-    }
-    handleURLChange(e, { name, value }) {
-        const state = this.state;
-        state.newTemplateURL = value;
-        state.modalURLOpen = true;
-        this.setState(state);
-    }
-    handleURLOpen() {
-        const state = this.state;
-        state.modalURLOpen = true;
-        this.setState(state);
-    }
-    handleURLAbort() {
-        const state = this.state;
-        state.modalURLOpen = false;
-        this.setState(state);
-    }
-    handleURLConfirm() {
-        const state = this.state;
-        state.modalURLOpen = false;
-        const templateURL = state.newTemplateURL;
-        state.newTemplateURL = '';
-        this.loadTemplateFromUrl(templateURL);
-    }
-    handleUploadOpen() {
-        const state = this.state;
-        state.modalUploadOpen = true;
-        this.setState(state);
-    }
-    handleUploadClose() {
-        const state = this.state;
-        state.modalUploadOpen = false;
-        this.setState(state);
-    }
-    blobToBuffer(blob, cb) {
-        if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
-            throw new Error('first argument must be a Blob');
-        }
-        if (typeof cb !== 'function') {
-            throw new Error('second argument must be a function');
-        }
-        
-        var reader = new FileReader();
-        
-        function onLoadEnd (e) {
-            reader.removeEventListener('loadend', onLoadEnd, false);
-            if (e.error) cb(e.error);
-            else cb(null, Buffer.from(reader.result));
-        }
-        
-        reader.addEventListener('loadend', onLoadEnd, false);
-        reader.readAsArrayBuffer(blob);
-    }
-    handleUploadConfirm(file) {
-        const state = this.state;
-        const loadTemplateFun = this.loadTemplateFromBuffer;
-        this.blobToBuffer(file, function (err, buffer) {
-            if (err) throw err;
-            loadTemplateFun(buffer);
-        });
-        state.modalUploadOpen = false;
     }
     handleResetChange() {
         const state = this.state;
@@ -1048,113 +971,6 @@ class FormContainer extends Component {
                 </Tab.Pane> : null }
             </div>
         );
-        const ModalAbout = () => (
-            <Modal trigger={<Menu.Item><Icon name='question'/> About</Menu.Item>}>
-              <Modal.Header>Accord Project &middot; Template Studio</Modal.Header>
-              <Modal.Content>
-                <Modal.Description>
-                  <Header>Welcome!</Header>
-                  <p>This template studio lets you load, edit and test legal clause or contract templates built with the <a href='https://accordproject.org/' target='_blank'>Accord Project</a> technology.</p>
-                  <p>It is open-source and under active development. Contributions and bug reports are welcome on <a href='https://github.com/accordproject/template-studio' target='_blank'>GitHub</a>.</p>
-                </Modal.Description>
-                <Divider/>
-                <Modal.Description>
-                  <Header>Getting started</Header>
-                  <p>Search a template from the <a href='https://templates.accordproject.org' target='_blank'>Accord Project template library</a> (Search box at the top)</p>
-                  <p>Chose whether to edit the <b>Contract Text</b>, <b>the Model</b>, or the <b>Logic</b> (Tab on the upper left)</p>
-                  <p>Edit the <b>Test Contract</b> and inspect the corresponding <b>Contract data</b></p>
-                  <p>Edit the <b>Template</b> and see the corresponding <b>Test Contract</b></p>
-                  <p>Edit the <b>Ergo</b> contract logic and test it by executing requests</p>
-                </Modal.Description>
-                <Divider/>
-                <Modal.Description>
-                  <Header>Version Information</Header>
-                  <p>Cicero {ciceroVersion}</p>
-                  <p>Ergo {ergoVersion}</p>
-                </Modal.Description>
-              </Modal.Content>
-            </Modal>
-        );
-        const ModalURL = () => (
-            <Modal size='small' open={this.state.modalURLOpen}
-                   onClose={this.handleURLAbort}
-                   trigger={<Menu.Item onClick={this.handleURLOpen}><Icon name='world'/>...from URL</Menu.Item>}>
-              <Header>Enter the URL of the template archive to load:</Header>
-              <Modal.Content>
-                <Input autoFocus
-                       label={{ icon: 'linkify' }} labelPosition='left'
-                       onChange={ this.handleURLChange }
-                       value={ this.state.newTemplateURL }
-                       placeholder='e.g., https://templates.accordproject.org/archives/helloworld@0.7.0.cta'
-                       fluid></Input>
-              </Modal.Content>
-              <Modal.Actions>
-                <Button color='red' onClick={this.handleURLAbort} inverted>
-                  <Icon name='close' /> Cancel
-                </Button>
-                <Button color='green' onClick={this.handleURLConfirm} inverted>
-                  <Icon name='checkmark' /> Upload
-                </Button>
-              </Modal.Actions>
-            </Modal>
-        );
-        const ModalUpload = () => (
-            <Modal size='small' open={this.state.modalUploadOpen}
-                   onClose={this.handleUploadClose}
-                   trigger={<Menu.Item onClick={this.handleUploadOpen}><Icon name='upload'/>...from disk</Menu.Item>}>
-              <Header>Upload a template archive (.cta file) from your machine:</Header>
-              <Modal.Content>
-                <FileUpload handleUploadConfirm={this.handleUploadConfirm}/>
-              </Modal.Content>
-            </Modal>
-        );
-        const topMenu = () =>
-              (<Menu fixed='top' inverted>
-                 <Container fluid>
-                   <Menu.Item header>
-                     <Image size='mini' href='https://www.accordproject.org' src='static/img/logo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
-                     Accord Project &middot; Template Studio
-                   </Menu.Item>
-                   <Menu.Item>
-                     <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
-                     <Dropdown style={{'width': '270px'}} icon='search'
-                               className='ui icon fixed'
-                               text='Search Template Library'
-                               labeled button
-                               search
-                               options={this.state.templates}
-                               onChange={this.handleSelectTemplate}/>
-                   </Menu.Item>
-                   <Menu.Item>
-                     <Dropdown item text='New Template' simple>
-                       <Dropdown.Menu>
-                         <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmnew.flag} onCancel={this.handleNewAborted} onConfirm={this.handleNewConfirmed} />
-                         <Menu.Item onClick={() => this.handleNewChange(EMPTY_CONTRACT_TEMPLATE)}>
-                             <Icon name="file alternate outline"/> Empty Contract
-                         </Menu.Item>
-                         <Menu.Item onClick={() => this.handleNewChange(EMPTY_CLAUSE_TEMPLATE)}>
-                             <Icon name="file outline"/> Empty Clause
-                         </Menu.Item>
-                         <Header as='h4'>Import</Header>
-                         <ModalURL/>
-                         <ModalUpload/>
-                       </Dropdown.Menu>
-                     </Dropdown>
-                     <Dropdown item text='Help' simple>
-                       <Dropdown.Menu>
-                         <ModalAbout/>
-                         <Header as='h4'>Documentation</Header>
-                         <Menu.Item href='https://docs.accordproject.org/' target='_blank'>
-                           <Icon name='info'/> Accord Project Documentation
-                         </Menu.Item>
-                         <Menu.Item href='https://docs.accordproject.org/docs/ergo-lang.html' target='_blank'>
-                           <Icon name='lab'/> Ergo Language Guide
-                         </Menu.Item>
-                       </Dropdown.Menu>
-                     </Dropdown>
-                   </Menu.Item>
-                 </Container>
-               </Menu>);
         const bottomMenu = () =>
               (<Container fluid>
                  <Divider hidden/>
@@ -1311,7 +1127,19 @@ class FormContainer extends Component {
         );
         return (
             <div>
-              {topMenu()}
+                <TopMenu
+                    confirmFlag={this.state.confirm.flag}
+                    confirmnewFlag={this.state.confirmnew.flag}
+                    handleNewAborted={this.handleNewAborted}
+                    handleNewChange={this.handleNewChange}
+                    handleNewConfirmed={this.handleNewConfirmed}
+                    handleSelectTemplate={this.handleSelectTemplate}
+                    handleSelectTemplateAborted={this.handleSelectTemplateAborted}
+                    handleSelectTemplateConfirmed={this.handleSelectTemplateConfirmed}
+                    loadTemplateFromBuffer={this.loadTemplateFromBuffer}
+                    loadTemplateFromUrl={this.loadTemplateFromUrl}
+                    templates={this.state.templates}
+                />
               {dimmableContainer()}
               {bottomMenu()}
             </div>
