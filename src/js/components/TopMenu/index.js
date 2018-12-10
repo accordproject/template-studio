@@ -4,7 +4,7 @@ import { Confirm, Container, Dropdown, Header, Icon, Image, Menu } from 'semanti
 
 import ModalURL from './ModalURL';
 import ModalUpload from './ModalUpload';
-
+import ModalAbout from './ModalAbout';
 
 class TopMenu extends React.Component {
   constructor(props) {
@@ -46,46 +46,36 @@ class TopMenu extends React.Component {
     reader.readAsArrayBuffer(blob);
 }
   handleURLChange(e, { name, value }) {
-    const state = this.state;
-    state.newTemplateURL = value;
-    state.modalURLOpen = true;
-    this.setState(state);
+    this.setState({
+      newTemplateURL: value,
+      modalURLOpen: true,
+    });
   }
   handleURLOpen() {
-      const state = this.state;
-      state.modalURLOpen = true;
-      this.setState(state);
+      this.setState({ modalURLOpen: true });
   }
   handleURLAbort() {
-      const state = this.state;
-      state.modalURLOpen = false;
-      this.setState(state);
+      this.setState({ modalURLOpen: false });
   }
   handleURLConfirm() {
-      const state = this.state;
-      state.modalURLOpen = false;
-      const templateURL = state.newTemplateURL;
-      state.newTemplateURL = '';
-      this.props.loadTemplateFromUrl(templateURL);
+      this.props.loadTemplateFromUrl(this.state.newTemplateURL);
+      this.setState({
+        modalURLOpen: false,
+        newTemplateURL: '',
+      })
   }
   handleUploadOpen() {
-      const state = this.state;
-      state.modalUploadOpen = true;
-      this.setState(state);
+      this.setState({ modalUploadOpen: true });
   }
   handleUploadClose() {
-      const state = this.state;
-      state.modalUploadOpen = false;
-      this.setState(state);
+      this.setState({ modalUploadOpen: false });
   }
   handleUploadConfirm(file) {
-    const state = this.state;
-    const loadTemplateFun = this.props.loadTemplateFromBuffer;
-    this.blobToBuffer(file, function (err, buffer) {
+    this.blobToBuffer(file, (err, buffer) => {
         if (err) throw err;
-        loadTemplateFun(buffer);
+        this.props.loadTemplateFromBuffer(buffer);
     });
-    state.modalUploadOpen = false;
+    this.setState({ modalUploadOpen: false })
 }
   
   render() {
@@ -135,7 +125,7 @@ class TopMenu extends React.Component {
           </Dropdown>
           <Dropdown item text='Help' simple>
             <Dropdown.Menu>
-              {/* <ModalAbout/> */}
+              <ModalAbout />
               <Header as='h4'>Documentation</Header>
               <Menu.Item href='https://docs.accordproject.org/' target='_blank'>
                 <Icon name='info'/> Accord Project Documentation
