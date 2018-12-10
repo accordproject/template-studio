@@ -89,37 +89,37 @@ class TopMenu extends React.Component {
     this.setState({ modalUploadOpen: false })
 }
 
-handleSelectTemplateConfirmed() {
-  const data = this.state.confirm.temp;
-  this.props.loadTemplateFromUrl(data);
-  this.setState({ confirm: { flag: false, temp: null } })
-}
-handleSelectTemplateAborted() {
-  this.setState({ confirm: { flag: false, temp: null } });
-}
-handleSelectTemplate(event, data) {
-  if (this.props.status === 'changed') {
-      this.setState({ confirm: { flag: true, temp: data.value } });
-  } else {
-      this.props.loadTemplateFromUrl(data.value);
+  handleSelectTemplateConfirmed() {
+    const data = this.state.confirm.temp;
+    this.props.loadTemplateFromUrl(data);
+    this.setState({ confirm: { flag: false, temp: null } })
   }
-}
+  handleSelectTemplateAborted() {
+    this.setState({ confirm: { flag: false, temp: null } });
+  }
+  handleSelectTemplate(event, data) {
+    if (this.props.status === 'changed') {
+        this.setState({ confirm: { flag: true, temp: data.value } });
+    } else {
+        this.props.loadTemplateFromUrl(data.value);
+    }
+  }
 
-handleNewChange(emptyTemplate) {
-  if (this.props.status === 'changed') {
-      this.setState({ confirmNew: { flag: true, temp: emptyTemplate } });
-  } else {
-      this.props.loadTemplateFromUrl(emptyTemplate);
+  handleNewChange(emptyTemplate) {
+    if (this.props.status === 'changed') {
+        this.setState({ confirmNew: { flag: true, temp: emptyTemplate } });
+    } else {
+        this.props.loadTemplateFromUrl(emptyTemplate);
+    }
   }
-}
-handleNewConfirmed() {
-  const emptyTemplate = this.state.confirmNew.temp;
-  this.setState({ confirmNew: { flag: false, temp: null } });
-  this.props.loadTemplateFromUrl(emptyTemplate);
-}
-handleNewAborted() {
-  this.setState({ confirmNew: { flag: false, temp: null } });
-}
+  handleNewConfirmed() {
+    const emptyTemplate = this.state.confirmNew.temp;
+    this.setState({ confirmNew: { flag: false, temp: null } });
+    this.props.loadTemplateFromUrl(emptyTemplate);
+  }
+  handleNewAborted() {
+    this.setState({ confirmNew: { flag: false, temp: null } });
+  }
   
   render() {
     const EMPTY_CONTRACT_TEMPLATE = ROOT_URI + '/static/archives/empty-contract@0.1.1.cta';
