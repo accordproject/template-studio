@@ -14,16 +14,24 @@ class TopMenu extends React.Component {
       modalURLOpen: false,
       modalUploadOpen: false,
       newTemplateURL: '',
+      confirm: { flag: false, temp: null },
+      confirmNew: { flag: false, temp: null },
     }
 
     this.blobToBuffer = this.blobToBuffer.bind(this);
+    this.handleNewChange = this.handleNewChange.bind(this);
+    this.handleNewConfirmed = this.handleNewConfirmed.bind(this);
+    this.handleNewAborted = this.handleNewAborted.bind(this);
+    this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
+    this.handleSelectTemplateConfirmed = this.handleSelectTemplateConfirmed.bind(this);
+    this.handleSelectTemplateAborted = this.handleSelectTemplateAborted.bind(this);
+    this.handleUploadOpen = this.handleUploadOpen.bind(this);
+    this.handleUploadClose = this.handleUploadClose.bind(this);
+    this.handleUploadConfirm = this.handleUploadConfirm.bind(this);
     this.handleURLChange = this.handleURLChange.bind(this);
     this.handleURLOpen = this.handleURLOpen.bind(this);
     this.handleURLAbort = this.handleURLAbort.bind(this);
     this.handleURLConfirm = this.handleURLConfirm.bind(this);
-    this.handleUploadOpen = this.handleUploadOpen.bind(this);
-    this.handleUploadClose = this.handleUploadClose.bind(this);
-    this.handleUploadConfirm = this.handleUploadConfirm.bind(this);
   }
 
   blobToBuffer(blob, cb) {
@@ -45,6 +53,7 @@ class TopMenu extends React.Component {
     reader.addEventListener('loadend', onLoadEnd, false);
     reader.readAsArrayBuffer(blob);
 }
+
   handleURLChange(e, { name, value }) {
     this.setState({
       newTemplateURL: value,
@@ -58,12 +67,14 @@ class TopMenu extends React.Component {
       this.setState({ modalURLOpen: false });
   }
   handleURLConfirm() {
-      this.props.loadTemplateFromUrl(this.state.newTemplateURL);
+    const templateURL = this.state.newTemplateURL;
+      this.props.loadTemplateFromUrl(templateURL);
       this.setState({
         modalURLOpen: false,
         newTemplateURL: '',
       })
   }
+
   handleUploadOpen() {
       this.setState({ modalUploadOpen: true });
   }
@@ -77,8 +88,43 @@ class TopMenu extends React.Component {
     });
     this.setState({ modalUploadOpen: false })
 }
+
+handleSelectTemplateConfirmed() {
+  const data = this.state.confirm.temp;
+  this.props.loadTemplateFromUrl(data);
+  this.setState({ confirm: { flag: false, temp: null } })
+}
+handleSelectTemplateAborted() {
+  this.setState({ confirm: { flag: false, temp: null } });
+}
+handleSelectTemplate(event, data) {
+  if (this.props.status === 'changed') {
+      this.setState({ confirm: { flag: true, temp: data.value } });
+  } else {
+      this.props.loadTemplateFromUrl(data.value);
+  }
+}
+
+handleNewChange(emptyTemplate) {
+  if (this.props.status === 'changed') {
+      this.setState({ confirmNew: { flag: true, temp: emptyTemplate } });
+  } else {
+      this.props.loadTemplateFromUrl(emptyTemplate);
+  }
+}
+handleNewConfirmed() {
+  const emptyTemplate = this.state.confirmNew.temp;
+  this.setState({ confirmNew: { flag: false, temp: null } });
+  this.props.loadTemplateFromUrl(emptyTemplate);
+}
+handleNewAborted() {
+  this.setState({ confirmNew: { flag: false, temp: null } });
+}
   
   render() {
+    const EMPTY_CONTRACT_TEMPLATE = ROOT_URI + '/static/archives/empty-contract@0.1.1.cta';
+    const EMPTY_CLAUSE_TEMPLATE = ROOT_URI + '/static/archives/empty@0.2.1.cta';
+
     return (
       <Menu fixed='top' inverted>
       <Container fluid>
@@ -87,23 +133,23 @@ class TopMenu extends React.Component {
           Accord Project &middot; Template Studio
         </Menu.Item>
         <Menu.Item>
-          <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.props.confirmFlag} onCancel={this.props.handleSelectTemplateAborted} onConfirm={this.props.handleSelectTemplateConfirmed} />
+          <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
           <Dropdown style={{'width': '270px'}} icon='search'
                     className='ui icon fixed'
                     text='Search Template Library'
                     labeled button
                     search
                     options={this.props.templates}
-                    onChange={this.props.handleSelectTemplate}/>
+                    onChange={this.handleSelectTemplate}/>
         </Menu.Item>
         <Menu.Item>
           <Dropdown item text='New Template' simple>
             <Dropdown.Menu>
-              <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.props.confirmnewFlag} onCancel={this.props.handleNewAborted} onConfirm={this.props.handleNewConfirmed} />
-              <Menu.Item onClick={() => this.props.handleNewChange(EMPTY_CONTRACT_TEMPLATE)}>
+              <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmNew.flag} onCancel={this.handleNewAborted} onConfirm={this.handleNewConfirmed} />
+              <Menu.Item onClick={() => this.handleNewChange(EMPTY_CONTRACT_TEMPLATE)}>
                   <Icon name="file alternate outline"/> Empty Contract
               </Menu.Item>
-              <Menu.Item onClick={() => this.props.handleNewChange(EMPTY_CLAUSE_TEMPLATE)}>
+              <Menu.Item onClick={() => this.handleNewChange(EMPTY_CLAUSE_TEMPLATE)}>
                   <Icon name="file outline"/> Empty Clause
               </Menu.Item>
               <Header as='h4'>Import</Header>
@@ -143,16 +189,9 @@ class TopMenu extends React.Component {
 }
 
 TopMenu.propTypes = {
-  confirmFlag: PropTypes.bool.isRequired,
-  confirmnewFlag: PropTypes.bool.isRequired,
-  handleNewAborted: PropTypes.func.isRequired,
-  handleNewChange: PropTypes.func.isRequired,
-  handleNewConfirmed: PropTypes.func.isRequired,
-  handleSelectTemplate: PropTypes.func.isRequired,
-  handleSelectTemplateAborted: PropTypes.func.isRequired,
-  handleSelectTemplateConfirmed: PropTypes.func.isRequired,
   loadTemplateFromBuffer: PropTypes.func.isRequired,
   loadTemplateFromUrl: PropTypes.func.isRequired,
+  status: PropTypes.string.isRequired,
   templates: PropTypes.array.isRequired,
 }
 
