@@ -79,8 +79,6 @@ import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
 const ciceroVersion = ciceroPackageJson.version;
 
 const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.1.cta';
-const EMPTY_CLAUSE_TEMPLATE = ROOT_URI + '/static/archives/empty@0.2.1.cta';
-const EMPTY_CONTRACT_TEMPLATE = ROOT_URI + '/static/archives/empty-contract@0.1.1.cta';
 
 function getUrlVars() {
     let vars = {};
@@ -284,9 +282,7 @@ class FormContainer extends Component {
             clogic: { compiled: '', compiledLinked: '' },
             status: 'empty',
             loading: false,
-            confirm: { flag: false, temp: null },
             confirmreset: { flag: false, temp: null },
-            confirmnew: { flag: false, temp: null },
             markers: [], // For code mirror marking
             markersSource: [] // For code mirror marking
         };
@@ -296,9 +292,6 @@ class FormContainer extends Component {
         this.handleResetChange = this.handleResetChange.bind(this);
         this.handleResetConfirmed = this.handleResetConfirmed.bind(this);
         this.handleResetAborted = this.handleResetAborted.bind(this);
-        this.handleNewChange = this.handleNewChange.bind(this);
-        this.handleNewConfirmed = this.handleNewConfirmed.bind(this);
-        this.handleNewAborted = this.handleNewAborted.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -311,9 +304,6 @@ class FormContainer extends Component {
         this.handleRunLogic = this.handleRunLogic.bind(this);
         this.handleInitLogic = this.handleInitLogic.bind(this);
         this.handleCompileChange = this.handleCompileChange.bind(this);
-        this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
-        this.handleSelectTemplateConfirmed = this.handleSelectTemplateConfirmed.bind(this);
-        this.handleSelectTemplateAborted = this.handleSelectTemplateAborted.bind(this);
         this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
         this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
         this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
@@ -368,28 +358,6 @@ class FormContainer extends Component {
     handleResetAborted() {
         const state = this.state;
         state.confirmreset = { flag: false, temp: null };
-        this.setState(state);
-    }
-
-    handleNewChange(emptytemplate) {
-        const state = this.state;
-        if (state.status === 'changed') {
-            state.confirmnew = { flag: true, temp: emptytemplate };
-            this.setState(state);
-        } else {
-            this.loadTemplateFromUrl(emptytemplate);
-        }
-    }
-    handleNewConfirmed() {
-        const state = this.state;
-        const emptytemplate = state.confirmnew.temp;
-        state.confirmnew = { flag: false, temp: null };
-        this.setState(state);
-        this.loadTemplateFromUrl(emptytemplate);
-    }
-    handleNewAborted() {
-        const state = this.state;
-        state.confirmnew = { flag: false, temp: null };
         this.setState(state);
     }
 
@@ -713,27 +681,6 @@ class FormContainer extends Component {
             state.log.execute = '[Error Executing Template] ' + JSON.stringify(error.message);
         }
         this.setState(state);
-    }
-
-    handleSelectTemplateConfirmed() {
-        const state = this.state;
-        const data = state.confirm.temp;
-        state.confirm = { flag: false, temp: null };
-        this.loadTemplateFromUrl(data);
-    }
-    handleSelectTemplateAborted() {
-        const state = this.state;
-        state.confirm = { flag: false, temp: null };
-        this.setState(state);
-    }
-    handleSelectTemplate(event, data) {
-        const state = this.state;
-        if (state.status === 'changed') {
-            state.confirm = { flag: true, temp: data.value };
-            this.setState(state);
-        } else {
-            this.loadTemplateFromUrl(data.value);
-        }
     }
 
     loadTemplateLibrary() {
@@ -1128,16 +1075,9 @@ class FormContainer extends Component {
         return (
             <div>
                 <TopMenu
-                    confirmFlag={this.state.confirm.flag}
-                    confirmnewFlag={this.state.confirmnew.flag}
-                    handleNewAborted={this.handleNewAborted}
-                    handleNewChange={this.handleNewChange}
-                    handleNewConfirmed={this.handleNewConfirmed}
-                    handleSelectTemplate={this.handleSelectTemplate}
-                    handleSelectTemplateAborted={this.handleSelectTemplateAborted}
-                    handleSelectTemplateConfirmed={this.handleSelectTemplateConfirmed}
                     loadTemplateFromBuffer={this.loadTemplateFromBuffer}
                     loadTemplateFromUrl={this.loadTemplateFromUrl}
+                    status={this.state.status}
                     templates={this.state.templates}
                 />
               {dimmableContainer()}
