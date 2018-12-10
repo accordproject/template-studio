@@ -24,6 +24,7 @@
     "filepond": "^3.2.5",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.4",
+    "prop-types": "^15.6.2",
     "randexp": "^0.4.6",
     "re-resizable": "^4.9.0",
     "react": "^16.6.0",
