@@ -16,7 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import InputJs from '../presentational/InputJs';
+import JavaScriptInput from '../inputs/JavaScriptInput';
 import { Form, Segment, Tab } from 'semantic-ui-react';
 
 class CompileForm extends Form {
@@ -32,7 +32,7 @@ class CompileForm extends Form {
     render() {
         const { compiledLogic, handleCompiledChange } = this.props;
         return (<Tab.Pane>
-                  <InputJs
+                  <JavaScriptInput
                     js={compiledLogic}
                     handleJSChange={this.handleCompiledChange}/>
                 </Tab.Pane>);

@@ -23,7 +23,7 @@ import Resizable from 're-resizable';
 require('codemirror/addon/mode/simple.js');
 require('codemirror/mode/markdown/markdown');
 
-class InputSample extends TextArea {
+class SampleInput extends TextArea {
     constructor(props) {
         super(props);
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -53,4 +53,4 @@ class InputSample extends TextArea {
     };
 }
 
-export default InputSample;
+export default SampleInput;

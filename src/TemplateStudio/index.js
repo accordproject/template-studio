@@ -14,16 +14,65 @@
 
 'use strict';
 
+/* Default values */
+
+const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.1.cta';
+
+/* Libraries */
+
+import moment from 'moment'; // For DateTime support during contract execution
+import semver from 'semver'; // For Semantic versioning
+
+/* Cicero & Ergo */
+
+import { TemplateLibrary, Template, Clause } from '@accordproject/cicero-core';
+
+import { ModelFile } from 'composer-concerto';
+import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
+
+import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
+
+const ciceroVersion = ciceroPackageJson.version;
+
+/* React */
+
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import InputGrammar from '../presentational/InputGrammar';
-import InputJson from '../presentational/InputJson';
-import ModelForm from '../tabs/ModelForm';
-import LogicForm from '../tabs/LogicForm';
-import CompileForm from '../tabs/CompileForm';
-import ParseForm from '../tabs/ParseForm';
-import ExecuteForm from '../tabs/ExecuteForm';
-import TopMenu from '../TopMenu';
+
+/* React Semantic UI */
+
+import {
+    Form,
+    Container,
+    Divider,
+    Tab,
+    Label,
+    Header,
+    Image,
+    Input,
+    Grid,
+    Menu,
+    Icon,
+    Card,
+    Confirm,
+    Dimmer,
+    Loader,
+    Button,
+    Radio
+} from 'semantic-ui-react';
+
+/* Studio components */
+
+import GrammarInput from './inputs/GrammarInput';
+import JsonInput from './inputs/JsonInput';
+
+import ModelForm from './forms/ModelForm';
+import LogicForm from './forms/LogicForm';
+import CompileForm from './forms/CompileForm';
+import ParseForm from './forms/ParseForm';
+import ExecuteForm from './forms/ExecuteForm';
+
+import TopMenu from './TopMenu';
+
 import {
     parseFailure,
     modelFailure,
@@ -40,45 +89,12 @@ import {
     ExecuteStatus,
     StatusLabel,
     AllStatusLabel
-} from '../status/Status';
-import Options from '../status/Options';
+} from './Status';
+
 import {
     ResetButton,
     ExportButton
-} from '../status/TemplateTab';
-import { TemplateLibrary, Template, Clause } from '@accordproject/cicero-core';
-import {
-    Form,
-    Container,
-    Divider,
-    Tab,
-    Label,
-    Image,
-    Input,
-    Grid,
-    Dropdown,
-    Menu,
-    Icon,
-    Card,
-    Confirm,
-    Dimmer,
-    Loader,
-    Segment,
-    Button,
-    Checkbox,
-    Radio
-} from 'semantic-ui-react';
-
-import { ModelFile } from 'composer-concerto';
-import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
-import moment from 'moment';
-import semver from 'semver';
-
-import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
-
-const ciceroVersion = ciceroPackageJson.version;
-
-const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.1.cta';
+} from './TemplateTab';
 
 function getUrlVars() {
     let vars = {};
@@ -241,6 +257,7 @@ function updateLogic(clause,name,content) {
         return false;
     }
 }
+
 const defaultlog =
       { text: 'success',
         model: 'success',
@@ -248,7 +265,8 @@ const defaultlog =
         meta: 'success',
         execute: 'success',
         loading: 'success' };
-class FormContainer extends Component {
+
+class TemplateStudio extends Component {
     constructor() {
         super();
         this.state = {
@@ -272,7 +290,6 @@ class FormContainer extends Component {
             cstate: 'null',
             response: JSON.stringify(null, null, 2),
             emit: '[]',
-            options: { lineNumbers: false },
             activeItem: 'metadata',
             activeLegal: 'template',
             activeModel: 'model',
@@ -825,7 +842,7 @@ class FormContainer extends Component {
               </Menu>
               { this.state.activeLegal === 'template' ?
                 <Tab.Pane attached='bottom'>
-                  <InputGrammar
+                  <GrammarInput
                     grammar={grammar}
                     handleTextChange={this.handleGrammarChange}/>
                 </Tab.Pane> :
@@ -907,12 +924,12 @@ class FormContainer extends Component {
               </Menu>
               { this.state.activeMeta === 'readme' ?
                 <Tab.Pane attached='bottom'>
-                  <InputGrammar
+                  <GrammarInput
                     grammar={this.state.clause ? this.state.clause.getTemplate().getMetadata().getREADME() : 'null'}
                     handleTextChange={this.handleREADMEChange}/>
                 </Tab.Pane> : this.state.activeMeta === 'package' ?
                 <Tab.Pane attached='bottom'>
-                  <InputJson
+                  <JsonInput
                     json={this.state.package}
                     handleJSONChange={this.handlePackageChange}/>
                 </Tab.Pane> : null }
@@ -1086,7 +1103,5 @@ class FormContainer extends Component {
         );
     }
 }
-export default FormContainer;
+export default TemplateStudio;
 
-const wrapper = document.getElementById('create-article-form');
-wrapper ? ReactDOM.render(<FormContainer />, wrapper) : false;

@@ -21,31 +21,31 @@ import { Controlled as ReactCodeMirror } from 'react-codemirror2';
 import CodeMirror from 'codemirror/lib/codemirror.js';
 import Resizable from 're-resizable';
 require('codemirror/addon/mode/simple.js');
-require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/markdown/markdown');
 
-class InputJson extends TextArea {
+class GrammarInput extends TextArea {
     constructor(props) {
         super(props);
-        this.handleJSONChange = this.handleJSONChange.bind(this);
+        this.handleTextChange = this.handleTextChange.bind(this);
     }
 
-    handleJSONChange(data) {
-        this.props.handleJSONChange(data);
+    handleTextChange(text) {
+        this.props.handleTextChange(text);
     }
 
     render() {
-        const { json, handleJSONChange } = this.props;
-        const options = {lineWrapping: true, lineNumbers: true, mode: {name: "javascript", json: true}, theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
+        const { grammar, handleTextChange } = this.props;
+        const options = {lineWrapping: true, lineNumbers: true, mode: "markdown", theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
         return (
             <Resizable
               bounds='parent'
               enable={{ top:false, right:false, bottom:true, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
               defaultSize={{
                   width:'auto',
-                  height:350
+                  height:400
               }}>
-              <ReactCodeMirror value={json}
-                               onBeforeChange={(editor, data, value) => {this.handleJSONChange(value);}}
+              <ReactCodeMirror value={grammar}
+                               onBeforeChange={(editor, data, value) => {this.handleTextChange(value);}}
                                onChange={(editor, data, value) => {}}
                                options={options} />
             </Resizable>
@@ -53,4 +53,4 @@ class InputJson extends TextArea {
     };
 }
 
-export default InputJson;
+export default GrammarInput;

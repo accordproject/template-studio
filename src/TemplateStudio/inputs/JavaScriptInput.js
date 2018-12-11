@@ -23,7 +23,7 @@ import Resizable from 're-resizable';
 require('codemirror/addon/mode/simple.js');
 require('codemirror/mode/javascript/javascript');
 
-class InputJs extends TextArea {
+class JavaScriptInput extends TextArea {
     constructor(props) {
         super(props);
         this.handleJSChange = this.handleJSChange.bind(this);
@@ -53,4 +53,4 @@ class InputJs extends TextArea {
     };
 }
 
-export default InputJs;
+export default JavaScriptInput;

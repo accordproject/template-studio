@@ -14,4 +14,10 @@
 
 'use strict';
 
-import FormContainer from "./js/components/container/FormContainer";
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import TemplateStudio from "./TemplateStudio";
+
+const wrapper = document.getElementById('create-article-form');
+wrapper ? ReactDOM.render(<TemplateStudio />, wrapper) : false;

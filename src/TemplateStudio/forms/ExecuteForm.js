@@ -16,8 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import InputJson from '../presentational/InputJson';
-import InputGrammar from '../presentational/InputGrammar';
+import JsonInput from '../inputs/JsonInput';
 import TextArea from 'semantic-ui-react';
 import { Form, Divider, Grid, Button, Tab, Icon } from 'semantic-ui-react';
 
@@ -69,7 +68,7 @@ class ExecuteForm extends Form {
                         <Form.Field>
                           <label>Request</label>
                         </Form.Field>
-                        <InputJson
+                        <JsonInput
                           json={request}
                           handleJSONChange={this.handleRequestChange}
                         />
@@ -78,7 +77,7 @@ class ExecuteForm extends Form {
                         <Form.Field>
                           <label>Response</label>
                         </Form.Field>
-                        <InputJson
+                        <JsonInput
                           json={response}
                           handleJSONChange={this.handleResponseChange}
                         />
@@ -89,7 +88,7 @@ class ExecuteForm extends Form {
                         <Form.Field>
                           <label>Contract State</label>
                         </Form.Field>
-                        <InputJson
+                        <JsonInput
                           json={cstate}
                           handleJSONChange={this.handleStateChange}
                         />
@@ -98,7 +97,7 @@ class ExecuteForm extends Form {
                         <Form.Field>
                           <label>Obligations</label>
                         </Form.Field>
-                        <InputJson
+                        <JsonInput
                           json={emit}
                           handleJSONChange={this.handleEmitChange}
                         />
