@@ -55,7 +55,7 @@ function loadErgoMode() {
 }
 loadErgoMode();
 
-class InputErgo extends TextArea {
+class ErgoInput extends TextArea {
     constructor(props) {
         super(props);
         this.handleErgoChange = this.handleErgoChange.bind(this);
@@ -94,4 +94,4 @@ class InputErgo extends TextArea {
     };
 }
 
-export default InputErgo;
+export default ErgoInput;

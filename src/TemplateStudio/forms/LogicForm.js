@@ -16,47 +16,51 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import InputErgo from '../presentational/InputErgo';
-import { Form, Segment, Tab } from 'semantic-ui-react';
+import ErgoInput from '../inputs/ErgoInput';
+import { Form, Segment, Tab, TextArea } from 'semantic-ui-react';
+import {UnControlled as ReactCodeMirror} from 'react-codemirror2';
+import CodeMirror from 'codemirror/lib/codemirror.js';
+import Resizable from 're-resizable';
+require('codemirror/addon/mode/simple.js');
 
-function showModel(name) {
+function showLogic(name) {
     return name.indexOf("@") == -1 && name.indexOf("system.cto") == -1;
 }
 
-class ModelForm extends Form {
+class LogicForm extends Form {
     constructor(props) {
         super(props);
-        this.handleModelChange = this.handleModelChange.bind(this);
+        this.handleLogicChange = this.handleLogicChange.bind(this);
         this.handleErgoMounted = this.handleErgoMounted.bind(this);
-        this.panesFromModel = this.panesFromModel.bind(this);
+        this.panesFromLogic = this.panesFromLogic.bind(this);
+    }
+
+    handleLogicChange(editor,name,logic) {
+        this.props.handleLogicChange(editor,name,logic);
     }
 
     handleErgoMounted(editor) {
         this.props.handleErgoMounted(editor);
     }
 
-    handleModelChange(editor,name,model) {
-        this.props.handleModelChange(editor,name,model);
-    }
-
-    panesFromModel(model) {
+    panesFromLogic(logic) {
         let panes = [];
-        for (const m of model) {
-            if (showModel(m.name))
+        for (const m of logic) {
+            if (showLogic(m.name))
                 panes.push({ 'menuItem': m.name, 'render': () =>
                              <Tab.Pane>
-                               <InputErgo
+                               <ErgoInput
                                  value={m.content}
                                  handleErgoMounted={(editor) => {this.handleErgoMounted(editor);}}
-                                 handleErgoChange={(editor,model) => {this.handleModelChange(editor,m.name,model);}}/>
+                                 handleErgoChange={(editor,logic) => {this.handleLogicChange(editor,m.name,logic);}}/>
                              </Tab.Pane> });
         }
         return panes;
     }
     
     render() {
-        const { model, handleModelChange } = this.props;
-        const panes = this.panesFromModel(model);
+        const { logic, handleLogicChange } = this.props;
+        const panes = this.panesFromLogic(logic);
         return (
             <Form>
               <Tab panes={panes} />
@@ -65,4 +69,4 @@ class ModelForm extends Form {
     }
 }
 
-export default ModelForm;
+export default LogicForm;

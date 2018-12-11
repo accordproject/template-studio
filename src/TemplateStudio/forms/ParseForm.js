@@ -16,8 +16,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import InputJson from '../presentational/InputJson';
-import InputSample from '../presentational/InputSample';
+import JsonInput from '../inputs/JsonInput';
+import SampleInput from '../inputs/SampleInput';
 import TextArea from 'semantic-ui-react';
 import { Form, Segment, Divider, Tab } from 'semantic-ui-react';
 
@@ -40,7 +40,7 @@ class ParseForm extends Form {
         const { text, message, data, handleSampleChange, handleJSONChange } = this.props;
         return (
             <Tab.Pane>
-              <InputSample
+              <SampleInput
                 sample={text}
                 handleSampleChange={this.handleSampleChange}
               />
@@ -48,7 +48,7 @@ class ParseForm extends Form {
               <Form.Field>
                 <label>Contract Data</label>
               </Form.Field>
-              <InputJson
+              <JsonInput
                 json={data}
                 handleJSONChange={this.handleJSONChange}
               />
