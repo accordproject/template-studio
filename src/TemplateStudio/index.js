@@ -20,16 +20,14 @@ const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.1.cta';
 
 /* Utilities */
 
-const Utils = require('./Utils');
+import * as Utils from './Utils';
 
 /* Cicero */
 
+import { ModelFile } from 'composer-concerto';
 import { TemplateLibrary, Template, Clause } from '@accordproject/cicero-core';
 
-import { ModelFile } from 'composer-concerto';
-
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
-
 const ciceroVersion = ciceroPackageJson.version;
 
 /* React */

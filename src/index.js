@@ -21,3 +21,4 @@ import TemplateStudio from "./TemplateStudio";
 
 const wrapper = document.getElementById('create-article-form');
 wrapper ? ReactDOM.render(<TemplateStudio />, wrapper) : false;
+
