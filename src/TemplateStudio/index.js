@@ -18,17 +18,15 @@
 
 const DEFAULT_TEMPLATE = ROOT_URI + '/static/archives/helloworld@0.7.1.cta';
 
-/* Libraries */
+/* Utilities */
 
-import moment from 'moment'; // For DateTime support during contract execution
-import semver from 'semver'; // For Semantic versioning
+const Utils = require('./Utils');
 
-/* Cicero & Ergo */
+/* Cicero */
 
 import { TemplateLibrary, Template, Clause } from '@accordproject/cicero-core';
 
 import { ModelFile } from 'composer-concerto';
-import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
 
@@ -95,168 +93,6 @@ import {
     ResetButton,
     ExportButton
 } from './TemplateTab';
-
-function getUrlVars() {
-    let vars = {};
-    window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-        vars[key] = decodeURIComponent(value);
-    });
-    return vars;
-}
-function getUrlParam(parameter, defaultvalue){
-    let urlparameter = defaultvalue;
-    try {
-        if(window.location.href.indexOf(parameter) > -1){
-            if (getUrlVars()[parameter]) {
-                urlparameter = getUrlVars()[parameter];
-            } else {
-                throw new Error('Cannot parse template URL parameter');
-            }
-        } else {
-            console.log('Did not find template URL parameter when loading studio, using default: ' + urlparameter);
-        }
-    } catch (error) {
-        console.log('Did not find template URL parameter when loading studio, using default: ' + urlparameter);
-    }
-    return urlparameter;
-}
-function initUrl() {
-    return getUrlParam('template',DEFAULT_TEMPLATE);
-}
-function parseSample(input_state,text) {
-    const state = input_state;
-    const clause = input_state.clause;
-    try {
-        clause.parse(text);
-        state.data = JSON.stringify(clause.getData(),null,2);
-        state.log.text = 'Parse successful!',
-        state.text = text;
-    } catch (error){
-        state.data = 'null';
-        state.log.text = '[Parse Contract] ' + error.message;
-        state.text = text;
-    }
-    return state;
-}
-
-function generateText(input_state,data) {
-    const state = input_state;
-    try {
-        const dataContent = JSON.parse(data);
-        const clause = input_state.clause;
-        clause.setData(dataContent);
-        const text = clause.generateText();
-        state.text = text;
-        state.data = data;
-        if (updateSample(clause,text)) {
-            state.status = 'changed';
-        }
-        state.log.text = 'GenerateText successful!';
-    } catch (error){
-        state.data = data;
-        state.log.text = '[Instantiate Contract] ' + error.message;
-    }
-    return state;
-}
-
-function compileLogic(editor,logic,state) {
-    const model = state.model;
-    try {
-        const compiledLogic = Ergo.compileToJavaScript(logic,model,'cicero',false);
-        if (compiledLogic.hasOwnProperty('error')) {
-            const error = compiledLogic.error;
-            state.log.logic = error.verbose;
-            if (editor) {
-                console.log('ERROR'+JSON.stringify(error));
-                state.markers = [];
-                state.markersSource = [];
-                state.markers.push
-                (editor.markText({line:error.locstart.line-1,ch:error.locstart.character},
-                                 {line:error.locend.line-1,ch:error.locend.character+1},
-                                 {className: 'syntax-error', title: error.verbose}));
-                state.markersSource.push
-                ({ start: {line:error.locstart.line-1,ch:error.locstart.character},
-                   end: {line:error.locend.line-1,ch:error.locend.character+1},
-                   kind: {className: 'syntax-error', title: error.verbose}});
-            }
-        } else {
-            const compiledLogicLinked = Ergo.compileToJavaScript(logic,model,'cicero',true);
-            state.markers.forEach(marker => marker.clear());
-            state.markersSource = [];
-            state.clogic = { compiled: compiledLogic.success, compiledLinked : compiledLogicLinked.success };
-            state.log.logic = 'Compilation successful';
-        }
-    } catch (error) {
-        state.log.logic = 'Compilation error ' + error.message;
-    }
-    state.logic = logic;
-    return state;
-}
-
-function runLogic(compiledLogic,contract,request,cstate) {
-	  const params = { 'contract': contract, 'request': request, 'state' : cstate, 'emit': [], 'now': moment('2018-05-21') };
-	  const clauseCall = 'dispatch(params);'; // Create the clause call
-    const response = eval(compiledLogic + clauseCall); // Call the logic
-    return response;
-}
-
-function runInit(compiledLogic,contract) {
-	  const params = { 'contract': contract, 'request': null, 'state' : null, 'emit': [], 'now': moment('2018-05-21') };
-	  const clauseCall = 'init(params);'; // Create the clause call
-    const response = eval(compiledLogic + clauseCall); // Call the logic
-    return response;
-}
-
-function updateSample(clause,sample) {
-    const template = clause.getTemplate();
-    const samples = template.getMetadata().getSamples();
-    if (samples.default !== sample) {
-        samples.default = sample;
-        template.setSamples(samples);
-        return true;
-    } else {
-        return false;
-    }
-}
-function updateRequest(clause,oldrequest,request) {
-    if (oldrequest !== request) {
-        try {
-            clause.getTemplate().setRequest(JSON.parse(request));
-        } catch (error) {
-        }
-        return true;
-    } else {
-        return false;
-    }
-}
-function updateModel(clause,name,oldcontent,newcontent,grammar) {
-    const modelManager = clause.getTemplate().getModelManager();
-    if (oldcontent !== newcontent) {
-        modelManager.validateModelFile(newcontent,name);
-        const oldNamespace = new ModelFile(modelManager, oldcontent, name).getNamespace();
-        const newNamespace = new ModelFile(modelManager, newcontent, name).getNamespace();
-        if (oldNamespace === newNamespace) {
-            modelManager.updateModelFile(newcontent,name,true);
-        } else {
-            modelManager.deleteModelFile(oldNamespace);
-            modelManager.addModelFile(newcontent,name,true);
-        }
-        // XXX Have to re-generate the grammar if the model changes
-        clause.getTemplate().buildGrammar(grammar);
-        return true;
-    } else {
-        return false;
-    }
-}
-function updateLogic(clause,name,content) {
-    const scriptManager = clause.getTemplate().getScriptManager();
-    if (scriptManager.getScript(name).getContents() !== content) {
-        scriptManager.modifyScript(name,'.ergo',content);
-        return true;
-    } else {
-        return false;
-    }
-}
 
 const defaultlog =
       { text: 'success',
@@ -390,7 +226,7 @@ class TemplateStudio extends Component {
             state.log.meta = 'package.json change successful!';
             this.setState(state);
             // Make sure to try re-parsing
-            this.setState(parseSample(state, state.text));
+            this.setState(Utils.parseSample(state, state.text));
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.package = text;
@@ -444,7 +280,7 @@ class TemplateStudio extends Component {
             state.status = 'changed';
             this.setState(state);
             // Make sure to try re-parsing
-            this.setState(parseSample(state, state.text));
+            this.setState(Utils.parseSample(state, state.text));
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.log.meta = '[Change Template Type] ' + error;
@@ -474,10 +310,10 @@ class TemplateStudio extends Component {
     handleSampleChange(text) {
         const state = this.state;
         const clause = state.clause;
-        if (updateSample(clause,text)) {
+        if (Utils.updateSample(clause,text)) {
             state.status = 'changed';
         }
-        this.setState(parseSample(state, text));
+        this.setState(Utils.parseSample(state, text));
     }
 
     handleLegalTabChange(e, { name }) {
@@ -517,7 +353,7 @@ class TemplateStudio extends Component {
                 if (state.data !== 'null') {
                     const template = state.clause.getTemplate();
                     state.clause.getTemplate().buildGrammar(text);
-                    const newstate = generateText(state,state.data);
+                    const newstate = Utils.generateText(state,state.data);
                     if (newstate.log.text.indexOf('successful') === -1) {
                         throw new Error('Error generating text from this new grammar');
                     }
@@ -530,7 +366,7 @@ class TemplateStudio extends Component {
                     const template = state.clause.getTemplate();
                     template.buildGrammar(text);
                     state.log.text = '[Change Template] ' + error1.message;
-                    this.setState(parseSample(state, state.text));
+                    this.setState(Utils.parseSample(state, state.text));
                 } catch (error2) {
                     state.log.text = '[Change Template] ' + error2.message;
                     this.setState(state);
@@ -571,7 +407,7 @@ class TemplateStudio extends Component {
         for (const m of oldmodel) {
             if (m.name === name) {
                 try {
-                    if (updateModel(state.clause,name,m.content,model,state.grammar)) {
+                    if (Utils.updateModel(state.clause,name,m.content,model,state.grammar)) {
                         state.status = 'changed';
                         state.log.model = 'Load model successful';
                     }
@@ -590,9 +426,9 @@ class TemplateStudio extends Component {
         if (!modelfails) {
             state.log.model = 'Model loaded successfully';
             try {
-                this.setState(parseSample(state, state.text));
+                this.setState(Utils.parseSample(state, state.text));
                 try {
-                    this.setState(compileLogic(null,state.logic,state));
+                    this.setState(Utils.compileLogic(null,state.logic,state));
                 } catch (error) {
                     this.setState(state);
                 }
@@ -607,7 +443,7 @@ class TemplateStudio extends Component {
     handleJSONChange(data) {
         const state = this.state;
         if (data !== null) {
-            this.setState(generateText(state, data));
+            this.setState(Utils.generateText(state, data));
         }
     }
 
@@ -618,7 +454,7 @@ class TemplateStudio extends Component {
         for (const m of oldlogic) {
             if (m.name === name) {
                 try {
-                    if (updateLogic(state.clause,name,logic)) {
+                    if (Utils.updateLogic(state.clause,name,logic)) {
                         state.status = 'changed';
                     }
                 } catch (error) {
@@ -629,8 +465,8 @@ class TemplateStudio extends Component {
                 newlogic.push({name : m.name, content: m.content });
             }
         }
-        this.setState(parseSample(state, state.text));
-        this.setState(compileLogic(editor,newlogic,state));
+        this.setState(Utils.parseSample(state, state.text));
+        this.setState(Utils.compileLogic(editor,newlogic,state));
     }
 
     handleErgoMounted(editor) {
@@ -651,7 +487,7 @@ class TemplateStudio extends Component {
             const contract = JSON.parse(state.data);
             const request = JSON.parse(state.request);
             const cstate = JSON.parse(state.cstate);
-            const response = runLogic(compiledLogic,contract,request,cstate);
+            const response = Utils.runLogic(compiledLogic,contract,request,cstate);
             if (response.hasOwnProperty('left')) {
                 state.log.execute = 'Execution successful!';
                 state.response = JSON.stringify(response.left.response,null,2);
@@ -679,7 +515,7 @@ class TemplateStudio extends Component {
             console.log('Initializing contract');
             const compiledLogic = state.clogic.compiledLinked;
             const contract = JSON.parse(state.data);
-            const response = runInit(compiledLogic,contract);
+            const response = Utils.runInit(compiledLogic,contract);
             if (response.hasOwnProperty('left')) {
                 state.log.execute = 'Execution successful!';
                 state.response = JSON.stringify(response.left.response,null,2);
@@ -740,7 +576,7 @@ class TemplateStudio extends Component {
             state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             state.data = 'null';
             state.status = 'loaded';
-            state = compileLogic(null,state.logic, state);
+            state = Utils.compileLogic(null,state.logic, state);
             this.setState(state);
             this.handleModelChange(null,state,state.model);
             this.handleSampleChange(state.text);
@@ -784,7 +620,7 @@ class TemplateStudio extends Component {
             state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             state.data = 'null';
             state.status = 'loaded';
-            state = compileLogic(null,state.logic, state);
+            state = Utils.compileLogic(null,state.logic, state);
             this.setState(state);
             this.handleModelChange(null,state,state.model);
             this.handleSampleChange(state.text);
@@ -804,7 +640,7 @@ class TemplateStudio extends Component {
 
     componentDidMount() {
         this.loadTemplateLibrary().then(() => {
-            if (!this.loadTemplateFromUrl(initUrl())) {
+            if (!this.loadTemplateFromUrl(Utils.initUrl(DEFAULT_TEMPLATE))) {
                 this.loadTemplateFromUrl(DEFAULT_TEMPLATE);
             }
         });
