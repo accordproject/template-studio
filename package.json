@@ -15,9 +15,9 @@
   "author": "accordproject.org",
   "license": "Apache-2.0",
   "dependencies": {
-    "@accordproject/cicero-core": "0.9.10",
+    "@accordproject/cicero-core": "0.9.11",
     "@accordproject/cicero-template-library": "git+https://git@github.com/accordproject/cicero-template-library.git",
-    "@accordproject/ergo-compiler": "0.5.5",
+    "@accordproject/ergo-compiler": "0.5.7",
     "codemirror": "^5.40.2",
     "composer-concerto": "0.60.0",
     "file-saver": "^2.0.0-rc.3",
