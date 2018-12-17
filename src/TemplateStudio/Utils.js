@@ -18,6 +18,10 @@
 
 import moment from 'moment'; // For DateTime support during contract execution
 
+/* Concerto */
+
+import { ModelFile } from 'composer-concerto';
+
 /* Ergo */
 
 import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
@@ -49,74 +53,93 @@ function getUrlParam(parameter, defaultvalue){
 function initUrl(defaultUrl) {
     return getUrlParam('template', defaultUrl);
 }
-function parseSample(input_state,text) {
-    const state = input_state;
-    const clause = input_state.clause;
+function textLog(log,msg) {
+    return {
+        text: msg,
+        model: log.model,
+        logic: log.logic,
+        meta: log.meta,
+        execute: log.execute,
+        loading: log.loading
+    };
+}
+function logicLog(log,msg) {
+    return {
+        text: log.text,
+        model: log.model,
+        logic: msg,
+        meta: log.meta,
+        execute: log.execute,
+        loading: log.loading
+    };
+}
+function parseSample(clause,text,log) {
+    let changes = {};
     try {
         clause.parse(text);
-        state.data = JSON.stringify(clause.getData(),null,2);
-        state.log.text = 'Parse successful!',
-        state.text = text;
+        changes.data = JSON.stringify(clause.getData(),null,2);
+        changes.log = textLog(log,'Parse successful!'),
+        changes.text = text;
     } catch (error){
-        state.data = 'null';
-        state.log.text = '[Parse Contract] ' + error.message;
-        state.text = text;
+        changes.data = 'null';
+        changes.log = textLog(log,'[Parse Contract] ' + error.message);
+        changes.text = text;
     }
-    return state;
+    console.log("PARSE SAMPLE CHANGES: " + JSON.stringify(changes));
+    return changes;
 }
 
-function generateText(input_state,data) {
-    const state = input_state;
+function generateText(clause,data,log) {
+    let changes = {};
     try {
         const dataContent = JSON.parse(data);
-        const clause = input_state.clause;
         clause.setData(dataContent);
         const text = clause.generateText();
-        state.text = text;
-        state.data = data;
+        changes.text = text;
+        changes.data = data;
         if (updateSample(clause,text)) {
-            state.status = 'changed';
+            changes.status = 'changed';
         }
-        state.log.text = 'GenerateText successful!';
+        changes.log = textLog(log,'GenerateText successful!');
     } catch (error){
-        state.data = data;
-        state.log.text = '[Instantiate Contract] ' + error.message;
+        changes.data = data;
+        changes.log = textLog(log,'[Instantiate Contract] ' + error.message);
     }
-    return state;
+    return changes;
 }
 
-function compileLogic(editor,logic,state) {
-    const model = state.model;
+function compileLogic(editor,logic,model,markers,log) {
+    const changes = {};
     try {
         const compiledLogic = Ergo.compileToJavaScript(logic,model,'cicero',false);
         if (compiledLogic.hasOwnProperty('error')) {
             const error = compiledLogic.error;
-            state.log.logic = error.verbose;
+            changes.log = logicLog(log,error.verbose);
             if (editor) {
                 console.log('ERROR'+JSON.stringify(error));
-                state.markers = [];
-                state.markersSource = [];
-                state.markers.push
+                changes.markers = [];
+                changes.markersSource = [];
+                changes.markers.push
                 (editor.markText({line:error.locstart.line-1,ch:error.locstart.character},
                                  {line:error.locend.line-1,ch:error.locend.character+1},
                                  {className: 'syntax-error', title: error.verbose}));
-                state.markersSource.push
+                changes.markersSource.push
                 ({ start: {line:error.locstart.line-1,ch:error.locstart.character},
                    end: {line:error.locend.line-1,ch:error.locend.character+1},
                    kind: {className: 'syntax-error', title: error.verbose}});
             }
         } else {
             const compiledLogicLinked = Ergo.compileToJavaScript(logic,model,'cicero',true);
-            state.markers.forEach(marker => marker.clear());
-            state.markersSource = [];
-            state.clogic = { compiled: compiledLogic.success, compiledLinked : compiledLogicLinked.success };
-            state.log.logic = 'Compilation successful';
+            markers.forEach(marker => marker.clear());
+            changes.markersSource = [];
+            changes.clogic = { compiled: compiledLogic.success, compiledLinked : compiledLogicLinked.success };
+            changes.log = logicLog(log,'Compilation successful');
         }
     } catch (error) {
-        state.log.logic = 'Compilation error ' + error.message;
+        changes.log = logicLog(log,'Compilation error ' + error.message);
     }
-    state.logic = logic;
-    return state;
+    changes.logic = logic;
+    return changes;
 }
 
 function runLogic(compiledLogic,contract,request,cstate) {
