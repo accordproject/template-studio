@@ -24,7 +24,6 @@ import * as Utils from './Utils';
 
 /* Cicero */
 
-import { ModelFile } from 'composer-concerto';
 import { TemplateLibrary, Template, Clause } from '@accordproject/cicero-core';
 
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
@@ -224,7 +223,7 @@ class TemplateStudio extends Component {
             state.log.meta = 'package.json change successful!';
             this.setState(state);
             // Make sure to try re-parsing
-            this.setState(Utils.parseSample(state, state.text));
+            this.setState(Utils.parseSample(state.clause, state.text, state.log));
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.package = text;
@@ -278,7 +277,7 @@ class TemplateStudio extends Component {
             state.status = 'changed';
             this.setState(state);
             // Make sure to try re-parsing
-            this.setState(Utils.parseSample(state, state.text));
+            this.setState(Utils.parseSample(state.clause, state.text, state.log));
         } catch (error){
             console.log('ERROR'+JSON.stringify(error.message));
             state.log.meta = '[Change Template Type] ' + error;
@@ -307,11 +306,12 @@ class TemplateStudio extends Component {
 
     handleSampleChange(text) {
         const state = this.state;
-        const clause = state.clause;
+        const { clause, log } = state;
         if (Utils.updateSample(clause,text)) {
             state.status = 'changed';
+            this.setState(state);
         }
-        this.setState(Utils.parseSample(state, text));
+        this.setState(Utils.parseSample(clause, text, log));
     }
 
     handleLegalTabChange(e, { name }) {
@@ -342,29 +342,30 @@ class TemplateStudio extends Component {
 
     handleGrammarChange(text) {
         const state = this.state;
+        const clause = state.clause;
         if (text !== state.grammar) {
             state.grammar = text;
             try {
                 state.status = 'changed';
-                state.data = JSON.stringify(state.clause.getData(),null,2);
+                state.data = JSON.stringify(clause.getData(),null,2);
                 state.log.text = 'Grammar change successful!';
                 if (state.data !== 'null') {
-                    const template = state.clause.getTemplate();
-                    state.clause.getTemplate().buildGrammar(text);
-                    const newstate = Utils.generateText(state,state.data);
-                    if (newstate.log.text.indexOf('successful') === -1) {
+                    const template = clause.getTemplate();
+                    clause.getTemplate().buildGrammar(text);
+                    const changes = Utils.generateText(clause,state.data,state.log);
+                    if (changes.log.text.indexOf('successful') === -1) {
                         throw new Error('Error generating text from this new grammar');
                     }
-                    this.setState(newstate);
+                    this.setState(changes);
                 }
             } catch (error1) {
                 try {
                     console.log('Error building grammar' + error1.message);
                     state.status = 'changed';
-                    const template = state.clause.getTemplate();
+                    const template = clause.getTemplate();
                     template.buildGrammar(text);
                     state.log.text = '[Change Template] ' + error1.message;
-                    this.setState(Utils.parseSample(state, state.text));
+                    this.setState(Utils.parseSample(clause, state.text, state.log));
                 } catch (error2) {
                     state.log.text = '[Change Template] ' + error2.message;
                     this.setState(state);
@@ -399,13 +400,14 @@ class TemplateStudio extends Component {
 
     handleModelChange(editor,name,model) {
         const state = this.state;
+        const clause = state.clause;
         const oldmodel = state.model;
         var newmodel = [];
         let modelfails = false;
         for (const m of oldmodel) {
             if (m.name === name) {
                 try {
-                    if (Utils.updateModel(state.clause,name,m.content,model,state.grammar)) {
+                    if (Utils.updateModel(clause,name,m.content,model,state.grammar)) {
                         state.status = 'changed';
                         state.log.model = 'Load model successful';
                     }
@@ -424,9 +426,9 @@ class TemplateStudio extends Component {
         if (!modelfails) {
             state.log.model = 'Model loaded successfully';
             try {
-                this.setState(Utils.parseSample(state, state.text));
+                this.setState(Utils.parseSample(clause, state.text, state.log));
                 try {
-                    this.setState(Utils.compileLogic(null,state.logic,state));
+                    this.setState(Utils.compileLogic(null,state.logic,state.model,state.markers,state.log));
                 } catch (error) {
                     this.setState(state);
                 }
@@ -440,19 +442,22 @@ class TemplateStudio extends Component {
 
     handleJSONChange(data) {
         const state = this.state;
+        const clause = state.clause;
+        const log = state.log;
         if (data !== null) {
-            this.setState(Utils.generateText(state, data));
+            this.setState(Utils.generateText(clause, data, log));
         }
     }
 
     handleLogicChange(editor,name,logic) {
         const state = this.state;
+        const clause = state.clause;
         const oldlogic = state.logic;
         var newlogic = [];
         for (const m of oldlogic) {
             if (m.name === name) {
                 try {
-                    if (Utils.updateLogic(state.clause,name,logic)) {
+                    if (Utils.updateLogic(clause,name,logic)) {
                         state.status = 'changed';
                     }
                 } catch (error) {
@@ -463,8 +468,8 @@ class TemplateStudio extends Component {
                 newlogic.push({name : m.name, content: m.content });
             }
         }
-        this.setState(Utils.parseSample(state, state.text));
-        this.setState(Utils.compileLogic(editor,newlogic,state));
+        this.setState(Utils.parseSample(clause, state.text, state.log));
+        this.setState(Utils.compileLogic(editor,newlogic,state.model,state.markers,state.log));
     }
 
     handleErgoMounted(editor) {
@@ -574,8 +579,8 @@ class TemplateStudio extends Component {
             state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             state.data = 'null';
             state.status = 'loaded';
-            state = Utils.compileLogic(null,state.logic, state);
             this.setState(state);
+            this.setState(Utils.compileLogic(null,state.logic,state.model,state.markers,state.log)); // Now returns changes, not setting the rest of the state
             this.handleModelChange(null,state,state.model);
             this.handleSampleChange(state.text);
             this.handleLogicChange(null,state,state.logic);
@@ -618,8 +623,8 @@ class TemplateStudio extends Component {
             state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             state.data = 'null';
             state.status = 'loaded';
-            state = Utils.compileLogic(null,state.logic, state);
             this.setState(state);
+            this.setState(Utils.compileLogic(null,state.logic,state.model,state.markers,state.log));
             this.handleModelChange(null,state,state.model);
             this.handleSampleChange(state.text);
             this.handleLogicChange(null,state,state.logic);
