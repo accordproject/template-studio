@@ -380,7 +380,7 @@ class TemplateStudio extends Component {
 
     handleRequestChange(text) {
         const state = this.state;
-        if (updateRequest(state.clause,state.request,text)) {
+        if (Utils.updateRequest(state.clause,state.request,text)) {
             state.status = 'changed';
         }
         state.request = text;
