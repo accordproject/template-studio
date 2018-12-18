@@ -47,17 +47,17 @@ class ExportButton extends Button {
                   <Icon name="download"/> Export</Button>); }
 }
 
-class ResetButton extends Button {
+class DiscardButton extends Button {
     constructor(props) {
         super(props);
-        this.handleResetChange = this.handleResetChange.bind(this);
+        this.handleDiscardChange = this.handleDiscardChange.bind(this);
     }
-    handleResetChange() {
-        this.props.handleResetChange();
+    handleDiscardChange() {
+        this.props.handleDiscardChange();
     }
     render() {
-        return (<Button size='mini' basic color='blue' onClick={this.handleResetChange}>
-                  <Icon name="redo" flipped="horizontally"/> Reset</Button>); }
+        return (<Button size='mini' basic color='blue' onClick={this.handleDiscardChange}>
+                  <Icon name="redo" flipped="horizontally"/> Discard Changes</Button>); }
 }
 
-export { ExportButton, ResetButton };
+export { ExportButton, DiscardButton };

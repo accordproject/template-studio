@@ -87,7 +87,7 @@ import {
 } from './Status';
 
 import {
-    ResetButton,
+    DiscardButton,
     ExportButton
 } from './TemplateTab';
 
@@ -139,9 +139,9 @@ class TemplateStudio extends Component {
         this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
         this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
         this.handleStatusChange = this.handleStatusChange.bind(this);
-        this.handleResetChange = this.handleResetChange.bind(this);
-        this.handleResetConfirmed = this.handleResetConfirmed.bind(this);
-        this.handleResetAborted = this.handleResetAborted.bind(this);
+        this.handleDiscardChange = this.handleDiscardChange.bind(this);
+        this.handleDiscardConfirmed = this.handleDiscardConfirmed.bind(this);
+        this.handleDiscardAborted = this.handleDiscardAborted.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
         this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -190,7 +190,7 @@ class TemplateStudio extends Component {
         state.status = status;
         this.setState(state);
     }
-    handleResetChange() {
+    handleDiscardChange() {
         const state = this.state;
         if (state.status === 'changed') {
             state.confirmreset = { flag: true, temp: null };
@@ -199,13 +199,13 @@ class TemplateStudio extends Component {
             this.loadTemplateFromUrl(this.state.templateURL);
         }
     }
-    handleResetConfirmed() {
+    handleDiscardConfirmed() {
         const state = this.state;
         state.confirmreset = { flag: false, temp: null };
         this.setState(state);
         this.loadTemplateFromUrl(this.state.templateURL);
     }
-    handleResetAborted() {
+    handleDiscardAborted() {
         const state = this.state;
         state.confirmreset = { flag: false, temp: null };
         this.setState(state);
@@ -884,8 +884,8 @@ class TemplateStudio extends Component {
                    </Card.Content>
                    <Card.Content>
                      <ExportButton handleStatusChange={this.handleStatusChange} clause={this.state.clause}/>
-                     <Confirm content='Your template has been edited, are you sure you want to reset? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleResetAborted} onConfirm={this.handleResetConfirmed} />
-                     <ResetButton handleResetChange={this.handleResetChange}/>
+                     <Confirm content='Your template has been edited, are you sure you want to discard those changes? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmreset.flag} onCancel={this.handleDiscardAborted} onConfirm={this.handleDiscardConfirmed} />
+                     <DiscardButton handleDiscardChange={this.handleDiscardChange}/>
                    </Card.Content>
                  </Card>
               );
