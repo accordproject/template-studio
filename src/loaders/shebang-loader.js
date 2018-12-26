@@ -12,11 +12,10 @@
  * limitations under the License.
  */
 
-'use strict';
-
-module.exports = function(source) {
-    if ((typeof source === "string") && (/^#!/.test(source))) {
-        source = source.replace(/^#![^\n\r]*[\r\n]/, '');
-    }
-	return source;
-}
+module.exports = function (source) {
+  let s = source;
+  if ((typeof s === 'string') && (/^#!/.test(s))) {
+    s = s.replace(/^#![^\n\r]*[\r\n]/, '');
+  }
+  return s;
+};

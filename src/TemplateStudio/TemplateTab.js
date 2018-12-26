@@ -12,52 +12,60 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Button, Dropdown } from 'semantic-ui-react';
+import { Icon, Button } from 'semantic-ui-react';
 import saveAs from 'file-saver';
-require("@babel/core");
-require("@babel/polyfill");
+
+require('@babel/core');
+require('@babel/polyfill');
 
 class ExportButton extends Button {
-    constructor(props) {
-        super(props);
-        this.handleStatusChange = this.handleStatusChange.bind(this);
-        this.downloadCta = this.downloadCta.bind(this);
+  constructor(props) {
+    super(props);
+    this.handleStatusChange = this.handleStatusChange.bind(this);
+    this.downloadCta = this.downloadCta.bind(this);
+  }
+  handleStatusChange(status) {
+    this.props.handleStatusChange(status);
+  }
+  async downloadCta(clause) {
+    if (clause !== null) {
+      const template = clause.getTemplate();
+      const name = template.getMetadata().getName();
+      const cta = await template.toArchive('ergo');
+      const blob = new Blob([cta], { type: 'application/zip' });
+      saveAs(blob, `${name}.cta`);
+      this.handleStatusChange('saved');
+    } else {
+      console.log('CLAUSE MISSING!');
     }
-    handleStatusChange(status) {
-        this.props.handleStatusChange(status);
-    }
-    async downloadCta(clause) {
-        if (clause !== null) {
-            const template = clause.getTemplate();
-            const name = template.getMetadata().getName();
-            const cta = await template.toArchive('ergo');
-            var blob = new Blob([cta], {type: "application/zip"});
-            saveAs(blob, name + '.cta');
-            this.handleStatusChange('saved');
-        } else {
-            console.log("CLAUSE MISSING!");
-        }
-    }
-    render() {
-        return (<Button size='mini' color='blue' onClick={() => this.downloadCta(this.props.clause)}>
-                  <Icon name="download"/> Export</Button>); }
+  }
+  render() {
+    return (<Button size="mini" color="blue" onClick={() => this.downloadCta(this.props.clause)}>
+      <Icon name="download" /> Export</Button>);
+  }
 }
+ExportButton.propTypes = {
+  handleStatusChange: PropTypes.func.isRequired,
+  clause: PropTypes.object,
+};
 
 class DiscardButton extends Button {
-    constructor(props) {
-        super(props);
-        this.handleDiscardChange = this.handleDiscardChange.bind(this);
-    }
-    handleDiscardChange() {
-        this.props.handleDiscardChange();
-    }
-    render() {
-        return (<Button size='mini' basic color='blue' onClick={this.handleDiscardChange}>
-                  <Icon name="redo" flipped="horizontally"/> Discard Changes</Button>); }
+  constructor(props) {
+    super(props);
+    this.handleDiscardChange = this.handleDiscardChange.bind(this);
+  }
+  handleDiscardChange() {
+    this.props.handleDiscardChange();
+  }
+  render() {
+    return (<Button size="mini" basic color="blue" onClick={this.handleDiscardChange}>
+      <Icon name="redo" flipped="horizontally" /> Discard Changes</Button>);
+  }
 }
+DiscardButton.propTypes = {
+  handleDiscardChange: PropTypes.func.isRequired,
+};
 
 export { ExportButton, DiscardButton };

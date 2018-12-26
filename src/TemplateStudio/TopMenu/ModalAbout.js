@@ -33,12 +33,13 @@ const ModalAbout = () => (
       <Modal.Description>
         <Header>Getting started</Header>
         <p>Search a template from the <a href="https://templates.accordproject.org" target="_blank" rel="noopener noreferrer">Accord Project template library</a> (Search box at the top)</p>
-        <p>Chose whether to edit the <b>Contract Text</b>, <b>the Model</b>, or the <b>Logic</b> (Tab on the upper left)</p>
+        <p>Chose whether to edit the <b>Contract Text</b>, <b>the Model</b>,
+        or the <b>Logic</b> (Tab on the upper left)</p>
         <p>Edit the <b>Test Contract</b> and inspect the corresponding <b>Contract data</b></p>
         <p>Edit the <b>Template</b> and see the corresponding <b>Test Contract</b></p>
         <p>Edit the <b>Ergo</b> contract logic and test it by executing requests</p>
       </Modal.Description>
-      <Divider/>
+      <Divider />
       <Modal.Description>
         <Header>Version Information</Header>
         <p>Cicero {ciceroVersion}</p>

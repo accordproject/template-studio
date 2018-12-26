@@ -12,8 +12,6 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Confirm, Container, Dropdown, Header, Icon, Image, Menu } from 'semantic-ui-react';
@@ -24,7 +22,7 @@ import ModalAbout from './ModalAbout';
 
 class TopMenu extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       modalURLOpen: false,
@@ -32,7 +30,7 @@ class TopMenu extends React.Component {
       newTemplateURL: '',
       confirm: { flag: false, temp: null },
       confirmNew: { flag: false, temp: null },
-    }
+    };
 
     this.blobToBuffer = this.blobToBuffer.bind(this);
     this.handleNewChange = this.handleNewChange.bind(this);
@@ -52,80 +50,80 @@ class TopMenu extends React.Component {
 
   blobToBuffer(blob, cb) {
     if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
-        throw new Error('first argument must be a Blob');
+      throw new Error('first argument must be a Blob');
     }
     if (typeof cb !== 'function') {
-        throw new Error('second argument must be a function');
+      throw new Error('second argument must be a function');
     }
-    
-    var reader = new FileReader();
-    
-    function onLoadEnd (e) {
-        reader.removeEventListener('loadend', onLoadEnd, false);
-        if (e.error) cb(e.error);
-        else cb(null, Buffer.from(reader.result));
+
+    const reader = new FileReader();
+
+    function onLoadEnd(e) {
+      reader.removeEventListener('loadend', onLoadEnd, false);
+      if (e.error) cb(e.error);
+      else cb(null, Buffer.from(reader.result));
     }
-    
+
     reader.addEventListener('loadend', onLoadEnd, false);
     reader.readAsArrayBuffer(blob);
-}
+  }
 
-  handleURLChange(e, { name, value }) {
+  handleURLChange(e, input) {
     this.setState({
-      newTemplateURL: value,
+      newTemplateURL: input.value,
       modalURLOpen: true,
     });
   }
   handleURLOpen() {
-      this.setState({ modalURLOpen: true });
+    this.setState({ modalURLOpen: true });
   }
   handleURLAbort() {
-      this.setState({ modalURLOpen: false });
+    this.setState({ modalURLOpen: false });
   }
   handleURLConfirm() {
     const templateURL = this.state.newTemplateURL;
-      this.props.loadTemplateFromUrl(templateURL);
-      this.setState({
-        modalURLOpen: false,
-        newTemplateURL: '',
-      })
+    this.props.loadTemplateFromUrl(templateURL);
+    this.setState({
+      modalURLOpen: false,
+      newTemplateURL: '',
+    });
   }
 
   handleUploadOpen() {
-      this.setState({ modalUploadOpen: true });
+    this.setState({ modalUploadOpen: true });
   }
   handleUploadClose() {
-      this.setState({ modalUploadOpen: false });
+    this.setState({ modalUploadOpen: false });
   }
   handleUploadConfirm(file) {
     this.blobToBuffer(file, (err, buffer) => {
-        if (err) throw err;
-        this.props.loadTemplateFromBuffer(buffer);
+      if (err) throw err;
+      this.props.loadTemplateFromBuffer(buffer);
     });
-    this.setState({ modalUploadOpen: false })
-}
+    this.setState({ modalUploadOpen: false });
+  }
 
   handleSelectTemplateConfirmed() {
     const data = this.state.confirm.temp;
     this.props.loadTemplateFromUrl(data);
-    this.setState({ confirm: { flag: false, temp: null } })
+    this.setState({ confirm: { flag: false, temp: null } });
   }
   handleSelectTemplateAborted() {
     this.setState({ confirm: { flag: false, temp: null } });
   }
   handleSelectTemplate(event, data) {
     if (this.props.status === 'changed') {
-        this.setState({ confirm: { flag: true, temp: data.value } });
+      this.setState({ confirm: { flag: true, temp: data.value } });
     } else {
-        this.props.loadTemplateFromUrl(data.value);
+      this.props.loadTemplateFromUrl(data.value);
     }
   }
 
   handleNewChange(emptyTemplate) {
     if (this.props.status === 'changed') {
-        this.setState({ confirmNew: { flag: true, temp: emptyTemplate } });
+      this.setState({ confirmNew: { flag: true, temp: emptyTemplate } });
     } else {
-        this.props.loadTemplateFromUrl(emptyTemplate);
+      this.props.loadTemplateFromUrl(emptyTemplate);
     }
   }
   handleNewConfirmed() {
@@ -136,70 +134,74 @@ class TopMenu extends React.Component {
   handleNewAborted() {
     this.setState({ confirmNew: { flag: false, temp: null } });
   }
-  
+
   render() {
-    const EMPTY_CONTRACT_TEMPLATE = ROOT_URI + '/static/archives/empty-contract@0.1.1.cta';
-    const EMPTY_CLAUSE_TEMPLATE = ROOT_URI + '/static/archives/empty@0.2.1.cta';
+    const EMPTY_CONTRACT_TEMPLATE = `${ROOT_URI}/static/archives/empty-contract@0.1.1.cta`;
+    const EMPTY_CLAUSE_TEMPLATE = `${ROOT_URI}/static/archives/empty@0.2.1.cta`;
 
     return (
-      <Menu fixed='top' inverted>
-      <Container fluid>
-        <Menu.Item header>
-          <Image size='mini' href='https://www.accordproject.org' src='static/img/logo.png' style={{ marginRight: '1.5em' }} target='_blank'/>
-          Accord Project &middot; Template Studio
-        </Menu.Item>
-        <Menu.Item>
-          <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
-          <Dropdown style={{'width': '270px'}} icon='search'
-                    className='ui icon fixed'
-                    text='Search Template Library'
-                    labeled button
-                    search
-                    options={this.props.templates}
-                    onChange={this.handleSelectTemplate}/>
-        </Menu.Item>
-        <Menu.Item>
-          <Dropdown item text='New Template' simple>
-            <Dropdown.Menu>
-              <Confirm content='Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button.' confirmButton="I am sure" cancelButton='Cancel' open={this.state.confirmNew.flag} onCancel={this.handleNewAborted} onConfirm={this.handleNewConfirmed} />
-              <Menu.Item onClick={() => this.handleNewChange(EMPTY_CONTRACT_TEMPLATE)}>
-                  <Icon name="file alternate outline"/> Empty Contract
-              </Menu.Item>
-              <Menu.Item onClick={() => this.handleNewChange(EMPTY_CLAUSE_TEMPLATE)}>
-                  <Icon name="file outline"/> Empty Clause
-              </Menu.Item>
-              <Header as='h4'>Import</Header>
-              <ModalURL
-                handleURLAbort={this.handleURLAbort}
-                handleURLChange={this.handleURLChange}
-                handleURLConfirm={this.handleURLConfirm}
-                handleURLOpen={this.handleURLOpen}
-                modalURLOpen={this.state.modalURLOpen}
-                newTemplateURL={this.newTemplateURL}
-              />
-              <ModalUpload
-                handleUploadClose={this.handleUploadClose}
-                handleUploadConfirm={this.handleUploadConfirm}
-                handleUploadOpen={this.handleUploadOpen}
-                modalUploadOpen={this.state.modalUploadOpen}
-              />
-            </Dropdown.Menu>
-          </Dropdown>
-          <Dropdown item text='Help' simple>
-            <Dropdown.Menu>
-              <ModalAbout />
-              <Header as='h4'>Documentation</Header>
-              <Menu.Item href='https://docs.accordproject.org/' target='_blank'>
-                <Icon name='info'/> Accord Project Documentation
-              </Menu.Item>
-              <Menu.Item href='https://docs.accordproject.org/docs/ergo-lang.html' target='_blank'>
-                <Icon name='lab'/> Ergo Language Guide
-              </Menu.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </Menu.Item>
-      </Container>
-    </Menu>
+      <Menu fixed="top" inverted>
+        <Container fluid>
+          <Menu.Item header>
+            <Image size="mini" href="https://www.accordproject.org" src="static/img/logo.png" style={{ marginRight: '1.5em' }} target="_blank" />
+            Accord Project &middot; Template Studio
+          </Menu.Item>
+          <Menu.Item>
+            <Confirm content="Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button." confirmButton="I am sure" cancelButton="Cancel" open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
+            <Dropdown
+              style={{ width: '270px' }}
+              icon="search"
+              className="ui icon fixed"
+              text="Search Template Library"
+              labeled
+              button
+              search
+              options={this.props.templates}
+              onChange={this.handleSelectTemplate}
+            />
+          </Menu.Item>
+          <Menu.Item>
+            <Dropdown item text="New Template" simple>
+              <Dropdown.Menu>
+                <Confirm content="Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button." confirmButton="I am sure" cancelButton="Cancel" open={this.state.confirmNew.flag} onCancel={this.handleNewAborted} onConfirm={this.handleNewConfirmed} />
+                <Menu.Item onClick={() => this.handleNewChange(EMPTY_CONTRACT_TEMPLATE)}>
+                  <Icon name="file alternate outline" /> Empty Contract
+                </Menu.Item>
+                <Menu.Item onClick={() => this.handleNewChange(EMPTY_CLAUSE_TEMPLATE)}>
+                  <Icon name="file outline" /> Empty Clause
+                </Menu.Item>
+                <Header as="h4">Import</Header>
+                <ModalURL
+                  handleURLAbort={this.handleURLAbort}
+                  handleURLChange={this.handleURLChange}
+                  handleURLConfirm={this.handleURLConfirm}
+                  handleURLOpen={this.handleURLOpen}
+                  modalURLOpen={this.state.modalURLOpen}
+                  newTemplateURL={this.newTemplateURL}
+                />
+                <ModalUpload
+                  handleUploadClose={this.handleUploadClose}
+                  handleUploadConfirm={this.handleUploadConfirm}
+                  handleUploadOpen={this.handleUploadOpen}
+                  modalUploadOpen={this.state.modalUploadOpen}
+                />
+              </Dropdown.Menu>
+            </Dropdown>
+            <Dropdown item text="Help" simple>
+              <Dropdown.Menu>
+                <ModalAbout />
+                <Header as="h4">Documentation</Header>
+                <Menu.Item href="https://docs.accordproject.org/" target="_blank">
+                  <Icon name="info" /> Accord Project Documentation
+                </Menu.Item>
+                <Menu.Item href="https://docs.accordproject.org/docs/ergo-lang.html" target="_blank">
+                  <Icon name="lab" /> Ergo Language Guide
+                </Menu.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Menu.Item>
+        </Container>
+      </Menu>
     );
   }
 }
@@ -209,6 +211,6 @@ TopMenu.propTypes = {
   loadTemplateFromUrl: PropTypes.func.isRequired,
   status: PropTypes.string.isRequired,
   templates: PropTypes.array.isRequired,
-}
+};
 
 export default TopMenu;

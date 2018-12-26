@@ -12,45 +12,60 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Tab, TextArea } from 'semantic-ui-react';
+import { TextArea } from 'semantic-ui-react';
 import { Controlled as ReactCodeMirror } from 'react-codemirror2';
-import CodeMirror from 'codemirror/lib/codemirror.js';
 import Resizable from 're-resizable';
+
 require('codemirror/addon/mode/simple.js');
 require('codemirror/mode/markdown/markdown');
 
 class SampleInput extends TextArea {
-    constructor(props) {
-        super(props);
-        this.handleSampleChange = this.handleSampleChange.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.handleSampleChange = this.handleSampleChange.bind(this);
+  }
 
-    handleSampleChange(text) {
-        this.props.handleSampleChange(text);
-    }
+  handleSampleChange(text) {
+    this.props.handleSampleChange(text);
+  }
 
-    render() {
-        const { sample, handleSampleChange } = this.props;
-        const options = {lineWrapping: true, lineNumbers: true, mode: "markdown", theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
-        return (
-            <Resizable
-              bounds='parent'
-              enable={{ top:false, right:false, bottom:true, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
-              defaultSize={{
-                  width:'auto',
-                  height:400
-              }}>
-              <ReactCodeMirror value={sample}
-                               onBeforeChange={(editor, data, value) => {this.handleSampleChange(value);}}
-                               onChange={(editor, data, value) => {}}
-                               options={options} />
-            </Resizable>
-        );
-    };
+  render() {
+    const { sample } = this.props;
+    const options = { lineWrapping: true, lineNumbers: true, mode: 'markdown', theme: 'eclipse', matchBrackets: true, viewportMargin: Infinity };
+    return (
+      <Resizable
+        bounds="parent"
+        enable={{
+          top: false,
+          right: false,
+          bottom: true,
+          left: false,
+          topRight: false,
+          bottomRight: false,
+          bottomLeft: false,
+          topLeft: false,
+        }}
+        defaultSize={{
+          width: 'auto',
+          height: 400,
+        }}
+      >
+        <ReactCodeMirror
+          value={sample}
+          onBeforeChange={(editor, data, value) => { this.handleSampleChange(value); }}
+          onChange={() => {}}
+          options={options}
+        />
+      </Resizable>
+    );
+  }
 }
+
+SampleInput.propTypes = {
+  handleSampleChange: PropTypes.func.isRequired,
+  sample: PropTypes.string.isRequired,
+};
 
 export default SampleInput;

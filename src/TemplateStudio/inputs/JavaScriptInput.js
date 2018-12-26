@@ -12,45 +12,60 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Tab, TextArea } from 'semantic-ui-react';
+import { TextArea } from 'semantic-ui-react';
 import { Controlled as ReactCodeMirror } from 'react-codemirror2';
-import CodeMirror from 'codemirror/lib/codemirror.js';
 import Resizable from 're-resizable';
+
 require('codemirror/addon/mode/simple.js');
 require('codemirror/mode/javascript/javascript');
 
 class JavaScriptInput extends TextArea {
-    constructor(props) {
-        super(props);
-        this.handleJSChange = this.handleJSChange.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.handleJSChange = this.handleJSChange.bind(this);
+  }
 
-    handleJSChange(data) {
-        this.props.handleJSChange(data);
-    }
+  handleJSChange(data) {
+    this.props.handleJSChange(data);
+  }
 
-    render() {
-        const { js, handleJSChange } = this.props;
-        const options = {lineWrapping: false, lineNumbers: true, mode: "javascript", theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
-        return (
-            <Resizable
-              bounds='parent'
-              enable={{ top:false, right:false, bottom:true, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
-              defaultSize={{
-                  width:'auto',
-                  height:350
-              }}>
-              <ReactCodeMirror value={js}
-                               onBeforeChange={(editor, data, value) => {this.handleJSChange(value);}}
-                               onChange={(editor, data, value) => {}}
-                               options={options} />
-            </Resizable>
-        );
-    };
+  render() {
+    const { js } = this.props;
+    const options = { lineWrapping: false, lineNumbers: true, mode: 'javascript', theme: 'eclipse', matchBrackets: true, viewportMargin: Infinity };
+    return (
+      <Resizable
+        bounds="parent"
+        enable={{
+          top: false,
+          right: false,
+          bottom: true,
+          left: false,
+          topRight: false,
+          bottomRight: false,
+          bottomLeft: false,
+          topLeft: false,
+        }}
+        defaultSize={{
+          width: 'auto',
+          height: 350,
+        }}
+      >
+        <ReactCodeMirror
+          value={js}
+          onBeforeChange={(editor, data, value) => { this.handleJSChange(value); }}
+          onChange={() => {}}
+          options={options}
+        />
+      </Resizable>
+    );
+  }
 }
+
+JavaScriptInput.propTypes = {
+  handleJSChange: PropTypes.func.isRequired,
+  js: PropTypes.string.isRequired,
+};
 
 export default JavaScriptInput;

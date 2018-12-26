@@ -12,101 +12,110 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import JsonInput from '../inputs/JsonInput';
-import TextArea from 'semantic-ui-react';
 import { Form, Divider, Grid, Button, Tab, Icon } from 'semantic-ui-react';
 
 class ExecuteForm extends Form {
-    constructor(props) {
-        super(props);
-        this.handleRequestChange = this.handleRequestChange.bind(this);
-        this.handleStateChange = this.handleStateChange.bind(this);
-        this.handleResponseChange = this.handleResponseChange.bind(this);
-        this.handleEmitChange = this.handleEmitChange.bind(this);
-        this.handleRunLogic = this.handleRunLogic.bind(this);
-        this.handleInitLogic = this.handleInitLogic.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.handleRequestChange = this.handleRequestChange.bind(this);
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.handleResponseChange = this.handleResponseChange.bind(this);
+    this.handleEmitChange = this.handleEmitChange.bind(this);
+    this.handleRunLogic = this.handleRunLogic.bind(this);
+    this.handleInitLogic = this.handleInitLogic.bind(this);
+  }
 
-    handleRequestChange(text) {
-        this.props.handleRequestChange(text);
-    }
+  handleRequestChange(text) {
+    this.props.handleRequestChange(text);
+  }
 
-    handleStateChange(text) {
-        this.props.handleStateChange(text);
-    }
+  handleStateChange(text) {
+    this.props.handleStateChange(text);
+  }
 
-    handleResponseChange(text) {
-        this.props.handleResponseChange(text);
-    }
+  handleResponseChange(text) {
+    this.props.handleResponseChange(text);
+  }
 
-    handleEmitChange(text) {
-        this.props.handleEmitChange(text);
-    }
+  handleEmitChange(text) {
+    this.props.handleEmitChange(text);
+  }
 
-    handleRunLogic(text) {
-        this.props.handleRunLogic(text);
-    }
+  handleRunLogic(text) {
+    this.props.handleRunLogic(text);
+  }
 
-    handleInitLogic(text) {
-        this.props.handleInitLogic(text);
-    }
+  handleInitLogic(text) {
+    this.props.handleInitLogic(text);
+  }
 
-    render() {
-        const { request, cstate, response, emit,
-                handleRequestChange, handleStateChange, handleResponseChange, handleEmitChange, handleRunLogic, handleInitLogic } = this.props;
-        return (<Tab.Pane>
-                        <Button size='small' type='submit' color='blue' onClick={this.handleRunLogic} compact><Icon name="send"/> Send Request</Button>
-                        <Button size='small' type='submit' color='blue' onClick={this.handleInitLogic} compact><Icon name="redo" flipped="horizontally"/> Reset Contract</Button>
-                  <Grid>
-                    <Divider hidden/>
-                    <Grid.Row columns={2}>
-                      <Grid.Column>
-                        <Form.Field>
-                          <label>Request</label>
-                        </Form.Field>
-                        <JsonInput
-                          json={request}
-                          handleJSONChange={this.handleRequestChange}
-                        />
-                      </Grid.Column>
-                      <Grid.Column>
-                        <Form.Field>
-                          <label>Response</label>
-                        </Form.Field>
-                        <JsonInput
-                          json={response}
-                          handleJSONChange={this.handleResponseChange}
-                        />
-                      </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row columns={2}>
-                      <Grid.Column>
-                        <Form.Field>
-                          <label>Contract State</label>
-                        </Form.Field>
-                        <JsonInput
-                          json={cstate}
-                          handleJSONChange={this.handleStateChange}
-                        />
-                      </Grid.Column>
-                      <Grid.Column>
-                        <Form.Field>
-                          <label>Obligations</label>
-                        </Form.Field>
-                        <JsonInput
-                          json={emit}
-                          handleJSONChange={this.handleEmitChange}
-                        />
-                      </Grid.Column>
-                    </Grid.Row>
-                  </Grid>
-                </Tab.Pane>
-               );
-    }
+  render() {
+    const { request, cstate, response, emit } = this.props;
+    return (<Tab.Pane>
+      <Button size="small" type="submit" color="blue" onClick={this.handleRunLogic} compact><Icon name="send" /> Send Request</Button>
+      <Button size="small" type="submit" color="blue" onClick={this.handleInitLogic} compact><Icon name="redo" flipped="horizontally" /> Reset Contract</Button>
+      <Grid>
+        <Divider hidden />
+        <Grid.Row columns={2}>
+          <Grid.Column>
+            <Form.Field>
+              <label>Request</label>
+            </Form.Field>
+            <JsonInput
+              json={request}
+              handleJSONChange={this.handleRequestChange}
+            />
+          </Grid.Column>
+          <Grid.Column>
+            <Form.Field>
+              <label>Response</label>
+            </Form.Field>
+            <JsonInput
+              json={response}
+              handleJSONChange={this.handleResponseChange}
+            />
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row columns={2}>
+          <Grid.Column>
+            <Form.Field>
+              <label>Contract State</label>
+            </Form.Field>
+            <JsonInput
+              json={cstate}
+              handleJSONChange={this.handleStateChange}
+            />
+          </Grid.Column>
+          <Grid.Column>
+            <Form.Field>
+              <label>Obligations</label>
+            </Form.Field>
+            <JsonInput
+              json={emit}
+              handleJSONChange={this.handleEmitChange}
+            />
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
+    </Tab.Pane>
+    );
+  }
 }
+
+ExecuteForm.propTypes = {
+  handleRequestChange: PropTypes.func.isRequired,
+  handleStateChange: PropTypes.func.isRequired,
+  handleResponseChange: PropTypes.func.isRequired,
+  handleEmitChange: PropTypes.func.isRequired,
+  handleRunLogic: PropTypes.func.isRequired,
+  handleInitLogic: PropTypes.func.isRequired,
+  request: PropTypes.string.isRequired,
+  cstate: PropTypes.string.isRequired,
+  response: PropTypes.string.isRequired,
+  emit: PropTypes.string.isRequired,
+};
 
 export default ExecuteForm;
