@@ -12,61 +12,68 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import ErgoInput from '../inputs/ErgoInput';
-import { Form, Segment, Tab, TextArea } from 'semantic-ui-react';
-import {UnControlled as ReactCodeMirror} from 'react-codemirror2';
-import CodeMirror from 'codemirror/lib/codemirror.js';
-import Resizable from 're-resizable';
+import { Form, Tab } from 'semantic-ui-react';
+
 require('codemirror/addon/mode/simple.js');
 
 function showLogic(name) {
-    return name.indexOf("@") == -1 && name.indexOf("system.cto") == -1;
+  return name.indexOf('@') === -1 && name.indexOf('system.cto') === -1;
 }
 
 class LogicForm extends Form {
-    constructor(props) {
-        super(props);
-        this.handleLogicChange = this.handleLogicChange.bind(this);
-        this.handleErgoMounted = this.handleErgoMounted.bind(this);
-        this.panesFromLogic = this.panesFromLogic.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.handleLogicChange = this.handleLogicChange.bind(this);
+    this.handleErgoMounted = this.handleErgoMounted.bind(this);
+    this.panesFromLogic = this.panesFromLogic.bind(this);
+  }
 
-    handleLogicChange(editor,name,logic) {
-        this.props.handleLogicChange(editor,name,logic);
-    }
+  handleLogicChange(editor, name, logic) {
+    this.props.handleLogicChange(editor, name, logic);
+  }
 
-    handleErgoMounted(editor) {
-        this.props.handleErgoMounted(editor);
-    }
+  handleErgoMounted(editor) {
+    this.props.handleErgoMounted(editor);
+  }
 
-    panesFromLogic(logic) {
-        let panes = [];
-        for (const m of logic) {
-            if (showLogic(m.name))
-                panes.push({ 'menuItem': m.name, 'render': () =>
-                             <Tab.Pane>
-                               <ErgoInput
-                                 value={m.content}
-                                 handleErgoMounted={(editor) => {this.handleErgoMounted(editor);}}
-                                 handleErgoChange={(editor,logic) => {this.handleLogicChange(editor,m.name,logic);}}/>
-                             </Tab.Pane> });
-        }
-        return panes;
+  panesFromLogic(logic) {
+    const panes = [];
+    for (const m of logic) {
+      if (showLogic(m.name)) {
+        panes.push({ menuItem: m.name,
+          render: () =>
+            (<Tab.Pane>
+              <ErgoInput
+                value={m.content}
+                handleErgoMounted={(editor) => { this.handleErgoMounted(editor); }}
+                handleErgoChange={(editor, logic2) => {
+                  this.handleLogicChange(editor, m.name, logic2);
+                }}
+              />
+            </Tab.Pane>) });
+      }
     }
-    
-    render() {
-        const { logic, handleLogicChange } = this.props;
-        const panes = this.panesFromLogic(logic);
-        return (
-            <Form>
-              <Tab panes={panes} />
-            </Form>
-        );
-    }
+    return panes;
+  }
+
+  render() {
+    const { logic } = this.props;
+    const panes = this.panesFromLogic(logic);
+    return (
+      <Form>
+        <Tab panes={panes} />
+      </Form>
+    );
+  }
 }
+
+LogicForm.propTypes = {
+  handleLogicChange: PropTypes.func.isRequired,
+  handleErgoMounted: PropTypes.func.isRequired,
+  logic: PropTypes.array.isRequired,
+};
 
 export default LogicForm;

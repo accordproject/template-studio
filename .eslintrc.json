@@ -5,6 +5,12 @@
   "rules": {
     "react/jsx-filename-extension": 0,
     "no-underscore-dangle": 0,
+    "no-restricted-syntax": 1,
+    "no-prototype-builtins": 1,
+    "no-nested-ternary": 1,
+    "no-eval": 1,
+    "no-useless-escape": 1,
+    "no-await-in-loop": 1,
     "jsx-a11y/no-static-element-interactions": 0,
     "import/first": 0,
     "import/no-extraneous-dependencies": 0,
@@ -29,5 +35,7 @@
     "node": true,
     "browser": true
   },
-  "globals": {}
+  "globals": {
+    "ROOT_URI": true
+  }
 }

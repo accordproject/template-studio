@@ -12,86 +12,105 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Tab, TextArea } from 'semantic-ui-react';
+import { TextArea } from 'semantic-ui-react';
 import { Controlled as ReactCodeMirror } from 'react-codemirror2';
 import CodeMirror from 'codemirror/lib/codemirror.js';
 import Resizable from 're-resizable';
+
 require('codemirror/addon/mode/simple.js');
 
 function loadErgoMode() {
-    console.log("LOADING ERGO MODE");
-    CodeMirror.defineSimpleMode("ergo", {
-        start: [
-            {regex: /"(?:[^\\]|\\.)*?(?:"|$)/, token: "string"},
-            {regex: /(?:namespace|import|define|function|transaction|concept|event|asset|participant|enum|extends|contract|over|clause|throws|emits|state|call|enforce|if|then|else|let|foreach|return|in|where|throw|constant|match|set|emit|with|or|and)\b/,
-             token: "keyword"},
-            {regex: /true|false|unit|some|none|now/, token: "atom"},
-            {regex: /Any|Nothing|Unit|Integer|Double|String|Request|Response/, token: "variable-2"},
-            {regex: / o /, token: "variable-3"},
-            {regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i,
-             token: "number"},
-            {regex: /\/\/.*/, token: "comment"},
-            // A next property will cause the mode to move to a different state
-            {regex: /\/\*/, token: "comment", next: "comment"},
-            {regex: /[-+\/*=<>!]+/, token: "operator"},
-            // indent and dedent properties guide autoindentation
-            {regex: /[\{\[\(]/, indent: true},
-            {regex: /[\}\]\)]/, dedent: true},
-            {regex: /\w+/, token: "variable"},
-        ],
-        comment: [
-            {regex: /.*?\*\//, token: "comment", next: "start"},
-            {regex: /.*/, token: "comment"}
-        ],
-        meta: {
-            dontIndentStates: ["comment"],
-            lineComment: "//"
-        }
-    });
+  console.log('LOADING ERGO MODE');
+  CodeMirror.defineSimpleMode('ergo', {
+    start: [
+      { regex: /"(?:[^\\]|\\.)*?(?:"|$)/, token: 'string' },
+      { regex: /(?:namespace|import|define|function|transaction|concept|event|asset|participant|enum|extends|contract|over|clause|throws|emits|state|call|enforce|if|then|else|let|foreach|return|in|where|throw|constant|match|set|emit|with|or|and)\b/,
+        token: 'keyword' },
+      { regex: /true|false|unit|some|none|now/, token: 'atom' },
+      { regex: /Any|Nothing|Unit|Integer|Double|String|Request|Response/, token: 'variable-2' },
+      { regex: / o /, token: 'variable-3' },
+      { regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i,
+        token: 'number' },
+      { regex: /\/\/.*/, token: 'comment' },
+      // A next property will cause the mode to move to a different state
+      { regex: /\/\*/, token: 'comment', next: 'comment' },
+      { regex: /[-+\/*=<>!]+/, token: 'operator' },
+      // indent and dedent properties guide autoindentation
+      { regex: /[\{\[\(]/, indent: true },
+      { regex: /[\}\]\)]/, dedent: true },
+      { regex: /\w+/, token: 'variable' },
+    ],
+    comment: [
+      { regex: /.*?\*\//, token: 'comment', next: 'start' },
+      { regex: /.*/, token: 'comment' },
+    ],
+    meta: {
+      dontIndentStates: ['comment'],
+      lineComment: '//',
+    },
+  });
 }
 loadErgoMode();
 
 class ErgoInput extends TextArea {
-    constructor(props) {
-        super(props);
-        this.handleErgoChange = this.handleErgoChange.bind(this);
-        this.handleErgoMounted = this.handleErgoMounted.bind(this);
-        this.editor = null;
-        this.marks = [];
-    }
+  constructor(props) {
+    super(props);
+    this.handleErgoChange = this.handleErgoChange.bind(this);
+    this.handleErgoMounted = this.handleErgoMounted.bind(this);
+    this.editor = null;
+    this.marks = [];
+  }
 
-    handleErgoChange(editor,text) {
-        this.props.handleErgoChange(editor,text);
-    }
-    
-    handleErgoMounted(editor) {
-        this.props.handleErgoMounted(editor);
-    }
-    
-    render() {
-        const { value, handleErgoChange } = this.props;
-        const options = {lineWrapping: true, lineNumbers: true, mode: "ergo", theme: "eclipse", matchBrackets: true, viewportMargin: Infinity};
-        return (
-            <Resizable
-              bounds='parent'
-              enable={{ top:false, right:false, bottom:true, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
-              defaultSize={{
-                  width:'auto',
-                  height:400
-              }}>
-              <ReactCodeMirror value={value}
-                               editorDidMount={editor => {this.editor = editor;}}
-                               onBeforeChange={(editor, data, value) => {this.handleErgoChange(editor,value);}}
-                               editorDidMount={(editor) => {this.handleErgoMounted(editor);}}
-                               onChange={(editor, data, value) => { }}
-                               options={options} />
-            </Resizable>
-        );
-    };
+  handleErgoChange(editor, text) {
+    this.props.handleErgoChange(editor, text);
+  }
+
+  handleErgoMounted(editor) {
+    this.props.handleErgoMounted(editor);
+  }
+
+  render() {
+    const { value } = this.props;
+    const options = { lineWrapping: true, lineNumbers: true, mode: 'ergo', theme: 'eclipse', matchBrackets: true, viewportMargin: Infinity };
+    return (
+      <Resizable
+        bounds="parent"
+        enable={{
+          top: false,
+          right: false,
+          bottom: true,
+          left: false,
+          topRight: false,
+          bottomRight: false,
+          bottomLeft: false,
+          topLeft: false,
+        }}
+        defaultSize={{
+          width: 'auto',
+          height: 400,
+        }}
+      >
+        <ReactCodeMirror
+          value={value}
+          onBeforeChange={(editor, data, value2) => { this.handleErgoChange(editor, value2); }}
+          editorDidMount={(editor) => {
+            this.editor = editor;
+            this.handleErgoMounted(editor);
+          }}
+          onChange={() => {}}
+          options={options}
+        />
+      </Resizable>
+    );
+  }
 }
+
+ErgoInput.propTypes = {
+  handleErgoChange: PropTypes.func.isRequired,
+  handleErgoMounted: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
+};
 
 export default ErgoInput;

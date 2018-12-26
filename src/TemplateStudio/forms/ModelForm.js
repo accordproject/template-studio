@@ -12,57 +12,66 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import ErgoInput from '../inputs/ErgoInput';
-import { Form, Segment, Tab } from 'semantic-ui-react';
+import { Form, Tab } from 'semantic-ui-react';
 
 function showModel(name) {
-    return name.indexOf("@") == -1 && name.indexOf("system.cto") == -1;
+  return name.indexOf('@') === -1 && name.indexOf('system.cto') === -1;
 }
 
 class ModelForm extends Form {
-    constructor(props) {
-        super(props);
-        this.handleModelChange = this.handleModelChange.bind(this);
-        this.handleErgoMounted = this.handleErgoMounted.bind(this);
-        this.panesFromModel = this.panesFromModel.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.handleModelChange = this.handleModelChange.bind(this);
+    this.handleErgoMounted = this.handleErgoMounted.bind(this);
+    this.panesFromModel = this.panesFromModel.bind(this);
+  }
 
-    handleErgoMounted(editor) {
-        this.props.handleErgoMounted(editor);
-    }
+  handleErgoMounted(editor) {
+    this.props.handleErgoMounted(editor);
+  }
 
-    handleModelChange(editor,name,model) {
-        this.props.handleModelChange(editor,name,model);
-    }
+  handleModelChange(editor, name, model) {
+    this.props.handleModelChange(editor, name, model);
+  }
 
-    panesFromModel(model) {
-        let panes = [];
-        for (const m of model) {
-            if (showModel(m.name))
-                panes.push({ 'menuItem': m.name, 'render': () =>
-                             <Tab.Pane>
-                               <ErgoInput
-                                 value={m.content}
-                                 handleErgoMounted={(editor) => {this.handleErgoMounted(editor);}}
-                                 handleErgoChange={(editor,model) => {this.handleModelChange(editor,m.name,model);}}/>
-                             </Tab.Pane> });
-        }
-        return panes;
+  panesFromModel(model) {
+    const panes = [];
+    for (const m of model) {
+      if (showModel(m.name)) {
+        panes.push({ menuItem: m.name,
+          render: () =>
+            (<Tab.Pane>
+              <ErgoInput
+                value={m.content}
+                handleErgoMounted={(editor) => { this.handleErgoMounted(editor); }}
+                handleErgoChange={(editor, model2) => {
+                  this.handleModelChange(editor, m.name, model2);
+                }}
+              />
+            </Tab.Pane>) });
+      }
     }
-    
-    render() {
-        const { model, handleModelChange } = this.props;
-        const panes = this.panesFromModel(model);
-        return (
-            <Form>
-              <Tab panes={panes} />
-            </Form>
-        );
-    }
+    return panes;
+  }
+
+  render() {
+    const { model } = this.props;
+    const panes = this.panesFromModel(model);
+    return (
+      <Form>
+        <Tab panes={panes} />
+      </Form>
+    );
+  }
 }
+
+ModelForm.propTypes = {
+  handleErgoMounted: PropTypes.func.isRequired,
+  handleModelChange: PropTypes.func.isRequired,
+  model: PropTypes.array.isRequired,
+};
 
 export default ModelForm;

@@ -12,31 +12,35 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import JavaScriptInput from '../inputs/JavaScriptInput';
-import { Form, Segment, Tab } from 'semantic-ui-react';
+import { Form, Tab } from 'semantic-ui-react';
 
 class CompileForm extends Form {
-    constructor(props) {
-        super(props);
-        this.handleCompiledChange = this.handleCompiledChange.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.handleCompiledChange = this.handleCompiledChange.bind(this);
+  }
 
-    handleCompiledChange(logic) {
-        this.props.handleCompiledChange(logic);
-    }
+  handleCompiledChange(logic) {
+    this.props.handleCompiledChange(logic);
+  }
 
-    render() {
-        const { compiledLogic, handleCompiledChange } = this.props;
-        return (<Tab.Pane>
-                  <JavaScriptInput
-                    js={compiledLogic}
-                    handleJSChange={this.handleCompiledChange}/>
-                </Tab.Pane>);
-    }
+  render() {
+    const { compiledLogic } = this.props;
+    return (<Tab.Pane>
+      <JavaScriptInput
+        js={compiledLogic}
+        handleJSChange={this.handleCompiledChange}
+      />
+    </Tab.Pane>);
+  }
 }
+
+CompileForm.propTypes = {
+  handleCompiledChange: PropTypes.func.isRequired,
+  compiledLogic: PropTypes.string.isRequired,
+};
 
 export default CompileForm;

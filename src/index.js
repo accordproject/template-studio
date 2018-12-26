@@ -12,13 +12,10 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import TemplateStudio from "./TemplateStudio";
+import TemplateStudio from './TemplateStudio';
 
 const wrapper = document.getElementById('create-article-form');
-wrapper ? ReactDOM.render(<TemplateStudio />, wrapper) : false;
-
+if (wrapper) ReactDOM.render(<TemplateStudio />, wrapper);

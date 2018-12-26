@@ -12,49 +12,53 @@
  * limitations under the License.
  */
 
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import JsonInput from '../inputs/JsonInput';
 import SampleInput from '../inputs/SampleInput';
-import TextArea from 'semantic-ui-react';
-import { Form, Segment, Divider, Tab } from 'semantic-ui-react';
+import { Form, Divider, Tab } from 'semantic-ui-react';
 
 class ParseForm extends Form {
-    constructor(props) {
-        super(props);
-        this.handleSampleChange = this.handleSampleChange.bind(this);
-        this.handleJSONChange = this.handleJSONChange.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.handleSampleChange = this.handleSampleChange.bind(this);
+    this.handleJSONChange = this.handleJSONChange.bind(this);
+  }
 
-    handleSampleChange(sample) {
-        this.props.handleSampleChange(sample);
-    }
+  handleSampleChange(sample) {
+    this.props.handleSampleChange(sample);
+  }
 
-    handleJSONChange(json) {
-        this.props.handleJSONChange(json);
-    }
-    
-    render() {
-        const { text, message, data, handleSampleChange, handleJSONChange } = this.props;
-        return (
-            <Tab.Pane>
-              <SampleInput
-                sample={text}
-                handleSampleChange={this.handleSampleChange}
-              />
-              <Divider hidden/>
-              <Form.Field>
-                <label>Contract Data</label>
-              </Form.Field>
-              <JsonInput
-                json={data}
-                handleJSONChange={this.handleJSONChange}
-              />
-            </Tab.Pane>
-        );
-    }
+  handleJSONChange(json) {
+    this.props.handleJSONChange(json);
+  }
+
+  render() {
+    const { text, data } = this.props;
+    return (
+      <Tab.Pane>
+        <SampleInput
+          sample={text}
+          handleSampleChange={this.handleSampleChange}
+        />
+        <Divider hidden />
+        <Form.Field>
+          <label>Contract Data</label>
+        </Form.Field>
+        <JsonInput
+          json={data}
+          handleJSONChange={this.handleJSONChange}
+        />
+      </Tab.Pane>
+    );
+  }
 }
+
+ParseForm.propTypes = {
+  handleSampleChange: PropTypes.func.isRequired,
+  handleJSONChange: PropTypes.func.isRequired,
+  text: PropTypes.string.isRequired,
+  data: PropTypes.string.isRequired,
+};
 
 export default ParseForm;
