@@ -32,42 +32,11 @@ const ciceroVersion = ciceroPackageJson.version;
 
 import React, { Component } from 'react';
 
-/* React Semantic UI */
-
-import {
-  Form,
-  Container,
-  Tab,
-  Input,
-  Grid,
-  Menu,
-  Icon,
-  Card,
-  Confirm,
-  Dimmer,
-  Loader,
-  Radio,
-} from 'semantic-ui-react';
-
 /* Studio components */
 
-import GrammarInput from './inputs/GrammarInput';
-import JsonInput from './inputs/JsonInput';
-
-import ModelForm from './forms/ModelForm';
-import LogicForm from './forms/LogicForm';
-import ParseForm from './forms/ParseForm';
-import ExecuteForm from './forms/ExecuteForm';
-
 import BottomMenu from './BottomMenu';
+import DimmableContainer from './DimmableContainer';
 import TopMenu from './TopMenu';
-
-import { StatusLabel } from './Status';
-
-import {
-  DiscardButton,
-  ExportButton,
-} from './TemplateTab';
 
 const defaultlog =
       { text: 'success',
@@ -87,7 +56,6 @@ class TemplateStudio extends Component {
       loadingFailed: false,
       templateName: '',
       templateVersion: '',
-      templateType: 'clause',
       clause: null,
       package: 'null',
       readme: '',
@@ -101,24 +69,14 @@ class TemplateStudio extends Component {
       cstate: 'null',
       response: JSON.stringify(null, null, 2),
       emit: '[]',
-      activeItem: 'metadata',
-      activeLegal: 'template',
-      activeModel: 'model',
-      activeLogic: 'ergo',
-      activeMeta: 'readme',
       clogic: { compiled: '', compiledLinked: '' },
       status: 'empty',
       loading: false,
-      confirmreset: { flag: false, temp: null },
       markers: [], // For code mirror marking
       markersSource: [], // For code mirror marking
     };
     this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
     this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
-    this.handleStatusChange = this.handleStatusChange.bind(this);
-    this.handleDiscardChange = this.handleDiscardChange.bind(this);
-    this.handleDiscardConfirmed = this.handleDiscardConfirmed.bind(this);
-    this.handleDiscardAborted = this.handleDiscardAborted.bind(this);
     this.handlePackageChange = this.handlePackageChange.bind(this);
     this.handleREADMEChange = this.handleREADMEChange.bind(this);
     this.handleSampleChange = this.handleSampleChange.bind(this);
@@ -127,25 +85,13 @@ class TemplateStudio extends Component {
     this.handleJSONChange = this.handleJSONChange.bind(this);
     this.handleLogicChange = this.handleLogicChange.bind(this);
     this.handleErgoMounted = this.handleErgoMounted.bind(this);
-    this.handleModelMounted = this.handleModelMounted.bind(this);
     this.handleRunLogic = this.handleRunLogic.bind(this);
     this.handleInitLogic = this.handleInitLogic.bind(this);
-    this.handleCompileChange = this.handleCompileChange.bind(this);
     this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
     this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
     this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
-    this.handleItemClick = this.handleItemClick.bind(this);
     this.handleRequestChange = this.handleRequestChange.bind(this);
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.handleResponseChange = this.handleResponseChange.bind(this);
-    this.handleEmitChange = this.handleEmitChange.bind(this);
-    this.handleLegalTabChange = this.handleLegalTabChange.bind(this);
-    this.handleModelTabChange = this.handleModelTabChange.bind(this);
-    this.handleLogicTabChange = this.handleLogicTabChange.bind(this);
-    this.handleMetaTabChange = this.handleMetaTabChange.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleVersionChange = this.handleVersionChange.bind(this);
-    this.handleTypeChange = this.handleTypeChange.bind(this);
   }
 
   componentDidMount() {
@@ -171,35 +117,17 @@ class TemplateStudio extends Component {
     state.log.loading = message;
     this.setState(state);
   }
+
   handleLoadingFailedConfirm() {
     const state = this.state;
     state.log.loading = 'Unknown Error';
     state.loadingFailed = false;
     this.setState(state);
   }
+
   handleStatusChange(status) {
     const state = this.state;
     state.status = status;
-    this.setState(state);
-  }
-  handleDiscardChange() {
-    const state = this.state;
-    if (state.status === 'changed') {
-      state.confirmreset = { flag: true, temp: null };
-      this.setState(state);
-    } else {
-      this.loadTemplateFromUrl(this.state.templateURL);
-    }
-  }
-  handleDiscardConfirmed() {
-    const state = this.state;
-    state.confirmreset = { flag: false, temp: null };
-    this.setState(state);
-    this.loadTemplateFromUrl(this.state.templateURL);
-  }
-  handleDiscardAborted() {
-    const state = this.state;
-    state.confirmreset = { flag: false, temp: null };
     this.setState(state);
   }
 
@@ -223,6 +151,7 @@ class TemplateStudio extends Component {
       this.setState(state);
     }
   }
+
   handleNameChange(e, input) {
     const state = this.state;
     state.templateName = input.value;
@@ -240,6 +169,7 @@ class TemplateStudio extends Component {
       this.setState(state);
     }
   }
+
   handleVersionChange(e, input) {
     const state = this.state;
     state.templateVersion = input.value;
@@ -257,6 +187,7 @@ class TemplateStudio extends Component {
       this.setState(state);
     }
   }
+
   handleTypeChange(e, input) {
     const state = this.state;
     state.templateType = input.value;
@@ -276,6 +207,7 @@ class TemplateStudio extends Component {
       this.setState(state);
     }
   }
+
   handleREADMEChange(text) {
     const state = this.state;
     try {
@@ -304,27 +236,6 @@ class TemplateStudio extends Component {
       this.setState(state);
     }
     this.setState(Utils.parseSample(clause, text, log));
-  }
-
-  handleLegalTabChange(e, { name }) {
-    const state = this.state;
-    state.activeLegal = name;
-    this.setState(state);
-  }
-  handleModelTabChange(e, { name }) {
-    const state = this.state;
-    state.activeModel = name;
-    this.setState(state);
-  }
-  handleLogicTabChange(e, { name }) {
-    const state = this.state;
-    state.activeLogic = name;
-    this.setState(state);
-  }
-  handleMetaTabChange(e, { name }) {
-    const state = this.state;
-    state.activeMeta = name;
-    this.setState(state);
   }
 
   handleGrammarChange(text) {
@@ -360,10 +271,6 @@ class TemplateStudio extends Component {
     }
   }
 
-  handleCompileChange() {
-    // Compiled code should not be changed
-  }
-
   handleRequestChange(text) {
     const state = this.state;
     if (Utils.updateRequest(state.clause, state.request, text)) {
@@ -372,16 +279,11 @@ class TemplateStudio extends Component {
     state.request = text;
     return this.setState(state);
   }
-  handleResponseChange() {
-    // Response should not be changed
-  }
+
   handleStateChange(text) {
     const state = this.state;
     state.cstate = text;
     return this.setState(state);
-  }
-  handleEmitChange() {
-    // Emit should not be changed
   }
 
   handleModelChange(editor, name, model) {
@@ -467,9 +369,6 @@ class TemplateStudio extends Component {
     state.markersSource.forEach(marker =>
       state.markers.push(editor.markText(marker.start, marker.end, marker.kind)),
     );
-  }
-
-  handleModelMounted() {
   }
 
   handleRunLogic() {
@@ -637,277 +536,7 @@ class TemplateStudio extends Component {
     });
   }
 
-  handleItemClick(e, { name }) {
-    const state = this.state;
-    state.activeItem = name;
-    this.setState(state);
-  }
   render() {
-    const {
-      text,
-      grammar,
-      model,
-      logic,
-      log,
-      data,
-      request,
-      cstate,
-      response,
-      emit,
-      loading,
-    } = this.state;
-    const legalTabs = () => (
-      <div>
-        <Menu attached="top" tabular>
-          <Menu.Item
-            name="template"
-            active={this.state.activeLegal === 'template'}
-            onClick={this.handleLegalTabChange}
-          >Template</Menu.Item>
-          <Menu.Item
-            name="sample"
-            active={this.state.activeLegal === 'sample'}
-            onClick={this.handleLegalTabChange}
-          >Test Contract</Menu.Item>
-          <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-grammar"
-            target="_blank"
-            position="right"
-          >
-            <Icon name="info" />
-          </Menu.Item>
-        </Menu>
-        { this.state.activeLegal === 'template' ?
-          <Tab.Pane attached="bottom">
-            <GrammarInput
-              grammar={grammar}
-              handleTextChange={this.handleGrammarChange}
-            />
-          </Tab.Pane> :
-          this.state.activeLegal === 'sample' ?
-            <ParseForm
-              text={text}
-              grammar={grammar}
-              log={log.text}
-              data={data}
-              handleSampleChange={this.handleSampleChange}
-              handleJSONChange={this.handleJSONChange}
-            /> : null }
-      </div>
-    );
-    const logicTabs = () => (
-      <div>
-        <Menu attached="top" tabular>
-          <Menu.Item
-            name="ergo"
-            active={this.state.activeLogic === 'ergo'}
-            onClick={this.handleLogicTabChange}
-          >Ergo</Menu.Item>
-          <Menu.Item
-            name="execution"
-            active={this.state.activeLogic === 'execution'}
-            onClick={this.handleLogicTabChange}
-          >Test Execution</Menu.Item>
-          <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-logic"
-            target="_blank"
-            position="right"
-          >
-            <Icon name="info" />
-          </Menu.Item>
-        </Menu>
-        { this.state.activeLogic === 'ergo' ?
-          <Tab.Pane attached="bottom">
-            <LogicForm
-              logic={logic}
-              handleErgoMounted={this.handleErgoMounted}
-              handleLogicChange={this.handleLogicChange}
-            />
-          </Tab.Pane> :
-          this.state.activeLogic === 'execution' ?
-            <ExecuteForm
-              request={request}
-              cstate={cstate}
-              response={response}
-              emit={emit}
-              handleRequestChange={this.handleRequestChange}
-              handleStateChange={this.handleStateChange}
-              handleResponseChange={this.handleResponseChange}
-              handleEmitChange={this.handleEmitChange}
-              handleRunLogic={this.handleRunLogic}
-              handleInitLogic={this.handleInitLogic}
-            /> : null }
-      </div>
-    );
-    const modelTabs = () => (
-      <div>
-        <Menu attached="top" tabular>
-          <Menu.Item
-            name="model"
-            active={this.state.activeModel === 'model'}
-            onClick={this.handleModelTabChange}
-          >Model</Menu.Item>
-          <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-model"
-            target="_blank"
-            position="right"
-          >
-            <Icon name="info" />
-          </Menu.Item>
-        </Menu>
-        { this.state.activeModel === 'model' ?
-          <Tab.Pane>
-            <ModelForm
-              model={model}
-              handleModelChange={this.handleModelChange}
-              handleErgoMounted={this.handleModelMounted}
-            />
-          </Tab.Pane> : null }
-      </div>
-    );
-    const metaTabs = () => (
-      <div>
-        <Menu attached="top" tabular>
-          <Menu.Item
-            name="readme"
-            active={this.state.activeMeta === 'readme'}
-            onClick={this.handleMetaTabChange}
-          >README</Menu.Item>
-          <Menu.Item
-            name="package"
-            active={this.state.activeMeta === 'package'}
-            onClick={this.handleMetaTabChange}
-          >package.json</Menu.Item>
-          <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-library"
-            target="_blank"
-            position="right"
-          >
-            <Icon name="info" />
-          </Menu.Item>
-        </Menu>
-        { this.state.activeMeta === 'readme' ?
-          <Tab.Pane attached="bottom">
-            <GrammarInput
-              grammar={this.state.clause ? this.state.clause.getTemplate().getMetadata().getREADME() : 'null'}
-              handleTextChange={this.handleREADMEChange}
-            />
-          </Tab.Pane> : this.state.activeMeta === 'package' ?
-            <Tab.Pane attached="bottom">
-              <JsonInput
-                json={this.state.package}
-                handleJSONChange={this.handlePackageChange}
-              />
-            </Tab.Pane> : null }
-      </div>
-    );
-    const viewMenu = () =>
-      (<Menu fluid vertical pointing>
-        <Menu.Item name="legal" active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
-                   Contract Text
-        </Menu.Item>
-        <Menu.Item name="model" active={this.state.activeItem === 'model'} onClick={this.handleItemClick}>
-                   Model
-        </Menu.Item>
-        <Menu.Item name="logic" active={this.state.activeItem === 'logic'} onClick={this.handleItemClick}>
-                   Logic
-        </Menu.Item>
-        <Menu.Item name="metadata" active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
-                   Metadata
-        </Menu.Item>
-      </Menu>);
-    const templateForm = () =>
-      (<Card fluid>
-        <Card.Content>
-          <Card.Header>Current Template</Card.Header>
-          <StatusLabel log={this.state.log} status={this.state.status} />
-        </Card.Content>
-        <Card.Content>
-          <Form>
-            <Form.Group inline>
-              <Form.Field
-                control={Radio}
-                label="full contract"
-                value="contract"
-                checked={this.state.templateType === 'contract'}
-                onChange={this.handleTypeChange}
-              />
-              <Form.Field
-                control={Radio}
-                label="single clause"
-                value="clause"
-                checked={this.state.templateType === 'clause'}
-                onChange={this.handleTypeChange}
-              />
-            </Form.Group>
-            <Form.Field
-              control={Input}
-              label="Name"
-              onChange={this.handleNameChange}
-              value={
-                this.state.templateName
-              }
-            >
-            </Form.Field>
-            <Form.Field
-              control={Input}
-              label="Version"
-              onChange={this.handleVersionChange}
-              value={
-                this.state.templateVersion
-              }
-            >
-            </Form.Field>
-          </Form>
-        </Card.Content>
-        <Card.Content>
-          <ExportButton handleStatusChange={this.handleStatusChange} clause={this.state.clause} />
-          <Confirm content="Your template has been edited, are you sure you want to discard those changes? You can save your current template by using the Export button." confirmButton="I am sure" cancelButton="Cancel" open={this.state.confirmreset.flag} onCancel={this.handleDiscardAborted} onConfirm={this.handleDiscardConfirmed} />
-          <DiscardButton handleDiscardChange={this.handleDiscardChange} />
-        </Card.Content>
-      </Card>
-      );
-    const dimmableContainer = () => (
-      <Container fluid style={{ marginTop: '7em', marginBottom: '9em' }}>
-        <Confirm
-          header="Could not load template"
-          content={this.state.log.loading}
-          confirmButton={null}
-          cancelButton="Cancel"
-          open={this.state.loadingFailed}
-          onCancel={this.handleLoadingFailedConfirm}
-        />
-        <Dimmer.Dimmable dimmed={loading}>
-          <Dimmer active={loading} inverted>
-            <Loader>Loading Template</Loader>
-          </Dimmer>
-          <Grid padded>
-            <Grid.Row>
-              <Grid.Column width={4}>
-                <Grid>
-                  <Grid.Row>
-                    <Grid.Column>
-                      {viewMenu()}
-                    </Grid.Column>
-                  </Grid.Row>
-                  <Grid.Row>
-                    <Grid.Column>
-                      {templateForm()}
-                    </Grid.Column>
-                  </Grid.Row>
-                </Grid>
-              </Grid.Column>
-              <Grid.Column width={12}>
-                { this.state.activeItem === 'legal' ? legalTabs()
-                  : this.state.activeItem === 'logic' ? logicTabs()
-                    : this.state.activeItem === 'model' ? modelTabs()
-                      : metaTabs() }
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Dimmer.Dimmable>
-      </Container>
-    );
     return (
       <div>
         <TopMenu
@@ -916,7 +545,44 @@ class TemplateStudio extends Component {
           status={this.state.status}
           templates={this.state.templates}
         />
-        {dimmableContainer()}
+        <DimmableContainer
+          clause={this.state.clause}
+          cstate={this.state.cstate}
+          data={this.state.data}
+          emit={this.state.emit}
+          grammar={this.state.grammar}
+          handleErgoMounted={this.handleErgoMounted}
+          handleGrammarChange={this.handleGrammarChange}
+          handleInitLogic={this.handleInitLogic}
+          handleJSONChange={this.handleJSONChange}
+          handleLoadingFailedConfirm={this.handleLoadingFailedConfirm}
+          handleLogicChange={this.handleLogicChange}
+          handleModelChange={this.handleModelChange}
+          handleNameChange={this.handleNameChange}
+          handlePackageChange={this.handlePackageChange}
+          handleREADMEChange={this.handleREADMEChange}
+          handleRequestChange={this.handleRequestChange}
+          handleRunLogic={this.handleRunLogic}
+          handleSampleChange={this.handleSampleChange}
+          handleStateChange={this.handleStateChange}
+          handleStatusChange={this.handleStatusChange}
+          handleTypeChange={this.handleTypeChange}
+          loading={this.state.loading}
+          loadingFailed={this.state.loadingFailed}
+          loadTemplateFromUrl={this.loadTemplateFromUrl}
+          log={this.state.log}
+          logic={this.state.logic}
+          model={this.state.model}
+          package={this.state.package}
+          request={this.state.request}
+          response={this.state.response}
+          status={this.state.status}
+          templateName={this.state.templateName}
+          templateVersion={this.state.templateVersion}
+          templateURL={this.state.templateURL}
+          templateType={this.state.templateType}
+          text={this.state.text}
+        />
         <BottomMenu
           log={this.state.log}
         />
