@@ -41,12 +41,15 @@ class BottomMenu extends React.Component {
     };
 
     this.handleErrorTabChange = this.handleErrorTabChange.bind(this);
+    this.renderStatus = this.renderStatus.bind(this);
   }
 
   handleErrorTabChange(e, { name }) {
-    const state = this.state;
-    if (state.activeError === name) state.activeError = null; else state.activeError = name;
-    this.setState(state);
+    if (this.state.activeError === name) {
+      this.setState({ activeError: null });
+    } else {
+      this.setState({ activeError: name });
+    }
   }
 
   renderStatus() {
