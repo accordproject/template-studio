@@ -5,7 +5,8 @@
   "scripts": {
     "build": "webpack --config webpack.config.prod.js --mode production",
     "start": "webpack-dev-server --config webpack.config.dev.js --mode development --watch ",
-    "templates": "node scripts/makeArchives.js"
+    "templates": "node scripts/makeArchives.js",
+    "lint": "eslint --ext .js --ext .jsx --ignore-path .gitignore ./src"
   },
   "repository": {
     "type": "git",
