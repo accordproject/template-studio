@@ -37,7 +37,6 @@ import React, { Component } from 'react';
 import {
   Form,
   Container,
-  Divider,
   Tab,
   Input,
   Grid,
@@ -60,25 +59,10 @@ import LogicForm from './forms/LogicForm';
 import ParseForm from './forms/ParseForm';
 import ExecuteForm from './forms/ExecuteForm';
 
+import BottomMenu from './BottomMenu';
 import TopMenu from './TopMenu';
 
-import {
-  parseFailure,
-  modelFailure,
-  logicFailure,
-  metaFailure,
-  executeFailure,
-  templateFailure,
-  otherFailure,
-  anyFailure,
-  ParseStatus,
-  LogicStatus,
-  ModelStatus,
-  MetaStatus,
-  ExecuteStatus,
-  StatusLabel,
-  AllStatusLabel,
-} from './Status';
+import { StatusLabel } from './Status';
 
 import {
   DiscardButton,
@@ -122,7 +106,6 @@ class TemplateStudio extends Component {
       activeModel: 'model',
       activeLogic: 'ergo',
       activeMeta: 'readme',
-      activeError: null,
       clogic: { compiled: '', compiledLinked: '' },
       status: 'empty',
       loading: false,
@@ -160,7 +143,6 @@ class TemplateStudio extends Component {
     this.handleModelTabChange = this.handleModelTabChange.bind(this);
     this.handleLogicTabChange = this.handleLogicTabChange.bind(this);
     this.handleMetaTabChange = this.handleMetaTabChange.bind(this);
-    this.handleErrorTabChange = this.handleErrorTabChange.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleVersionChange = this.handleVersionChange.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
@@ -342,11 +324,6 @@ class TemplateStudio extends Component {
   handleMetaTabChange(e, { name }) {
     const state = this.state;
     state.activeMeta = name;
-    this.setState(state);
-  }
-  handleErrorTabChange(e, { name }) {
-    const state = this.state;
-    if (state.activeError === name) state.activeError = null; else state.activeError = name;
     this.setState(state);
   }
 
@@ -824,66 +801,6 @@ class TemplateStudio extends Component {
             </Tab.Pane> : null }
       </div>
     );
-    const bottomMenu = () =>
-      (<Container fluid>
-        <Divider hidden />
-        <div className="ui bottom sticky">
-          { this.state.activeError === 'parse' ? <ParseStatus log={log} /> :
-            this.state.activeError === 'logic' ? <LogicStatus log={log} /> :
-              this.state.activeError === 'model' ? <ModelStatus log={log} /> :
-                this.state.activeError === 'meta' ? <MetaStatus log={log} /> :
-                  this.state.activeError === 'execute' ? <ExecuteStatus log={log} /> : null }
-          <Menu fixed="bottom" color={anyFailure(this.state.log) ? 'red' : 'grey'} inverted>
-            <Menu.Item header>
-              <AllStatusLabel log={this.state.log} />
-            </Menu.Item>
-            { parseFailure(this.state.log) ?
-              <Menu.Item
-                name="parse"
-                active={this.state.activeError === 'parse'}
-                onClick={this.handleErrorTabChange}
-              >
-                <Icon name="warning sign" />Contract Text
-              </Menu.Item> : null }
-            { logicFailure(this.state.log) ?
-              <Menu.Item
-                name="logic"
-                active={this.state.activeError === 'logic'}
-                onClick={this.handleErrorTabChange}
-              >
-                <Icon name="warning sign" />Logic
-              </Menu.Item> : null }
-            { modelFailure(this.state.log) ?
-              <Menu.Item
-                name="model"
-                active={this.state.activeError === 'model'}
-                onClick={this.handleErrorTabChange}
-              >
-                <Icon name="warning sign" />Model
-              </Menu.Item> : null }
-            { metaFailure(this.state.log) ?
-              <Menu.Item
-                name="meta"
-                active={this.state.activeError === 'meta'}
-                onClick={this.handleErrorTabChange}
-              >
-                <Icon name="warning sign" />Metadata
-              </Menu.Item> : null }
-            { templateFailure(log) && otherFailure(log) ?
-              <Menu.Item header>
-                         &middot;
-              </Menu.Item> : null }
-            { executeFailure(this.state.log) ?
-              <Menu.Item
-                name="execute"
-                active={this.state.activeError === 'execute'}
-                onClick={this.handleErrorTabChange}
-              >
-                <Icon name="warning sign" />Execution
-              </Menu.Item> : null }
-          </Menu>
-        </div>
-      </Container>);
     const viewMenu = () =>
       (<Menu fluid vertical pointing>
         <Menu.Item name="legal" active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
@@ -1000,7 +917,9 @@ class TemplateStudio extends Component {
           templates={this.state.templates}
         />
         {dimmableContainer()}
-        {bottomMenu()}
+        <BottomMenu
+          log={this.state.log}
+        />
       </div>
     );
   }
