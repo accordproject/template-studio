@@ -343,94 +343,100 @@ class TemplateStudio extends Component {
   }
 
   handleRequestChange(text) {
-    const state = this.state;
-    if (Utils.updateRequest(state.clause, state.request, text)) {
-      state.status = 'changed';
+    let status = this.state.status;
+    if (Utils.updateRequest(this.state.clause, this.state.request, text)) {
+      status = 'changed';
     }
-    state.request = text;
-    return this.setState(state);
+    return this.setState({
+      request: text,
+      status,
+    });
   }
 
   handleStateChange(text) {
-    const state = this.state;
-    state.cstate = text;
-    return this.setState(state);
+    return this.setState({
+      cstate: text,
+    });
   }
 
   handleModelChange(editor, name, model) {
-    const state = this.state;
-    const clause = state.clause;
-    const oldmodel = state.model;
-    const newmodel = [];
-    let modelfails = false;
-    for (const m of oldmodel) {
+    const clause = this.state.clause;
+    const oldModel = this.state.model;
+    const newModel = [];
+    let modelFails = false;
+    let status = this.state.status;
+    let logModel = this.state.log.model;
+    oldModel.forEach((m) => {
       if (m.name === name) {
         try {
-          if (Utils.updateModel(clause, name, m.content, model, state.grammar)) {
-            state.status = 'changed';
-            state.log.model = 'Load model successful';
+          if (Utils.updateModel(clause, name, m.content, model, this.state.grammar)) {
+            status = 'changed';
+            logModel = 'Load model successful';
           }
         } catch (error) {
-          modelfails = true;
+          modelFails = true;
           console.log(`ERROR! ${error.message}`);
-          state.log.model = `Cannot load model: ${error.message}`;
+          logModel = `Cannot load model: ${error.message}`;
         }
-        newmodel.push({ name, content: model });
+        newModel.push({ name, content: model });
       } else {
-        newmodel.push({ name: m.name, content: m.content });
+        newModel.push({ name: m.name, content: m.content });
       }
-    }
-    state.model = newmodel;
-    this.setState(state);
-    if (!modelfails) {
-      state.log.model = 'Model loaded successfully';
+    });
+    this.setState({
+      model: newModel,
+      status,
+      log: {
+        ...this.state.log,
+        model: logModel,
+      },
+    });
+    if (!modelFails) {
+      logModel = 'Model loaded successfully';
       try {
-        this.setState(Utils.parseSample(clause, state.text, state.log));
+        this.setState(Utils.parseSample(clause, this.state.text, this.state.log));
         try {
-          this.setState(
-            Utils.compileLogic(null, state.logic, state.model, state.markers, state.log),
-          );
+          const { logic, markers, log } = this.state;
+          this.setState(Utils.compileLogic(null, logic, this.state.model, markers, log));
         } catch (error) {
-          this.setState(state);
+          console.log(`ERROR! ${error.message}`);
         }
       } catch (error) {
-        this.setState(state);
+        console.log(`ERROR! ${error.message}`);
       }
-    } else {
-      this.setState(state);
     }
   }
 
   handleJSONChange(data) {
-    const state = this.state;
-    const clause = state.clause;
-    const log = state.log;
+    const { clause, log } = this.state;
     if (data !== null) {
       this.setState(Utils.generateText(clause, data, log));
     }
   }
 
   handleLogicChange(editor, name, logic) {
-    const state = this.state;
-    const clause = state.clause;
-    const oldlogic = state.logic;
-    const newlogic = [];
-    for (const m of oldlogic) {
+    const { clause, text, log, model, markers } = this.state;
+    const oldLogic = this.state.logic;
+    const newLogic = [];
+    let status = this.state.status;
+    let logLogic = this.state.log.logic;
+    oldLogic.forEach((m) => {
       if (m.name === name) {
         try {
           if (Utils.updateLogic(clause, name, logic)) {
-            state.status = 'changed';
+            status = 'changed';
           }
         } catch (error) {
-          state.log.logic = `Cannot compile new logic ${error.message}`;
+          logLogic = `Cannot compile new logic ${error.message}`;
         }
-        newlogic.push({ name, content: logic });
+        newLogic.push({ name, content: logic });
       } else {
-        newlogic.push({ name: m.name, content: m.content });
+        newLogic.push({ name: m.name, content: m.content });
       }
-    }
-    this.setState(Utils.parseSample(clause, state.text, state.log));
-    this.setState(Utils.compileLogic(editor, newlogic, state.model, state.markers, state.log));
+    });
+    const changes = Utils.parseSample(clause, text, { ...log, logic: logLogic });
+    this.setState({ ...changes, status });
+    this.setState(Utils.compileLogic(editor, newLogic, model, markers, log));
   }
 
   handleErgoMounted(editor) {
