@@ -27,8 +27,8 @@ class SampleInput extends TextArea {
     this.handleSampleChange = this.handleSampleChange.bind(this);
   }
 
-  handleSampleChange(text) {
-    this.props.handleSampleChange(text);
+  handleSampleChange(_editor, _data, value) {
+    this.props.handleSampleChange(value);
   }
 
   render() {
@@ -54,8 +54,7 @@ class SampleInput extends TextArea {
       >
         <ReactCodeMirror
           value={sample}
-          onBeforeChange={(editor, data, value) => { this.handleSampleChange(value); }}
-          onChange={() => {}}
+          onBeforeChange={this.handleSampleChange}
           options={options}
         />
       </Resizable>

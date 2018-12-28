@@ -59,12 +59,10 @@ class ErgoInput extends TextArea {
     super(props);
     this.handleErgoChange = this.handleErgoChange.bind(this);
     this.handleErgoMounted = this.handleErgoMounted.bind(this);
-    this.editor = null;
-    this.marks = [];
   }
 
-  handleErgoChange(editor, text) {
-    this.props.handleErgoChange(editor, text);
+  handleErgoChange(editor, _data, value) {
+    this.props.handleErgoChange(editor, value);
   }
 
   handleErgoMounted(editor) {
@@ -94,12 +92,8 @@ class ErgoInput extends TextArea {
       >
         <ReactCodeMirror
           value={value}
-          onBeforeChange={(editor, data, value2) => { this.handleErgoChange(editor, value2); }}
-          editorDidMount={(editor) => {
-            this.editor = editor;
-            this.handleErgoMounted(editor);
-          }}
-          onChange={() => {}}
+          onBeforeChange={this.handleErgoChange}
+          editorDidMount={this.handleErgoMounted}
           options={options}
         />
       </Resizable>

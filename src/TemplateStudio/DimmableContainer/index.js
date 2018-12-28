@@ -207,7 +207,6 @@ class DimmableContainer extends React.Component {
             <ModelForm
               model={model}
               handleModelChange={this.props.handleModelChange}
-              handleErgoMounted={this.props.handleErgoMounted}
             />
           </Tab.Pane> : null }
       </div>

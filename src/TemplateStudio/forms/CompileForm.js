@@ -29,12 +29,14 @@ class CompileForm extends Form {
 
   render() {
     const { compiledLogic } = this.props;
-    return (<Tab.Pane>
-      <JavaScriptInput
-        js={compiledLogic}
-        handleJSChange={this.handleCompiledChange}
-      />
-    </Tab.Pane>);
+    return (
+      <Tab.Pane>
+        <JavaScriptInput
+          js={compiledLogic}
+          handleJSChange={this.handleCompiledChange}
+        />
+      </Tab.Pane>
+    );
   }
 }
 

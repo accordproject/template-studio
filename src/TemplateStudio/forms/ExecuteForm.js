@@ -54,53 +54,54 @@ class ExecuteForm extends Form {
 
   render() {
     const { request, cstate, response, emit } = this.props;
-    return (<Tab.Pane>
-      <Button size="small" type="submit" color="blue" onClick={this.handleRunLogic} compact><Icon name="send" /> Send Request</Button>
-      <Button size="small" type="submit" color="blue" onClick={this.handleInitLogic} compact><Icon name="redo" flipped="horizontally" /> Reset Contract</Button>
-      <Grid>
-        <Divider hidden />
-        <Grid.Row columns={2}>
-          <Grid.Column>
-            <Form.Field>
-              <label>Request</label>
-            </Form.Field>
-            <JsonInput
-              json={request}
-              handleJSONChange={this.handleRequestChange}
-            />
-          </Grid.Column>
-          <Grid.Column>
-            <Form.Field>
-              <label>Response</label>
-            </Form.Field>
-            <JsonInput
-              json={response}
-              handleJSONChange={this.handleResponseChange}
-            />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row columns={2}>
-          <Grid.Column>
-            <Form.Field>
-              <label>Contract State</label>
-            </Form.Field>
-            <JsonInput
-              json={cstate}
-              handleJSONChange={this.handleStateChange}
-            />
-          </Grid.Column>
-          <Grid.Column>
-            <Form.Field>
-              <label>Obligations</label>
-            </Form.Field>
-            <JsonInput
-              json={emit}
-              handleJSONChange={this.handleEmitChange}
-            />
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
-    </Tab.Pane>
+    return (
+      <Tab.Pane>
+        <Button size="small" type="submit" color="blue" onClick={this.handleRunLogic} compact><Icon name="send" /> Send Request</Button>
+        <Button size="small" type="submit" color="blue" onClick={this.handleInitLogic} compact><Icon name="redo" flipped="horizontally" /> Reset Contract</Button>
+        <Grid>
+          <Divider hidden />
+          <Grid.Row columns={2}>
+            <Grid.Column>
+              <Form.Field>
+                <label>Request</label>
+              </Form.Field>
+              <JsonInput
+                json={request}
+                handleJSONChange={this.handleRequestChange}
+              />
+            </Grid.Column>
+            <Grid.Column>
+              <Form.Field>
+                <label>Response</label>
+              </Form.Field>
+              <JsonInput
+                json={response}
+                handleJSONChange={this.handleResponseChange}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row columns={2}>
+            <Grid.Column>
+              <Form.Field>
+                <label>Contract State</label>
+              </Form.Field>
+              <JsonInput
+                json={cstate}
+                handleJSONChange={this.handleStateChange}
+              />
+            </Grid.Column>
+            <Grid.Column>
+              <Form.Field>
+                <label>Obligations</label>
+              </Form.Field>
+              <JsonInput
+                json={emit}
+                handleJSONChange={this.handleEmitChange}
+              />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+      </Tab.Pane>
     );
   }
 }

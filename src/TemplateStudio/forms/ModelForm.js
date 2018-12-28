@@ -29,8 +29,8 @@ class ModelForm extends Form {
     this.panesFromModel = this.panesFromModel.bind(this);
   }
 
-  handleErgoMounted(editor) {
-    this.props.handleErgoMounted(editor);
+  handleErgoMounted() {
+    // for now, do nothing
   }
 
   handleModelChange(editor, name, model) {
@@ -46,7 +46,7 @@ class ModelForm extends Form {
             (<Tab.Pane>
               <ErgoInput
                 value={m.content}
-                handleErgoMounted={(editor) => { this.handleErgoMounted(editor); }}
+                handleErgoMounted={this.handleErgoMounted}
                 handleErgoChange={(editor, model2) => {
                   this.handleModelChange(editor, m.name, model2);
                 }}
@@ -69,7 +69,6 @@ class ModelForm extends Form {
 }
 
 ModelForm.propTypes = {
-  handleErgoMounted: PropTypes.func.isRequired,
   handleModelChange: PropTypes.func.isRequired,
   model: PropTypes.array.isRequired,
 };

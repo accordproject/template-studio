@@ -27,8 +27,8 @@ class JavaScriptInput extends TextArea {
     this.handleJSChange = this.handleJSChange.bind(this);
   }
 
-  handleJSChange(data) {
-    this.props.handleJSChange(data);
+  handleJSChange(_editor, _data, value) {
+    this.props.handleJSChange(value);
   }
 
   render() {
@@ -54,8 +54,7 @@ class JavaScriptInput extends TextArea {
       >
         <ReactCodeMirror
           value={js}
-          onBeforeChange={(editor, data, value) => { this.handleJSChange(value); }}
-          onChange={() => {}}
+          onBeforeChange={this.handleJSChange}
           options={options}
         />
       </Resizable>

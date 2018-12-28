@@ -27,8 +27,8 @@ class GrammarInput extends TextArea {
     this.handleTextChange = this.handleTextChange.bind(this);
   }
 
-  handleTextChange(text) {
-    this.props.handleTextChange(text);
+  handleTextChange(_editor, _data, value) {
+    this.props.handleTextChange(value);
   }
 
   render() {
@@ -54,8 +54,7 @@ class GrammarInput extends TextArea {
       >
         <ReactCodeMirror
           value={grammar}
-          onBeforeChange={(editor, data, value) => { this.handleTextChange(value); }}
-          onChange={() => {}}
+          onBeforeChange={this.handleTextChange}
           options={options}
         />
       </Resizable>
