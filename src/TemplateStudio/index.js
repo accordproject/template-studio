@@ -75,23 +75,27 @@ class TemplateStudio extends Component {
       markers: [], // For code mirror marking
       markersSource: [], // For code mirror marking
     };
+    this.handleErgoMounted = this.handleErgoMounted.bind(this);
+    this.handleGrammarChange = this.handleGrammarChange.bind(this);
+    this.handleInitLogic = this.handleInitLogic.bind(this);
+    this.handleJSONChange = this.handleJSONChange.bind(this);
     this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
     this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
+    this.handleLogicChange = this.handleLogicChange.bind(this);
+    this.handleModelChange = this.handleModelChange.bind(this);
+    this.handleNameChange = this.handleNameChange.bind(this);
     this.handlePackageChange = this.handlePackageChange.bind(this);
     this.handleREADMEChange = this.handleREADMEChange.bind(this);
-    this.handleSampleChange = this.handleSampleChange.bind(this);
-    this.handleGrammarChange = this.handleGrammarChange.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleJSONChange = this.handleJSONChange.bind(this);
-    this.handleLogicChange = this.handleLogicChange.bind(this);
-    this.handleErgoMounted = this.handleErgoMounted.bind(this);
+    this.handleRequestChange = this.handleRequestChange.bind(this);
     this.handleRunLogic = this.handleRunLogic.bind(this);
-    this.handleInitLogic = this.handleInitLogic.bind(this);
+    this.handleSampleChange = this.handleSampleChange.bind(this);
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.handleStatusChange = this.handleStateChange.bind(this);
+    this.handleTypeChange = this.handleTypeChange.bind(this);
+    this.handleVersionChange = this.handleVersionChange.bind(this);
     this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
     this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
     this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
-    this.handleRequestChange = this.handleRequestChange.bind(this);
-    this.handleStateChange = this.handleStateChange.bind(this);
   }
 
   componentDidMount() {
@@ -111,161 +115,228 @@ class TemplateStudio extends Component {
   }
 
   handleLoadingFailed(message) {
-    const state = this.state;
-    state.loading = false;
-    state.loadingFailed = true;
-    state.log.loading = message;
-    this.setState(state);
+    this.setState({
+      loading: false,
+      loadingFailed: true,
+      log: {
+        ...this.state.log,
+        loading: message,
+      },
+    });
   }
 
   handleLoadingFailedConfirm() {
-    const state = this.state;
-    state.log.loading = 'Unknown Error';
-    state.loadingFailed = false;
-    this.setState(state);
+    this.setState({
+      log: {
+        ...this.state.log,
+        loading: 'Unknown Error',
+      },
+      loadingFailed: false,
+    });
   }
 
   handleStatusChange(status) {
-    const state = this.state;
-    state.status = status;
-    this.setState(state);
+    this.setState({ status });
   }
 
   handlePackageChange(text) {
-    const state = this.state;
     try {
       const packageJson = JSON.parse(text);
-      state.clause.getTemplate().setPackageJson(packageJson);
-      state.package = JSON.stringify(packageJson, null, 2);
-      state.templateName = packageJson.name;
-      state.templateVersion = packageJson.version;
-      state.templateType = packageJson.cicero.template;
-      state.log.meta = 'package.json change successful!';
-      this.setState(state);
+      this.state.clause.getTemplate().setPackageJson(packageJson);
+      const stringifiedPackage = JSON.stringify(packageJson, null, 2);
+      const templateName = packageJson.name;
+      const templateVersion = packageJson.version;
+      const templateType = packageJson.cicero.template;
       // Make sure to try re-parsing
-      this.setState(Utils.parseSample(state.clause, state.text, state.log));
+      const stateChanges = Utils.parseSample(this.state.clause, this.state.text, { ...this.state.log, meta: 'package.json change successful!' });
+      this.setState({
+        ...stateChanges,
+        package: stringifiedPackage,
+        templateName,
+        templateVersion,
+        templateType,
+      });
     } catch (error) {
       console.log(`ERROR ${JSON.stringify(error.message)}`);
-      state.package = text;
-      state.log.meta = `[Change Template package.json] ${error}`;
-      this.setState(state);
+      this.setState({
+        package: text,
+        log: {
+          ...this.state.log,
+          meta: `[Change Template package.json] ${error}`,
+        },
+      });
     }
   }
 
   handleNameChange(e, input) {
-    const state = this.state;
-    state.templateName = input.value;
     try {
-      const packageJson = JSON.parse(state.package);
+      const packageJson = JSON.parse(this.state.package);
       packageJson.name = input.value;
-      state.clause.getTemplate().setPackageJson(packageJson);
-      state.package = JSON.stringify(packageJson, null, 2);
-      state.log.meta = 'Template Name change successful!';
-      state.status = 'changed';
-      this.setState(state);
+      this.state.clause.getTemplate().setPackageJson(packageJson);
+      const stringifiedPackage = JSON.stringify(packageJson, null, 2);
+      const logMeta = 'Template Name change successful!';
+      const status = 'changed';
+      this.setState({
+        templateName: input.value,
+        package: stringifiedPackage,
+        log: {
+          ...this.state.log,
+          meta: logMeta,
+        },
+        status,
+      });
     } catch (error) {
       console.log(`ERROR ${JSON.stringify(error.message)}`);
-      state.log.meta = `[Change Template Name] ${error}`;
-      this.setState(state);
+      this.setState({
+        templateName: input.value,
+        log: {
+          ...this.state.log,
+          meta: `[Change Template Name] ${error}`,
+        },
+      });
     }
   }
 
   handleVersionChange(e, input) {
-    const state = this.state;
-    state.templateVersion = input.value;
     try {
-      const packageJson = JSON.parse(state.package);
+      const packageJson = JSON.parse(this.state.package);
       packageJson.version = input.value;
-      state.clause.getTemplate().setPackageJson(packageJson);
-      state.package = JSON.stringify(packageJson, null, 2);
-      state.log.meta = 'Template version change successful!';
-      state.status = 'changed';
-      this.setState(state);
+      this.state.clause.getTemplate().setPackageJson(packageJson);
+      const stringifiedPackage = JSON.stringify(packageJson, null, 2);
+      const logMeta = 'Template version change successful!';
+      const status = 'changed';
+      this.setState({
+        templateVersion: input.value,
+        package: stringifiedPackage,
+        log: {
+          ...this.state.log,
+          meta: logMeta,
+        },
+        status,
+      });
     } catch (error) {
       console.log(`ERROR ${JSON.stringify(error.message)}`);
-      state.log.meta = `[Change Template Version] ${error}`;
-      this.setState(state);
+      this.setState({
+        templateVersion: input.value,
+        log: {
+          ...this.state.log,
+          meta: `[Change Template Version] ${error}`,
+        },
+      });
     }
   }
 
   handleTypeChange(e, input) {
-    const state = this.state;
-    state.templateType = input.value;
     try {
-      const packageJson = JSON.parse(state.package);
+      const packageJson = JSON.parse(this.state.package);
       packageJson.cicero.template = input.value;
-      state.clause.getTemplate().setPackageJson(packageJson);
-      state.package = JSON.stringify(packageJson, null, 2);
-      state.log.meta = 'Template kind change successful!';
-      state.status = 'changed';
-      this.setState(state);
+      this.state.clause.getTemplate().setPackageJson(packageJson);
+      const stringifiedPackage = JSON.stringify(packageJson, null, 2);
+      const status = 'changed';
       // Make sure to try re-parsing
-      this.setState(Utils.parseSample(state.clause, state.text, state.log));
+      const stateChanges = Utils.parseSample(this.state.clause, this.state.text, { ...this.state.log, meta: 'Template kind change successful!' });
+      this.setState({
+        ...stateChanges,
+        templateType: input.value,
+        package: stringifiedPackage,
+        status,
+      });
     } catch (error) {
       console.log(`ERROR ${JSON.stringify(error.message)}`);
-      state.log.meta = `[Change Template Type] ${error}`;
-      this.setState(state);
+      this.setState({
+        templateType: input.value,
+        log: {
+          ...this.state.log,
+          meta: `[Change Template Type] ${error}`,
+        },
+      });
     }
   }
 
   handleREADMEChange(text) {
-    const state = this.state;
     try {
       const readme = text;
-      const template = state.clause.getTemplate();
+      let status = this.state.status;
+      const template = this.state.clause.getTemplate();
       if (template.getMetadata().getREADME() !== text) {
-        state.status = 'changed';
+        status = 'changed';
         template.setReadme(readme);
       }
-      state.readme = readme;
-      state.log.meta = 'README change successful!';
-      this.setState(state);
+      this.setState({
+        status,
+        readme,
+        log: {
+          ...this.state.log,
+          meta: 'README change successful!',
+        },
+      });
     } catch (error) {
       console.log(`ERROR ${JSON.stringify(error.message)}`);
-      state.readme = text;
-      state.log.meta = `[Change Template README] ${error}`;
-      this.setState(state);
+      this.setState({
+        readme: text,
+        log: {
+          ...this.state.log,
+          meta: `[Change Template README] ${error}`,
+        },
+      });
     }
   }
 
   handleSampleChange(text) {
-    const state = this.state;
-    const { clause, log } = state;
+    const { clause, log } = this.state;
+    let status = this.state.status;
     if (Utils.updateSample(clause, text)) {
-      state.status = 'changed';
-      this.setState(state);
+      status = 'changed';
     }
-    this.setState(Utils.parseSample(clause, text, log));
+    const stateChanges = Utils.parseSample(clause, text, log);
+    this.setState({
+      ...stateChanges,
+      status,
+    });
   }
 
   handleGrammarChange(text) {
-    const state = this.state;
-    const clause = state.clause;
-    if (text !== state.grammar) {
-      state.grammar = text;
+    const clause = this.state.clause;
+    if (text !== this.state.grammar) {
       try {
-        state.status = 'changed';
-        state.data = JSON.stringify(clause.getData(), null, 2);
-        state.log.text = 'Grammar change successful!';
-        if (state.data !== 'null') {
+        const status = 'changed';
+        const data = JSON.stringify(clause.getData(), null, 2);
+        const logText = 'Grammar change successful!';
+        let changes = {};
+        if (data !== 'null') {
           clause.getTemplate().buildGrammar(text);
-          const changes = Utils.generateText(clause, state.data, state.log);
+          changes = Utils.generateText(clause, data, { ...this.state.log, text: logText });
           if (changes.log.text.indexOf('successful') === -1) {
             throw new Error('Error generating text from this new grammar');
           }
-          this.setState(changes);
         }
+        this.setState({
+          ...changes,
+          grammar: text,
+          data,
+          status,
+        });
       } catch (error1) {
         try {
           console.log(`Error building grammar ${error1.message}`);
-          state.status = 'changed';
+          const status = 'changed';
           const template = clause.getTemplate();
           template.buildGrammar(text);
-          state.log.text = `[Change Template] ${error1.message}`;
-          this.setState(Utils.parseSample(clause, state.text, state.log));
+          const log = { ...this.state.log, text: `[Change Template] ${error1.message}` };
+          const changes = Utils.parseSample(clause, this.state.text, log);
+          this.setState({
+            ...changes,
+            grammar: text,
+            status,
+          });
         } catch (error2) {
-          state.log.text = `[Change Template] ${error2.message}`;
-          this.setState(state);
+          this.setState({
+            grammar: text,
+            log: {
+              ...this.state.log,
+              text: `[Change Template] ${error2.message}`,
+            },
+          });
         }
       }
     }
