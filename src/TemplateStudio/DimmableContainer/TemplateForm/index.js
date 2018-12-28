@@ -110,7 +110,14 @@ class TemplateForm extends React.Component {
             handleStatusChange={this.props.handleStatusChange}
             clause={this.props.clause}
           />
-          <Confirm content="Your template has been edited, are you sure you want to discard those changes? You can save your current template by using the Export button." confirmButton="I am sure" cancelButton="Cancel" open={this.state.confirmReset.flag} onCancel={this.handleDiscardAborted} onConfirm={this.handleDiscardConfirmed} />
+          <Confirm
+            content="Your template has been edited, are you sure you want to discard those changes? You can save your current template by using the Export button."
+            confirmButton="I am sure"
+            cancelButton="Cancel"
+            open={this.state.confirmReset.flag}
+            onCancel={this.handleDiscardAborted}
+            onConfirm={this.handleDiscardConfirmed}
+          />
           <DiscardButton handleDiscardChange={this.handleDiscardChange} />
         </Card.Content>
       </Card>

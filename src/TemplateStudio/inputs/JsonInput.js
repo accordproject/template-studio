@@ -27,8 +27,8 @@ class JsonInput extends TextArea {
     this.handleJSONChange = this.handleJSONChange.bind(this);
   }
 
-  handleJSONChange(data) {
-    this.props.handleJSONChange(data);
+  handleJSONChange(_editor, _data, value) {
+    this.props.handleJSONChange(value);
   }
 
   render() {
@@ -54,8 +54,7 @@ class JsonInput extends TextArea {
       >
         <ReactCodeMirror
           value={json}
-          onBeforeChange={(editor, data, value) => { this.handleJSONChange(value); }}
-          onChange={() => {}}
+          onBeforeChange={this.handleJSONChange}
           options={options}
         />
       </Resizable>

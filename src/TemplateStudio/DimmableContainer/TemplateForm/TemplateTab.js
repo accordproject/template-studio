@@ -42,8 +42,12 @@ class ExportButton extends Button {
     }
   }
   render() {
-    return (<Button size="mini" color="blue" onClick={() => this.downloadCta(this.props.clause)}>
-      <Icon name="download" /> Export</Button>);
+    return (
+      <Button size="mini" color="blue" onClick={() => this.downloadCta(this.props.clause)}>
+        <Icon name="download" />
+        Export
+      </Button>
+    );
   }
 }
 ExportButton.propTypes = {
@@ -60,8 +64,12 @@ class DiscardButton extends Button {
     this.props.handleDiscardChange();
   }
   render() {
-    return (<Button size="mini" basic color="blue" onClick={this.handleDiscardChange}>
-      <Icon name="redo" flipped="horizontally" /> Discard Changes</Button>);
+    return (
+      <Button size="mini" basic color="blue" onClick={this.handleDiscardChange}>
+        <Icon name="redo" flipped="horizontally" />
+        Discard Changes
+      </Button>
+    );
   }
 }
 DiscardButton.propTypes = {

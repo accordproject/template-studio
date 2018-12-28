@@ -48,7 +48,7 @@ class LogicForm extends Form {
             (<Tab.Pane>
               <ErgoInput
                 value={m.content}
-                handleErgoMounted={(editor) => { this.handleErgoMounted(editor); }}
+                handleErgoMounted={this.handleErgoMounted}
                 handleErgoChange={(editor, logic2) => {
                   this.handleLogicChange(editor, m.name, logic2);
                 }}
