@@ -46,6 +46,7 @@ class ModelForm extends Form {
             (<Tab.Pane>
               <ErgoInput
                 value={m.content}
+                markers={m.markersSource ? m.markersSource : []}
                 handleErgoMounted={this.handleErgoMounted}
                 handleErgoChange={(editor, model2) => {
                   this.handleModelChange(editor, m.name, model2);

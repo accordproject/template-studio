@@ -72,8 +72,7 @@ class TemplateStudio extends Component {
       clogic: { compiled: '', compiledLinked: '' },
       status: 'empty',
       loading: false,
-      markers: [], // For code mirror marking
-      markersSource: [], // For code mirror marking
+      markers: []
     };
     this.handleErgoMounted = this.handleErgoMounted.bind(this);
     this.handleGrammarChange = this.handleGrammarChange.bind(this);
@@ -323,9 +322,9 @@ class TemplateStudio extends Component {
           const template = clause.getTemplate();
           template.buildGrammar(text);
           const log = { ...this.state.log, text: `[Change Template] ${error1.message}` };
-          const changes = Utils.parseSample(clause, this.state.text, log);
+          const changesText = Utils.parseSample(clause, this.state.text, log);
           this.setState({
-            ...changes,
+            ...changesText,
             grammar: text,
             status,
           });
@@ -378,11 +377,14 @@ class TemplateStudio extends Component {
           console.log(`ERROR! ${error.message}`);
           logModel = `Cannot load model: ${error.message}`;
         }
-        newModel.push({ name, content: model });
+        newModel.push({ name, content: model, markersSource: [] });
       } else {
-        newModel.push({ name: m.name, content: m.content });
+        newModel.push({ name: m.name, content: m.content, markersSource: m.markersSource });
       }
     });
+    if (!modelFails) {
+        logModel = 'Model loaded successfully';
+    }
     this.setState({
       model: newModel,
       status,
@@ -392,12 +394,12 @@ class TemplateStudio extends Component {
       },
     });
     if (!modelFails) {
-      logModel = 'Model loaded successfully';
       try {
         this.setState(Utils.parseSample(clause, this.state.text, this.state.log));
         try {
-          const { logic, markers, log } = this.state;
-          this.setState(Utils.compileLogic(null, logic, this.state.model, markers, log));
+            const { markers, logic, model, log } = this.state;
+            const changesLogic = Utils.compileLogic(editor, markers, logic, model, log);
+            this.setState(changesLogic);
         } catch (error) {
           console.log(`ERROR! ${error.message}`);
         }
@@ -414,7 +416,7 @@ class TemplateStudio extends Component {
     }
   }
 
-  handleLogicChange(editor, name, logic) {
+  handleLogicChange(editor, name, logic, newMarkers) {
     const { clause, text, log, model, markers } = this.state;
     const oldLogic = this.state.logic;
     const newLogic = [];
@@ -429,23 +431,22 @@ class TemplateStudio extends Component {
         } catch (error) {
           logLogic = `Cannot compile new logic ${error.message}`;
         }
-        newLogic.push({ name, content: logic });
+          newLogic.push({ name: name, content: logic, markersSource: m.markersSource ? m.markersSource : [] });
       } else {
-        newLogic.push({ name: m.name, content: m.content });
+        newLogic.push({ name: m.name, content: m.content, markersSource: m.markersSource });
       }
     });
-    const changes = Utils.parseSample(clause, text, { ...log, logic: logLogic });
-    this.setState({ ...changes, status });
-    this.setState(Utils.compileLogic(editor, newLogic, model, markers, log));
+    const changesText = Utils.parseSample(clause, text, { ...log, logic: logLogic });
+    console.log("handleLogicChange/changesText" + JSON.stringify(changesText));  
+    this.setState({ ...changesText, status });
+    const changesLogic = Utils.compileLogic(editor, markers, newLogic, model, this.state.log);
+    console.log("handleLogicChange/changesLogic.log" + JSON.stringify(changesLogic.log));  
+    this.setState(changesLogic);
   }
 
-  handleErgoMounted(editor) {
-    const state = this.state;
-    // Refresh markers
-    state.markers = [];
-    state.markersSource.forEach(marker =>
-      state.markers.push(editor.markText(marker.start, marker.end, marker.kind)),
-    );
+  handleErgoMounted(editor,newMarkers) {
+    const { markers } = this.state;
+    this.setState({ markers : Utils.refreshMarkers(editor,markers,newMarkers) });
   }
 
   handleRunLogic() {
@@ -551,7 +552,7 @@ class TemplateStudio extends Component {
       state.status = 'loaded';
       this.setState(state);
       this.setState(
-        Utils.compileLogic(null, state.logic, state.model, state.markers, state.log),
+        Utils.compileLogic(null, state.markers, state.logic, state.model, state.log),
       ); // Now returns changes, not setting the rest of the state
       this.handleModelChange(null, state, state.model);
       this.handleSampleChange(state.text);
@@ -596,7 +597,7 @@ class TemplateStudio extends Component {
       state.data = 'null';
       state.status = 'loaded';
       this.setState(state);
-      this.setState(Utils.compileLogic(null, state.logic, state.model, state.markers, state.log));
+      this.setState(Utils.compileLogic(null, state.markers, state.logic, state.model, state.log));
       this.handleModelChange(null, state, state.model);
       this.handleSampleChange(state.text);
       this.handleLogicChange(null, state, state.logic);

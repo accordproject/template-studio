@@ -66,7 +66,7 @@ class ErgoInput extends TextArea {
   }
 
   handleErgoMounted(editor) {
-    this.props.handleErgoMounted(editor);
+    this.props.handleErgoMounted(editor,this.props.markers);
   }
 
   render() {

@@ -35,8 +35,8 @@ class LogicForm extends Form {
     this.props.handleLogicChange(editor, name, logic);
   }
 
-  handleErgoMounted(editor) {
-    this.props.handleErgoMounted(editor);
+  handleErgoMounted(editor, markers) {
+    this.props.handleErgoMounted(editor, markers);
   }
 
   panesFromLogic(logic) {
@@ -48,6 +48,7 @@ class LogicForm extends Form {
             (<Tab.Pane>
               <ErgoInput
                 value={m.content}
+                markers={m.markersSource ? m.markersSource : []}
                 handleErgoMounted={this.handleErgoMounted}
                 handleErgoChange={(editor, logic2) => {
                   this.handleLogicChange(editor, m.name, logic2);
