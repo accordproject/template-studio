@@ -117,7 +117,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleLegalTabChange}
           >Test Contract</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-grammar"
+            href="https://docs.accordproject.org/docs/accordproject-specification.html#grammar"
             target="_blank"
             position="right"
           >
@@ -156,7 +156,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleLogicTabChange}
           >Test Execution</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-logic"
+            href="https://docs.accordproject.org/docs/accordproject-specification.html#logic"
             target="_blank"
             position="right"
           >
@@ -195,7 +195,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleModelTabChange}
           >Model</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-model"
+            href="https://docs.accordproject.org/docs/accordproject-specification.html#model"
             target="_blank"
             position="right"
           >
@@ -225,7 +225,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleMetaTabChange}
           >package.json</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/cicero-concepts.html#template-library"
+            href="https://docs.accordproject.org/docs/accordproject-specification.html#metadata"
             target="_blank"
             position="right"
           >
