@@ -72,7 +72,7 @@ class TemplateStudio extends Component {
       clogic: { compiled: '', compiledLinked: '' },
       status: 'empty',
       loading: false,
-      markers: []
+      markers: [],
     };
     this.handleErgoMounted = this.handleErgoMounted.bind(this);
     this.handleGrammarChange = this.handleGrammarChange.bind(this);
@@ -383,7 +383,7 @@ class TemplateStudio extends Component {
       }
     });
     if (!modelFails) {
-        logModel = 'Model loaded successfully';
+      logModel = 'Model loaded successfully';
     }
     this.setState({
       model: newModel,
@@ -397,9 +397,9 @@ class TemplateStudio extends Component {
       try {
         this.setState(Utils.parseSample(clause, this.state.text, this.state.log));
         try {
-            const { markers, logic, model, log } = this.state;
-            const changesLogic = Utils.compileLogic(editor, markers, logic, model, log);
-            this.setState(changesLogic);
+          const { markers, logic, log } = this.state;
+          const changesLogic = Utils.compileLogic(editor, markers, logic, this.state.model, log);
+          this.setState(changesLogic);
         } catch (error) {
           console.log(`ERROR! ${error.message}`);
         }
@@ -416,7 +416,7 @@ class TemplateStudio extends Component {
     }
   }
 
-  handleLogicChange(editor, name, logic, newMarkers) {
+  handleLogicChange(editor, name, logic) {
     const { clause, text, log, model, markers } = this.state;
     const oldLogic = this.state.logic;
     const newLogic = [];
@@ -431,22 +431,23 @@ class TemplateStudio extends Component {
         } catch (error) {
           logLogic = `Cannot compile new logic ${error.message}`;
         }
-          newLogic.push({ name: name, content: logic, markersSource: m.markersSource ? m.markersSource : [] });
+        newLogic.push({ name,
+          content: logic,
+          markersSource: m.markersSource ? m.markersSource : [],
+        });
       } else {
         newLogic.push({ name: m.name, content: m.content, markersSource: m.markersSource });
       }
     });
     const changesText = Utils.parseSample(clause, text, { ...log, logic: logLogic });
-    console.log("handleLogicChange/changesText" + JSON.stringify(changesText));  
     this.setState({ ...changesText, status });
     const changesLogic = Utils.compileLogic(editor, markers, newLogic, model, this.state.log);
-    console.log("handleLogicChange/changesLogic.log" + JSON.stringify(changesLogic.log));  
     this.setState(changesLogic);
   }
 
-  handleErgoMounted(editor,newMarkers) {
+  handleErgoMounted(editor, newMarkers) {
     const { markers } = this.state;
-    this.setState({ markers : Utils.refreshMarkers(editor,markers,newMarkers) });
+    this.setState({ markers: Utils.refreshMarkers(editor, markers, newMarkers) });
   }
 
   handleRunLogic() {
