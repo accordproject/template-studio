@@ -377,7 +377,10 @@ class TemplateStudio extends Component {
           console.log(`ERROR! ${error.message}`);
           logModel = `Cannot load model: ${error.message}`;
         }
-        newModel.push({ name, content: model, markersSource: [] });
+        newModel.push({ name,
+          content: model,
+          markersSource: m.markersSource ? m.markersSource : [],
+        });
       } else {
         newModel.push({ name: m.name, content: m.content, markersSource: m.markersSource });
       }
