@@ -155,6 +155,12 @@ function compileLogic(editor, markers, logic, model, log) {
         compiled: compiledLogic.success,
         compiledLinked: compiledLogicLinked.success,
       };
+      logic.forEach((m) => {
+        const mfix = m;
+        mfix.markersSource = [];
+        newMarkers = mfix.markersSource;
+        newLogic.push(mfix);
+      });
       newLogic = logic;
       changes.log = logicLog(log, 'Compilation successful');
     }
@@ -194,21 +200,24 @@ function updateRequest(clause, oldrequest, request) {
 }
 function updateModel(clause, name, oldcontent, newcontent, grammar) {
   const modelManager = clause.getTemplate().getModelManager();
-  if (oldcontent !== newcontent) {
-    modelManager.validateModelFile(newcontent, name);
-    const oldNamespace = new ModelFile(modelManager, oldcontent, name).getNamespace();
-    const newNamespace = new ModelFile(modelManager, newcontent, name).getNamespace();
-    if (oldNamespace === newNamespace) {
-      modelManager.updateModelFile(newcontent, name, true);
-    } else {
-      modelManager.deleteModelFile(oldNamespace);
-      modelManager.addModelFile(newcontent, name, true);
+  try {
+    if (oldcontent !== newcontent) {
+      modelManager.validateModelFile(newcontent, name);
+      const oldNamespace = new ModelFile(modelManager, oldcontent, name).getNamespace();
+      const newNamespace = new ModelFile(modelManager, newcontent, name).getNamespace();
+      if (oldNamespace === newNamespace) {
+        modelManager.updateModelFile(newcontent, name, true);
+      } else {
+        modelManager.deleteModelFile(oldNamespace);
+        modelManager.addModelFile(newcontent, name, true);
+      }
+      // XXX Have to re-generate the grammar if the model changes
+      clause.getTemplate().buildGrammar(grammar);
     }
-    // XXX Have to re-generate the grammar if the model changes
-    clause.getTemplate().buildGrammar(grammar);
     return true;
+  } catch (error) {
+    return false;
   }
-  return false;
 }
 function updateLogic(clause, name, content) {
   const scriptManager = clause.getTemplate().getScriptManager();
