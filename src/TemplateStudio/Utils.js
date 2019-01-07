@@ -83,7 +83,6 @@ function parseSample(clause, text, log) {
     changes.log = textLog(log, `[Parse Contract] ${error.message}`);
     changes.text = text;
   }
-  //console.log(`PARSE SAMPLE CHANGES: ${JSON.stringify(changes)}`);
   return changes;
 }
 
@@ -118,34 +117,37 @@ function generateText(clause, data, log) {
 }
 
 function refreshMarkers(editor, oldMarkers, newMarkersSource) {
-  let newMarkers = []
+  const newMarkers = [];
   oldMarkers.forEach(marker => marker.clear());
-  for (let i = 0; i < newMarkersSource.length; i++) { 
-      const marker = newMarkersSource[i];
-      newMarkers.push(editor.markText(marker.start, marker.end, marker.kind));
-  }
+  newMarkersSource.forEach(marker =>
+    newMarkers.push(editor.markText(marker.start, marker.end, marker.kind)),
+  );
   return newMarkers;
 }
 
 function compileLogic(editor, markers, logic, model, log) {
   const changes = {};
   let newMarkers = [];
+  let newLogic = [];
   try {
     const compiledLogic = Ergo.compileToJavaScript(logic, model, 'cicero', false);
     if (compiledLogic.hasOwnProperty('error')) {
       const error = compiledLogic.error;
       changes.log = logicLog(log, error.verbose);
       logic.forEach((m) => {
-          if (error.verbose.indexOf(m.name)!== -1) {
-              console.log("UPDATING markers for " + m.name);
-              m.markersSource = [];
-              m.markersSource.push(
-                  { start: { line: error.locstart.line - 1, ch: error.locstart.character },
-                    end: { line: error.locend.line - 1, ch: error.locend.character + 1 },
-                    kind: { className: 'syntax-error', title: error.verbose } },
-              );
-              newMarkers = m.markersSource;
-          }
+        if (error.verbose.indexOf(m.name) !== -1) {
+          const mfix = m;
+          mfix.markersSource = [];
+          mfix.markersSource.push(
+            { start: { line: error.locstart.line - 1, ch: error.locstart.character },
+              end: { line: error.locend.line - 1, ch: error.locend.character + 1 },
+              kind: { className: 'syntax-error', title: error.verbose } },
+          );
+          newMarkers = mfix.markersSource;
+          newLogic.push(mfix);
+        } else {
+          newLogic.push(m);
+        }
       });
     } else {
       const compiledLogicLinked = Ergo.compileToJavaScript(logic, model, 'cicero', true);
@@ -153,13 +155,15 @@ function compileLogic(editor, markers, logic, model, log) {
         compiled: compiledLogic.success,
         compiledLinked: compiledLogicLinked.success,
       };
+      newLogic = logic;
       changes.log = logicLog(log, 'Compilation successful');
     }
   } catch (error) {
+    newLogic = logic;
     changes.log = logicLog(log, `Compilation error ${error.message}`);
   }
   changes.markers = refreshMarkers(editor, markers, newMarkers);
-  changes.logic = logic;
+  changes.logic = newLogic;
   return changes;
 }
 
