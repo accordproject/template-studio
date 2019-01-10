@@ -143,8 +143,8 @@ class TopMenu extends React.Component {
       <Menu fixed="top" inverted>
         <Container fluid>
           <Menu.Item header>
-            <Image size="mini" href="https://www.accordproject.org" src="static/img/logo.png" style={{ marginRight: '1.5em' }} target="_blank" />
-            Accord Project &middot; Template Studio
+            <Image size="small" href="https://www.accordproject.org" src="static/img/logo.png" style={{ marginRight: '1.5em' }} target="_blank" />
+            Template Studio
           </Menu.Item>
           <Menu.Item>
             <Confirm content="Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button." confirmButton="I am sure" cancelButton="Cancel" open={this.state.confirm.flag} onCancel={this.handleSelectTemplateAborted} onConfirm={this.handleSelectTemplateConfirmed} />
