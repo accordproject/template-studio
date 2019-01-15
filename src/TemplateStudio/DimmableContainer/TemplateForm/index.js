@@ -97,7 +97,7 @@ class TemplateForm extends React.Component {
             <Form.Field
               control={Input}
               label="Version"
-              onChange={this.handleVersionChange}
+              onChange={this.props.handleVersionChange}
               value={
                 this.props.templateVersion
               }
@@ -128,6 +128,7 @@ class TemplateForm extends React.Component {
 TemplateForm.propTypes = {
   clause: PropTypes.object,
   handleNameChange: PropTypes.func.isRequired,
+  handleVersionChange: PropTypes.func.isRequired,
   handleStatusChange: PropTypes.func.isRequired,
   handleTypeChange: PropTypes.func.isRequired,
   loadTemplateFromUrl: PropTypes.func.isRequired,

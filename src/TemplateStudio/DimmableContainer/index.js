@@ -100,6 +100,7 @@ class DimmableContainer extends React.Component {
       templateType,
       loadTemplateFromUrl,
       handleNameChange,
+      handleVersionChange,
       handleTypeChange,
       handleStatusChange,
     } = this.props;
@@ -292,6 +293,7 @@ class DimmableContainer extends React.Component {
                         log={log}
                         status={status}
                         handleNameChange={handleNameChange}
+                        handleVersionChange={handleVersionChange}
                         handleStatusChange={handleStatusChange}
                         handleTypeChange={handleTypeChange}
                         loadTemplateFromUrl={loadTemplateFromUrl}
@@ -332,6 +334,7 @@ DimmableContainer.propTypes = {
   handleLogicChange: PropTypes.func.isRequired,
   handleModelChange: PropTypes.func.isRequired,
   handleNameChange: PropTypes.func.isRequired,
+  handleVersionChange: PropTypes.func.isRequired,
   handlePackageChange: PropTypes.func.isRequired,
   handleREADMEChange: PropTypes.func.isRequired,
   handleRequestChange: PropTypes.func.isRequired,
