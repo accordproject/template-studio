@@ -65,14 +65,20 @@ class DiscardButton extends Button {
   }
   render() {
     return (
-      <Button size="mini" basic color="blue" onClick={this.handleDiscardChange}>
-        <Icon name="redo" flipped="horizontally" />
-        Discard Changes
-      </Button>
+      this.props.enabled ?
+        <Button size="mini" basic color="blue" onClick={this.handleDiscardChange}>
+          <Icon name="redo" flipped="horizontally" />
+          Discard Changes
+        </Button> :
+        <Button size="mini" basic color="blue" disabled>
+          <Icon name="redo" flipped="horizontally" />
+          Discard Changes
+        </Button>
     );
   }
 }
 DiscardButton.propTypes = {
+  enabled: PropTypes.bool,
   handleDiscardChange: PropTypes.func.isRequired,
 };
 
