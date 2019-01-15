@@ -20,7 +20,7 @@ import { StatusLabel } from '../../Status';
 import {
   DiscardButton,
   ExportButton,
-} from './TemplateTab';
+} from './TemplateButton';
 
 class TemplateForm extends React.Component {
   constructor(props) {
@@ -118,7 +118,7 @@ class TemplateForm extends React.Component {
             onCancel={this.handleDiscardAborted}
             onConfirm={this.handleDiscardConfirmed}
           />
-          <DiscardButton handleDiscardChange={this.handleDiscardChange} />
+          <DiscardButton enabled={this.props.status === 'changed'} handleDiscardChange={this.handleDiscardChange} />
         </Card.Content>
       </Card>
     );
