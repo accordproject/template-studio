@@ -83,6 +83,7 @@ class TemplateStudio extends Component {
     this.handleLogicChange = this.handleLogicChange.bind(this);
     this.handleModelChange = this.handleModelChange.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleVersionChange = this.handleVersionChange.bind(this);
     this.handlePackageChange = this.handlePackageChange.bind(this);
     this.handleREADMEChange = this.handleREADMEChange.bind(this);
     this.handleRequestChange = this.handleRequestChange.bind(this);
@@ -91,7 +92,6 @@ class TemplateStudio extends Component {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.handleStatusChange = this.handleStateChange.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
-    this.handleVersionChange = this.handleVersionChange.bind(this);
     this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
     this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
     this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
@@ -641,6 +641,7 @@ class TemplateStudio extends Component {
           handleLogicChange={this.handleLogicChange}
           handleModelChange={this.handleModelChange}
           handleNameChange={this.handleNameChange}
+          handleVersionChange={this.handleVersionChange}
           handlePackageChange={this.handlePackageChange}
           handleREADMEChange={this.handleREADMEChange}
           handleRequestChange={this.handleRequestChange}
