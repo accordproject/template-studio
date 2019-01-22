@@ -54,6 +54,7 @@ class DimmableContainer extends React.Component {
     this.handleMetaTabChange = this.handleMetaTabChange.bind(this);
     this.handleModelTabChange = this.handleModelTabChange.bind(this);
     this.handleResponseChange = this.handleResponseChange.bind(this);
+    this.handleTextOnlyChange = this.handleTextOnlyChange.bind(this);
   }
 
   handleEmitChange() {
@@ -77,6 +78,12 @@ class DimmableContainer extends React.Component {
   handleResponseChange() {
     // Response should not be changed
   }
+  handleTextOnlyChange(e, input) {
+    const newTextOnly = this.props.handleTextOnlyChange(e, input);
+    if (newTextOnly === 'text' && this.state.activeItem === 'logic') {
+      this.setState({ activeItem: 'metadata' });
+    }
+  }
 
   render() {
     const {
@@ -98,6 +105,7 @@ class DimmableContainer extends React.Component {
       templateName,
       templateVersion,
       templateType,
+      templateTextOnly,
       loadTemplateFromUrl,
       handleNameChange,
       handleVersionChange,
@@ -250,17 +258,17 @@ class DimmableContainer extends React.Component {
     );
     const viewMenu = () =>
       (<Menu fluid vertical pointing>
+        <Menu.Item name="metadata" active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
+          Metadata
+        </Menu.Item>
         <Menu.Item name="legal" active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
-                   Contract Text
+          Contract Text
         </Menu.Item>
         <Menu.Item name="model" active={this.state.activeItem === 'model'} onClick={this.handleItemClick}>
-                   Model
+          Model
         </Menu.Item>
-        <Menu.Item name="logic" active={this.state.activeItem === 'logic'} onClick={this.handleItemClick}>
-                   Logic
-        </Menu.Item>
-        <Menu.Item name="metadata" active={this.state.activeItem === 'metadata'} onClick={this.handleItemClick}>
-                   Metadata
+        <Menu.Item name="logic" active={this.state.activeItem === 'logic'} onClick={this.handleItemClick} disabled={this.props.templateTextOnly === 'text'}>
+          Logic
         </Menu.Item>
       </Menu>);
     return (
@@ -296,11 +304,13 @@ class DimmableContainer extends React.Component {
                         handleVersionChange={handleVersionChange}
                         handleStatusChange={handleStatusChange}
                         handleTypeChange={handleTypeChange}
+                        handleTextOnlyChange={this.handleTextOnlyChange}
                         loadTemplateFromUrl={loadTemplateFromUrl}
                         templateName={templateName}
                         templateVersion={templateVersion}
                         templateURL={templateURL}
                         templateType={templateType}
+                        templateTextOnly={templateTextOnly}
                       />
                     </Grid.Column>
                   </Grid.Row>
@@ -343,6 +353,7 @@ DimmableContainer.propTypes = {
   handleStateChange: PropTypes.func.isRequired,
   handleStatusChange: PropTypes.func.isRequired,
   handleTypeChange: PropTypes.func.isRequired,
+  handleTextOnlyChange: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   loadingFailed: PropTypes.bool.isRequired,
   loadTemplateFromUrl: PropTypes.func.isRequired,
@@ -362,10 +373,8 @@ DimmableContainer.propTypes = {
   templateName: PropTypes.string.isRequired,
   templateVersion: PropTypes.string.isRequired,
   templateURL: PropTypes.string.isRequired,
-  templateType: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
+  templateType: PropTypes.string,
+  templateTextOnly: PropTypes.string,
   text: PropTypes.string.isRequired,
 };
 

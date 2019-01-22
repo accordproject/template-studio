@@ -129,6 +129,9 @@ function compileLogic(editor, markers, logic, model, log) {
   const changes = {};
   let newMarkers = [];
   let newLogic = [];
+  if (logic.length === 0) {
+    return {};
+  }
   try {
     const compiledLogic = Ergo.compileToJavaScript(logic, model, 'cicero', false);
     if (compiledLogic.hasOwnProperty('error')) {

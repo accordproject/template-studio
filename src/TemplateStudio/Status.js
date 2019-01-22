@@ -22,29 +22,29 @@ const parseFailure = log => (
 const modelFailure = log => (
   log.model.indexOf('success') === -1
 );
-const logicFailure = log => (
-  log.logic.indexOf('success') === -1
+const logicFailure = (log, textOnly) => (
+  log.logic.indexOf('success') === -1 && textOnly !== 'text'
 );
 const metaFailure = log => (
   log.meta.indexOf('success') === -1
 );
-const executeFailure = log => (
-  log.execute.indexOf('success') === -1
+const executeFailure = (log, textOnly) => (
+  log.execute.indexOf('success') === -1 && textOnly !== 'text'
 );
 
-const templateFailure = log => (
+const templateFailure = (log, textOnly) => (
   parseFailure(log)
         || modelFailure(log)
-        || logicFailure(log)
+        || logicFailure(log, textOnly)
         || metaFailure(log)
 );
-const otherFailure = log => (
-  executeFailure(log)
+const otherFailure = (log, textOnly) => (
+  executeFailure(log, textOnly)
 );
 
-const anyFailure = log => (
-  templateFailure(log)
-        || otherFailure(log)
+const anyFailure = (log, textOnly) => (
+  templateFailure(log, textOnly)
+        || otherFailure(log, textOnly)
 );
 
 const newlines = log => (
@@ -65,8 +65,8 @@ const ParseTable = log => (
     : null)
 );
 
-const LogicTable = log => (
-  (logicFailure(log) ?
+const LogicTable = (log, textOnly) => (
+  (logicFailure(log, textOnly) ?
     <div>{printErrors(log.logic)}</div>
     : null)
 );
@@ -83,14 +83,14 @@ const MetaTable = log => (
     : null)
 );
 
-const ExecuteTable = log => (
-  (executeFailure(log) ?
+const ExecuteTable = (log, textOnly) => (
+  (executeFailure(log, textOnly) ?
     <div>{printErrors(log.execute)}</div>
     : null)
 );
 
-const StatusLabel = ({ status, log }) => (
-  (anyFailure(log) ? <Card.Meta><Icon name="warning sign" color="red" /> Errors</Card.Meta>
+const StatusLabel = ({ status, log, textOnly }) => (
+  (anyFailure(log, textOnly) ? <Card.Meta><Icon name="warning sign" color="red" /> Errors</Card.Meta>
     : status === 'changed' ? <Card.Meta><Icon name="edit" color="orange" /> Changed</Card.Meta>
       : status === 'empty' ? <Card.Meta><Icon name="check" color="grey" /> Loading</Card.Meta>
         : status === 'loaded' ? <Card.Meta><Icon name="check" color="green" /> Loaded</Card.Meta>
@@ -100,15 +100,17 @@ const StatusLabel = ({ status, log }) => (
 StatusLabel.propTypes = {
   status: PropTypes.string,
   log: PropTypes.object.isRequired,
+  textOnly: PropTypes.string,
 };
 
-const AllStatusLabel = ({ log }) => (
-  (anyFailure(log) ?
+const AllStatusLabel = ({ log, textOnly }) => (
+  (anyFailure(log, textOnly) ?
     <Card.Meta>Errors</Card.Meta>
     : <Card.Meta>No Errors</Card.Meta>)
 );
 AllStatusLabel.propTypes = {
   log: PropTypes.object.isRequired,
+  textOnly: PropTypes.string,
 };
 
 const ParseStatus = ({ log }) => ParseTable(log);
@@ -116,9 +118,10 @@ ParseStatus.propTypes = {
   log: PropTypes.object.isRequired,
 };
 
-const LogicStatus = ({ log }) => LogicTable(log);
+const LogicStatus = ({ log, textOnly }) => LogicTable(log, textOnly);
 LogicStatus.propTypes = {
   log: PropTypes.object.isRequired,
+  textOnly: PropTypes.string,
 };
 
 const ModelStatus = ({ log }) => ModelTable(log);
@@ -131,9 +134,10 @@ MetaStatus.propTypes = {
   log: PropTypes.object.isRequired,
 };
 
-const ExecuteStatus = ({ log }) => ExecuteTable(log);
+const ExecuteStatus = ({ log, textOnly }) => ExecuteTable(log, textOnly);
 ExecuteStatus.propTypes = {
   log: PropTypes.object.isRequired,
+  textOnly: PropTypes.string,
 };
 
 export {

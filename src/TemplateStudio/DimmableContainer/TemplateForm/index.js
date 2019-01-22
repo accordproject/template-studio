@@ -59,30 +59,32 @@ class TemplateForm extends React.Component {
   }
 
   render() {
-    const { log, status } = this.props;
+    const { log, status, templateTextOnly } = this.props;
 
     return (
       <Card fluid>
         <Card.Content>
           <Card.Header>Current Template</Card.Header>
-          <StatusLabel log={log} status={status} />
+          <StatusLabel log={log} status={status} textOnly={templateTextOnly} />
         </Card.Content>
         <Card.Content>
           <Form>
-            <Form.Group inline>
+            <Form.Group>
               <Form.Field
                 control={Radio}
+                slider
                 label="full contract"
-                value="contract"
+                value={this.props.templateType}
                 checked={this.props.templateType === 'contract'}
                 onChange={this.props.handleTypeChange}
               />
               <Form.Field
                 control={Radio}
-                label="single clause"
-                value="clause"
-                checked={this.props.templateType === 'clause'}
-                onChange={this.props.handleTypeChange}
+                slider
+                label="text only"
+                value={this.props.templateTextOnly}
+                checked={this.props.templateTextOnly === 'text'}
+                onChange={this.props.handleTextOnlyChange}
               />
             </Form.Group>
             <Form.Field
@@ -131,13 +133,12 @@ TemplateForm.propTypes = {
   handleVersionChange: PropTypes.func.isRequired,
   handleStatusChange: PropTypes.func.isRequired,
   handleTypeChange: PropTypes.func.isRequired,
+  handleTextOnlyChange: PropTypes.func.isRequired,
   loadTemplateFromUrl: PropTypes.func.isRequired,
   log: PropTypes.object.isRequired,
   status: PropTypes.string.isRequired,
-  templateType: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
+  templateType: PropTypes.string,
+  templateTextOnly: PropTypes.string,
   templateName: PropTypes.string.isRequired,
   templateVersion: PropTypes.string.isRequired,
   templateURL: PropTypes.string.isRequired,

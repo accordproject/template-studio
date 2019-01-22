@@ -53,33 +53,33 @@ class BottomMenu extends React.Component {
   }
 
   renderStatus() {
-    const { log } = this.props;
+    const { log, textOnly } = this.props;
 
     switch (this.state.activeError) {
       case 'parse':
         return <ParseStatus log={log} />;
       case 'logic':
-        return <LogicStatus log={log} />;
+        return <LogicStatus log={log} textOnly={textOnly} />;
       case 'model':
         return <ModelStatus log={log} />;
       case 'meta':
         return <MetaStatus log={log} />;
       case 'execute':
-        return <ExecuteStatus log={log} />;
+        return <ExecuteStatus log={log} textOnly={textOnly} />;
       default:
         return null;
     }
   }
 
   render() {
-    const { log } = this.props;
+    const { log, textOnly } = this.props;
     return (<Container fluid>
       <Divider hidden />
       <div className="ui bottom sticky">
         { this.renderStatus() }
-        <Menu fixed="bottom" color={anyFailure(log) ? 'red' : 'grey'} inverted>
+        <Menu fixed="bottom" color={anyFailure(log, textOnly) ? 'red' : 'grey'} inverted>
           <Menu.Item header>
-            <AllStatusLabel log={log} />
+            <AllStatusLabel log={log} textOnly={textOnly} />
           </Menu.Item>
           { parseFailure(log) ?
             <Menu.Item
@@ -89,7 +89,7 @@ class BottomMenu extends React.Component {
             >
               <Icon name="warning sign" />Contract Text
             </Menu.Item> : null }
-          { logicFailure(log) ?
+          { logicFailure(log, textOnly) ?
             <Menu.Item
               name="logic"
               active={this.state.activeError === 'logic'}
@@ -113,11 +113,11 @@ class BottomMenu extends React.Component {
             >
               <Icon name="warning sign" />Metadata
             </Menu.Item> : null }
-          { templateFailure(log) && otherFailure(log) ?
+          { templateFailure(log, textOnly) && otherFailure(log, textOnly) ?
             <Menu.Item header>
                        &middot;
             </Menu.Item> : null }
-          { executeFailure(log) ?
+          { executeFailure(log, textOnly) ?
             <Menu.Item
               name="execute"
               active={this.state.activeError === 'execute'}
@@ -133,6 +133,7 @@ class BottomMenu extends React.Component {
 
 BottomMenu.propTypes = {
   log: PropTypes.object.isRequired,
+  textOnly: PropTypes.string,
 };
 
 export default BottomMenu;
