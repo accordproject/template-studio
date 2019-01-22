@@ -26,24 +26,25 @@ class ExportButton extends Button {
     this.handleStatusChange = this.handleStatusChange.bind(this);
     this.downloadCta = this.downloadCta.bind(this);
   }
-  handleStatusChange(status) {
-    this.props.handleStatusChange(status);
-  }
   async downloadCta(clause) {
+    const template = clause.getTemplate();
+    const name = template.getMetadata().getName();
+    const cta = await template.toArchive('ergo');
+    const blob = new Blob([cta], { type: 'application/zip' });
+    saveAs(blob, `${name}.cta`);
+  }
+  handleStatusChange() {
+    const clause = this.props.clause;
     if (clause !== null) {
-      const template = clause.getTemplate();
-      const name = template.getMetadata().getName();
-      const cta = await template.toArchive('ergo');
-      const blob = new Blob([cta], { type: 'application/zip' });
-      saveAs(blob, `${name}.cta`);
-      this.handleStatusChange('saved');
+      this.downloadCta(clause)
+      this.props.handleStatusChange('saved');
     } else {
       console.log('CLAUSE MISSING!');
     }
   }
   render() {
     return (
-      <Button size="mini" color="blue" onClick={() => this.downloadCta(this.props.clause)}>
+      <Button size="mini" color="blue" onClick={() => this.handleStatusChange()}>
         <Icon name="download" />
         Export
       </Button>

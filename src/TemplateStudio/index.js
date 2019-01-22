@@ -92,7 +92,7 @@ class TemplateStudio extends Component {
     this.handleRunLogic = this.handleRunLogic.bind(this);
     this.handleSampleChange = this.handleSampleChange.bind(this);
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.handleStatusChange = this.handleStateChange.bind(this);
+    this.handleStatusChange = this.handleStatusChange.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
     this.handleTextOnlyChange = this.handleTextOnlyChange.bind(this);
     this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
@@ -138,7 +138,7 @@ class TemplateStudio extends Component {
   }
 
   handleStatusChange(status) {
-    this.setState({ status });
+    this.setState({ status: status });
   }
 
   handlePackageChange(text) {
@@ -262,14 +262,21 @@ class TemplateStudio extends Component {
   }
 
   handleTextOnlyChange(e, input) {
+    const { clause } = this.state;
+    const status = 'changed';
     let newTextOnly;
     if (input.value === 'text') {
+      // Archive exported should contain logic
+      clause.getTemplate().unsetTextOnlyArchive();
       newTextOnly = 'logic';
     } else {
+      // Archive exported should not contain logic
+      clause.getTemplate().setTextOnlyArchive();
       newTextOnly = 'text';
     }
     this.setState({
       templateTextOnly: newTextOnly,
+      status,
     });
     return newTextOnly;
   }
