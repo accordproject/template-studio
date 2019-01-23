@@ -174,14 +174,14 @@ function compileLogic(editor, markers, logic, model, log) {
 }
 
 function runLogic(compiledLogic, contract, request, cstate) {
-  const params = { contract, request, state: cstate, emit: [], now: moment('2018-05-21') }; // eslint-disable-line no-unused-vars
+  const params = { contract, request, state: cstate, emit: [], now: moment() }; // eslint-disable-line no-unused-vars
   const clauseCall = 'dispatch(params);'; // Create the clause call
   const response = eval(compiledLogic + clauseCall); // Call the logic
   return response;
 }
 
 function runInit(compiledLogic, contract) {
-  const params = { contract, request: null, state: null, emit: [], now: moment('2018-05-21') }; // eslint-disable-line no-unused-vars
+  const params = { contract, request: null, state: null, emit: [], now: moment() }; // eslint-disable-line no-unused-vars
   const clauseCall = 'init(params);'; // Create the clause call
   const response = eval(compiledLogic + clauseCall); // Call the logic
   return response;
