@@ -23,3 +23,5 @@ npm run start
 
 Go to http://localhost:8080
 
+Copyright 2018-2019 Clause, Inc.
+
