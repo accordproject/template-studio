@@ -69,24 +69,22 @@ class TemplateForm extends React.Component {
         </Card.Content>
         <Card.Content>
           <Form>
-            <Form.Group>
-              <Form.Field
-                control={Radio}
-                slider
-                label="full contract"
-                value={this.props.templateType}
-                checked={this.props.templateType === 'contract'}
-                onChange={this.props.handleTypeChange}
-              />
-              <Form.Field
-                control={Radio}
-                slider
-                label="text only"
-                value={this.props.templateStudioMode}
-                checked={this.props.templateStudioMode === 'simple'}
+            <Form.Field
+              control={Radio}
+              slider
+              label="full contract"
+              value={this.props.templateType}
+              checked={this.props.templateType === 'contract'}
+              onChange={this.props.handleTypeChange}
+            />
+            <Form.Field
+              control={Radio}
+              slider
+              label="logic off"
+              value={this.props.templateStudioMode}
+              checked={this.props.templateStudioMode === 'simple'}
                 onChange={this.props.handleStudioModeChange}
-              />
-            </Form.Group>
+            />
             <Form.Field
               control={Input}
               label="Name"
