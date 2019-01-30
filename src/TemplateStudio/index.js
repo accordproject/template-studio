@@ -74,7 +74,7 @@ class TemplateStudio extends Component {
       loading: false,
       markers: [],
       templateType: 'clause',
-      templateTextOnly: 'logic',
+      studioMode: 'dev',
     };
     this.handleErgoMounted = this.handleErgoMounted.bind(this);
     this.handleGrammarChange = this.handleGrammarChange.bind(this);
@@ -94,7 +94,7 @@ class TemplateStudio extends Component {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.handleStatusChange = this.handleStatusChange.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
-    this.handleTextOnlyChange = this.handleTextOnlyChange.bind(this);
+    this.handleStudioModeChange = this.handleStudioModeChange.bind(this);
     this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
     this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
     this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
@@ -261,24 +261,24 @@ class TemplateStudio extends Component {
     }
   }
 
-  handleTextOnlyChange(e, input) {
+  handleStudioModeChange(e, input) {
     const { clause } = this.state;
     const status = 'changed';
-    let newTextOnly;
-    if (input.value === 'text') {
+    let newStudioMode;
+    if (input.value === 'simple') {
       // Archive exported should contain logic
-      clause.getTemplate().unsetTextOnlyArchive();
-      newTextOnly = 'logic';
+      clause.getTemplate().unsetArchiveOmitsLogic();
+      newStudioMode = 'dev';
     } else {
       // Archive exported should not contain logic
-      clause.getTemplate().setTextOnlyArchive();
-      newTextOnly = 'text';
+      clause.getTemplate().setArchiveOmitsLogic();
+      newStudioMode = 'simple';
     }
     this.setState({
-      templateTextOnly: newTextOnly,
+      templateStudioMode: newStudioMode,
       status,
     });
-    return newTextOnly;
+    return newStudioMode;
   }
 
   handleREADMEChange(text) {
@@ -575,7 +575,7 @@ class TemplateStudio extends Component {
       state.templateName = state.clause.getTemplate().getMetadata().getName();
       state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
       state.templateType = state.clause.getTemplate().getMetadata().getTemplateType() === 0 ? 'contract' : 'clause';
-      state.templateTextOnly = state.clause.getTemplate().isTextOnly() ? 'text' : 'logic';
+      state.templateStudioMode = state.clause.getTemplate().hasNoLogic() ? 'simple' : 'dev';
       state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
       state.grammar = template.getTemplatizedGrammar();
       state.model = template.getModelManager().getModels();
@@ -621,8 +621,8 @@ class TemplateStudio extends Component {
       state.clause = new Clause(template);
       state.templateName = state.clause.getTemplate().getMetadata().getName();
       state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
-      state.templateType = state.clause.getTemplate().getMetadata().getTemplateType();
-      state.templateTextOnly = state.clause.getTemplate().isTextOnly() ? 'text' : 'logic';
+      state.templateType = state.clause.getTemplate().getMetadata().getTemplateType() === 0 ? 'contract' : 'clause';
+      state.templateStudioMode = state.clause.getTemplate().hasNoLogic() ? 'simple' : 'dev';
       state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
       state.grammar = template.getTemplatizedGrammar();
       state.model = template.getModelManager().getModels();
@@ -681,7 +681,7 @@ class TemplateStudio extends Component {
           handleStateChange={this.handleStateChange}
           handleStatusChange={this.handleStatusChange}
           handleTypeChange={this.handleTypeChange}
-          handleTextOnlyChange={this.handleTextOnlyChange}
+          handleStudioModeChange={this.handleStudioModeChange}
           loading={this.state.loading}
           loadingFailed={this.state.loadingFailed}
           loadTemplateFromUrl={this.loadTemplateFromUrl}
@@ -696,12 +696,12 @@ class TemplateStudio extends Component {
           templateVersion={this.state.templateVersion}
           templateURL={this.state.templateURL}
           templateType={this.state.templateType}
-          templateTextOnly={this.state.templateTextOnly}
+          templateStudioMode={this.state.templateStudioMode}
           text={this.state.text}
         />
         <BottomMenu
           log={this.state.log}
-          textOnly={this.state.templateTextOnly}
+          studioMode={this.state.templateStudioMode}
         />
       </div>
     );

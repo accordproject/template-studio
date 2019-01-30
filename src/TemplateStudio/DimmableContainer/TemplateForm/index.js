@@ -59,13 +59,13 @@ class TemplateForm extends React.Component {
   }
 
   render() {
-    const { log, status, templateTextOnly } = this.props;
+    const { log, status, templateStudioMode } = this.props;
 
     return (
       <Card fluid>
         <Card.Content>
           <Card.Header>Current Template</Card.Header>
-          <StatusLabel log={log} status={status} textOnly={templateTextOnly} />
+          <StatusLabel log={log} status={status} textOnly={templateStudioMode} />
         </Card.Content>
         <Card.Content>
           <Form>
@@ -82,9 +82,9 @@ class TemplateForm extends React.Component {
                 control={Radio}
                 slider
                 label="text only"
-                value={this.props.templateTextOnly}
-                checked={this.props.templateTextOnly === 'text'}
-                onChange={this.props.handleTextOnlyChange}
+                value={this.props.templateStudioMode}
+                checked={this.props.templateStudioMode === 'simple'}
+                onChange={this.props.handleStudioModeChange}
               />
             </Form.Group>
             <Form.Field
@@ -133,12 +133,12 @@ TemplateForm.propTypes = {
   handleVersionChange: PropTypes.func.isRequired,
   handleStatusChange: PropTypes.func.isRequired,
   handleTypeChange: PropTypes.func.isRequired,
-  handleTextOnlyChange: PropTypes.func.isRequired,
+  handleStudioModeChange: PropTypes.func.isRequired,
   loadTemplateFromUrl: PropTypes.func.isRequired,
   log: PropTypes.object.isRequired,
   status: PropTypes.string.isRequired,
   templateType: PropTypes.string,
-  templateTextOnly: PropTypes.string,
+  templateStudioMode: PropTypes.string,
   templateName: PropTypes.string.isRequired,
   templateVersion: PropTypes.string.isRequired,
   templateURL: PropTypes.string.isRequired,

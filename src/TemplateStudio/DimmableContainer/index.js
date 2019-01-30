@@ -54,7 +54,7 @@ class DimmableContainer extends React.Component {
     this.handleMetaTabChange = this.handleMetaTabChange.bind(this);
     this.handleModelTabChange = this.handleModelTabChange.bind(this);
     this.handleResponseChange = this.handleResponseChange.bind(this);
-    this.handleTextOnlyChange = this.handleTextOnlyChange.bind(this);
+    this.handleStudioModeChange = this.handleStudioModeChange.bind(this);
   }
 
   handleEmitChange() {
@@ -78,9 +78,9 @@ class DimmableContainer extends React.Component {
   handleResponseChange() {
     // Response should not be changed
   }
-  handleTextOnlyChange(e, input) {
-    const newTextOnly = this.props.handleTextOnlyChange(e, input);
-    if (newTextOnly === 'text' && this.state.activeItem === 'logic') {
+  handleStudioModeChange(e, input) {
+    const newStudioMode = this.props.handleStudioModeChange(e, input);
+    if (newStudioMode === 'simple' && this.state.activeItem === 'dev') {
       this.setState({ activeItem: 'metadata' });
     }
   }
@@ -105,7 +105,7 @@ class DimmableContainer extends React.Component {
       templateName,
       templateVersion,
       templateType,
-      templateTextOnly,
+      templateStudioMode,
       loadTemplateFromUrl,
       handleNameChange,
       handleVersionChange,
@@ -267,7 +267,7 @@ class DimmableContainer extends React.Component {
         <Menu.Item name="model" active={this.state.activeItem === 'model'} onClick={this.handleItemClick}>
           Model
         </Menu.Item>
-        <Menu.Item name="logic" active={this.state.activeItem === 'logic'} onClick={this.handleItemClick} disabled={this.props.templateTextOnly === 'text'}>
+        <Menu.Item name="logic" active={this.state.activeItem === 'logic'} onClick={this.handleItemClick} disabled={this.props.templateStudioMode === 'simple'}>
           Logic
         </Menu.Item>
       </Menu>);
@@ -304,13 +304,13 @@ class DimmableContainer extends React.Component {
                         handleVersionChange={handleVersionChange}
                         handleStatusChange={handleStatusChange}
                         handleTypeChange={handleTypeChange}
-                        handleTextOnlyChange={this.handleTextOnlyChange}
+                        handleStudioModeChange={this.handleStudioModeChange}
                         loadTemplateFromUrl={loadTemplateFromUrl}
                         templateName={templateName}
                         templateVersion={templateVersion}
                         templateURL={templateURL}
                         templateType={templateType}
-                        templateTextOnly={templateTextOnly}
+                        templateStudioMode={templateStudioMode}
                       />
                     </Grid.Column>
                   </Grid.Row>
@@ -353,7 +353,7 @@ DimmableContainer.propTypes = {
   handleStateChange: PropTypes.func.isRequired,
   handleStatusChange: PropTypes.func.isRequired,
   handleTypeChange: PropTypes.func.isRequired,
-  handleTextOnlyChange: PropTypes.func.isRequired,
+  handleStudioModeChange: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   loadingFailed: PropTypes.bool.isRequired,
   loadTemplateFromUrl: PropTypes.func.isRequired,
@@ -374,7 +374,7 @@ DimmableContainer.propTypes = {
   templateVersion: PropTypes.string.isRequired,
   templateURL: PropTypes.string.isRequired,
   templateType: PropTypes.string,
-  templateTextOnly: PropTypes.string,
+  templateStudioMode: PropTypes.string,
   text: PropTypes.string.isRequired,
 };
 
