@@ -53,33 +53,33 @@ class BottomMenu extends React.Component {
   }
 
   renderStatus() {
-    const { log, textOnly } = this.props;
+    const { log, studioMode } = this.props;
 
     switch (this.state.activeError) {
       case 'parse':
         return <ParseStatus log={log} />;
       case 'logic':
-        return <LogicStatus log={log} textOnly={textOnly} />;
+        return <LogicStatus log={log} studioMode={studioMode} />;
       case 'model':
         return <ModelStatus log={log} />;
       case 'meta':
         return <MetaStatus log={log} />;
       case 'execute':
-        return <ExecuteStatus log={log} textOnly={textOnly} />;
+        return <ExecuteStatus log={log} studioMode={studioMode} />;
       default:
         return null;
     }
   }
 
   render() {
-    const { log, textOnly } = this.props;
+    const { log, studioMode } = this.props;
     return (<Container fluid>
       <Divider hidden />
       <div className="ui bottom sticky">
         { this.renderStatus() }
-        <Menu fixed="bottom" color={anyFailure(log, textOnly) ? 'red' : 'grey'} inverted>
+        <Menu fixed="bottom" color={anyFailure(log, studioMode) ? 'red' : 'grey'} inverted>
           <Menu.Item header>
-            <AllStatusLabel log={log} textOnly={textOnly} />
+            <AllStatusLabel log={log} studioMode={studioMode} />
           </Menu.Item>
           { parseFailure(log) ?
             <Menu.Item
@@ -89,7 +89,7 @@ class BottomMenu extends React.Component {
             >
               <Icon name="warning sign" />Contract Text
             </Menu.Item> : null }
-          { logicFailure(log, textOnly) ?
+          { logicFailure(log, studioMode) ?
             <Menu.Item
               name="logic"
               active={this.state.activeError === 'logic'}
@@ -113,11 +113,11 @@ class BottomMenu extends React.Component {
             >
               <Icon name="warning sign" />Metadata
             </Menu.Item> : null }
-          { templateFailure(log, textOnly) && otherFailure(log, textOnly) ?
+          { templateFailure(log, studioMode) && otherFailure(log, studioMode) ?
             <Menu.Item header>
                        &middot;
             </Menu.Item> : null }
-          { executeFailure(log, textOnly) ?
+          { executeFailure(log, studioMode) ?
             <Menu.Item
               name="execute"
               active={this.state.activeError === 'execute'}
@@ -133,7 +133,7 @@ class BottomMenu extends React.Component {
 
 BottomMenu.propTypes = {
   log: PropTypes.object.isRequired,
-  textOnly: PropTypes.string,
+  studioMode: PropTypes.string,
 };
 
 export default BottomMenu;
