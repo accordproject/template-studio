@@ -27,6 +27,7 @@ import {
 
 import TemplateForm from './TemplateForm';
 
+import MarkdownInput from '../inputs/MarkdownInput';
 import GrammarInput from '../inputs/GrammarInput';
 import JsonInput from '../inputs/JsonInput';
 
@@ -235,9 +236,9 @@ class DimmableContainer extends React.Component {
         </Menu>
         { this.state.activeMeta === 'readme' ?
           <Tab.Pane attached="bottom">
-            <GrammarInput
-              grammar={clause ? clause.getTemplate().getMetadata().getREADME() : 'null'}
-              handleTextChange={this.props.handleREADMEChange}
+            <MarkdownInput
+              markdown={clause ? clause.getTemplate().getMetadata().getREADME() : 'null'}
+              onChange={this.props.handleREADMEChange}
             />
           </Tab.Pane> : this.state.activeMeta === 'package' ?
             <Tab.Pane attached="bottom">

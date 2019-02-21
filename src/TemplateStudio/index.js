@@ -252,12 +252,13 @@ class TemplateStudio extends Component {
     }
   }
 
-  handleREADMEChange(text) {
+  handleREADMEChange(editor) {
+    const readme = editor.getMarkdown();
+
     try {
-      const readme = text;
       let status = this.state.status;
       const template = this.state.clause.getTemplate();
-      if (template.getMetadata().getREADME() !== text) {
+      if (template.getMetadata().getREADME() !== readme) {
         status = 'changed';
         template.setReadme(readme);
       }
@@ -272,7 +273,7 @@ class TemplateStudio extends Component {
     } catch (error) {
       console.log(`ERROR ${JSON.stringify(error.message)}`);
       this.setState({
-        readme: text,
+        readme,
         log: {
           ...this.state.log,
           meta: `[Change Template README] ${error}`,

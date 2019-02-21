@@ -19,6 +19,7 @@
     "@accordproject/cicero-core": "0.10.1",
     "@accordproject/cicero-template-library": "git+https://git@github.com/accordproject/cicero-template-library.git",
     "@accordproject/ergo-compiler": "0.6.2",
+    "@accordproject/markdown-editor": "^0.2.5",
     "codemirror": "^5.40.2",
     "composer-concerto": "0.60.0",
     "file-saver": "^2.0.0-rc.3",
