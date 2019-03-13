@@ -189,27 +189,11 @@ class DimmableContainer extends React.Component {
     );
     const modelTabs = () => (
       <div>
-        <Menu attached="top" tabular>
-          <Menu.Item
-            name="model"
-            active={this.state.activeModel === 'model'}
-            onClick={this.handleModelTabChange}
-          >Model</Menu.Item>
-          <Menu.Item
-            href="https://docs.accordproject.org/docs/accordproject-specification.html#model"
-            target="_blank"
-            position="right"
-          >
-            <Icon name="info" />
-          </Menu.Item>
-        </Menu>
         { this.state.activeModel === 'model' ?
-          <Tab.Pane>
-            <ModelForm
-              model={model}
-              handleModelChange={this.props.handleModelChange}
-            />
-          </Tab.Pane> : null }
+          <ModelForm
+            model={model}
+            handleModelChange={this.props.handleModelChange}
+          /> : null }
       </div>
     );
     const metaTabs = () => (
