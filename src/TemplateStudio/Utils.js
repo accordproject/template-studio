@@ -22,7 +22,7 @@ import { ModelFile } from 'composer-concerto';
 
 /* Ergo */
 
-import Ergo from '@accordproject/ergo-compiler/lib/compiler.js';
+import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
 
 function getUrlVars() {
   const vars = {};
