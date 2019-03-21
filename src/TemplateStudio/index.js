@@ -478,6 +478,7 @@ class TemplateStudio extends Component {
       state.response = 'null';
       state.cstate = 'null';
       state.emit = '[]';
+      console.log('run ERROR HERE!!! ', error);
       state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
     }
     this.setState(state);
@@ -491,6 +492,7 @@ class TemplateStudio extends Component {
       console.log('Initializing contract');
       const compiledLogic = state.templateLogic;
       const contract = JSON.parse(state.data);
+      console.log('we got here ----------------------------------');
       const response = Utils.runInit(compiledLogic, contract);
       if (response.hasOwnProperty('left')) {
         state.log.execute = 'Execution successful!';
@@ -507,6 +509,7 @@ class TemplateStudio extends Component {
       state.response = 'null';
       state.cstate = 'null';
       state.emit = '[]';
+      console.log('init ERROR HERE!!! ', error);
       state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
     }
     this.setState(state);
