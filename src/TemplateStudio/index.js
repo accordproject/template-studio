@@ -14,7 +14,7 @@
 
 /* Default values */
 
-const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.8.0.cta`;
+const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.9.0.cta`;
 
 /* Utilities */
 
