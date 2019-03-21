@@ -22,7 +22,10 @@ import { ModelFile } from 'composer-concerto';
 
 /* Ergo */
 
-import Ergo from '@accordproject/ergo-compiler/lib/ergo.js';
+import { TemplateLogic } from '@accordproject/ergo-compiler';
+// import { Engine } from '@accordproject/ergo-engine';
+
+const Engine = {};
 
 function getUrlVars() {
   const vars = {};
@@ -127,44 +130,66 @@ function refreshMarkers(editor, oldMarkers, newMarkersSource) {
 
 function compileLogic(editor, markers, logic, model, log) {
   const changes = {};
-  let newMarkers = [];
+  const newMarkers = [];
   let newLogic = [];
+  if (logic.length === 0) {
+    return;
+  }
+
   try {
-    const compiledLogic = Ergo.compileToJavaScript(logic, model, 'cicero', false);
-    if (compiledLogic.hasOwnProperty('error')) {
-      const error = compiledLogic.error;
-      changes.log = logicLog(log, error.verbose);
-      logic.forEach((m) => {
-        if (error.verbose.indexOf(m.name) !== -1) {
-          const mfix = m;
-          mfix.markersSource = [];
-          mfix.markersSource.push(
-            { start: { line: error.locstart.line - 1, ch: error.locstart.character },
-              end: { line: error.locend.line - 1, ch: error.locend.character + 1 },
-              kind: { className: 'syntax-error', title: error.verbose } },
-          );
-          newMarkers = mfix.markersSource;
-          newLogic.push(mfix);
-        } else {
-          newLogic.push(m);
-        }
-      });
-    } else {
-      const compiledLogicLinked = Ergo.compileToJavaScript(logic, model, 'cicero', true);
-      changes.clogic = {
-        compiled: compiledLogic.success,
-        compiledLinked: compiledLogicLinked.success,
-      };
-      logic.forEach((m) => {
-        const mfix = m;
-        mfix.markersSource = [];
-        newMarkers = mfix.markersSource;
-        newLogic.push(mfix);
-      });
-      newLogic = logic;
-      changes.log = logicLog(log, 'Compilation successful');
-    }
+    const templateLogic = new TemplateLogic('es5');
+    const modelNames = [];
+    const modelContent = [];
+    model.forEach((m) => {
+      modelNames.push(m.name);
+      modelContent.push(m.content);
+    });
+    logic.forEach((l) => {
+      console.log('CONTENT IN LOOP: ', l.content);
+      console.log('NAME IN LOOP: ', l.name);
+      templateLogic.addLogicFile(l.content, l.name);
+    });
+    templateLogic.addModelFiles(modelContent, modelNames);
+    templateLogic.compileLogicSync(true);
+    console.log('TEMPLATE AFTER COMPILE: ', templateLogic);
+    changes.templateLogic = templateLogic;
+
+    // const compiledLogic = Ergo.compileToJavaScript(logic, model, 'cicero', false);
+    // if (compiledLogic.hasOwnProperty('error')) {
+    //   const error = compiledLogic.error;
+    //   changes.log = logicLog(log, error.verbose);
+    //   logic.forEach((m) => {
+    //     if (error.verbose.indexOf(m.name) !== -1) {
+    //       const mfix = m;
+    //       mfix.markersSource = [];
+    //       mfix.markersSource.push(
+    //         { start: { line: error.locstart.line - 1, ch: error.locstart.character },
+    //           end: { line: error.locend.line - 1, ch: error.locend.character + 1 },
+    //           kind: { className: 'syntax-error', title: error.verbose } },
+    //       );
+    //       newMarkers = mfix.markersSource;
+    //       newLogic.push(mfix);
+    //     } else {
+    //       newLogic.push(m);
+    //     }
+    //   });
+    // } else {
+    //   const compiledLogicLinked = Ergo.compileToJavaScript(logic, model, 'cicero', true);
+    //   changes.clogic = {
+    //     compiled: compiledLogic.success,
+    //     compiledLinked: compiledLogicLinked.success,
+    //   };
+    //   logic.forEach((m) => {
+    //     const mfix = m;
+    //     mfix.markersSource = [];
+    //     newMarkers = mfix.markersSource;
+    //     newLogic.push(mfix);
+    //   });
+    //   newLogic = logic;
+    //   changes.log = logicLog(log, 'Compilation successful');
+    // }
   } catch (error) {
+    console.log(error);
     newLogic = logic;
     changes.log = logicLog(log, `Compilation error ${error.message}`);
   }
@@ -174,17 +199,39 @@ function compileLogic(editor, markers, logic, model, log) {
 }
 
 function runLogic(compiledLogic, contract, request, cstate) {
+  console.log('GOT HERE: RUN LOGIC');
   const params = { contract, request, state: cstate, emit: [], now: moment() }; // eslint-disable-line no-unused-vars
   const clauseCall = 'dispatch(params);'; // Create the clause call
   const response = eval(compiledLogic + clauseCall); // Call the logic
   return response;
 }
 
-function runInit(compiledLogic, contract) {
+function runInit(templateLogic, contract) {
+  console.log('CONTRACT HERE: ', contract);
+
+  // __init({ contract: data, emit: [], now, request: null });
+
+
   const params = { contract, request: null, state: null, emit: [], now: moment() }; // eslint-disable-line no-unused-vars
-  const clauseCall = 'init(params);'; // Create the clause call
-  const response = eval(compiledLogic + clauseCall); // Call the logic
-  return response;
+  // const engine = new Engine();
+  // const scriptManager = templateLogic.getScriptManager();
+  // engine.compileJsLogic(scriptManager, contract.contractId)
+  // templateLogic.compileLogicSync(true);
+  templateLogic.scriptManager.getCompiledScript().getContents();
+
+  // console.log('TEMPLATE LOGIC GET INIT CALL: ', templateLogic.getLogic());
+
+
+  // return engine.init(templateLogic, contract.contractId, contract, moment());
+
+
+  const clauseCall = `${templateLogic.scriptManager.getCompiledScript().getContents()}const data = ${JSON.stringify(contract)};const now = moment.parseZone();${templateLogic.getInitCall()}`;
+  console.log('EVAL JAVASCRIPT: ', clauseCall);
+  return eval(clauseCall);
+
+  // const clauseCall = 'init(params);'; // Create the clause call
+  // const response = eval(compiledLogic + clauseCall); // Call the logic
+  // return response;
 }
 
 function updateRequest(clause, oldrequest, request) {

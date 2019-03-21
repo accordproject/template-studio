@@ -69,7 +69,7 @@ class TemplateStudio extends Component {
       cstate: 'null',
       response: JSON.stringify(null, null, 2),
       emit: '[]',
-      clogic: { compiled: '', compiledLinked: '' },
+      templateLogic: null,
       status: 'empty',
       loading: false,
       markers: [],
@@ -458,7 +458,7 @@ class TemplateStudio extends Component {
     // compiles & the state/request are valid JSON first
     const state = this.state;
     try {
-      const compiledLogic = state.clogic.compiledLinked;
+      const compiledLogic = state.templateLogic;
       const contract = JSON.parse(state.data);
       const request = JSON.parse(state.request);
       const cstate = JSON.parse(state.cstate);
@@ -489,7 +489,7 @@ class TemplateStudio extends Component {
     const state = this.state;
     try {
       console.log('Initializing contract');
-      const compiledLogic = state.clogic.compiledLinked;
+      const compiledLogic = state.templateLogic;
       const contract = JSON.parse(state.data);
       const response = Utils.runInit(compiledLogic, contract);
       if (response.hasOwnProperty('left')) {
