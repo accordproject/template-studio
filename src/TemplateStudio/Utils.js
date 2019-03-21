@@ -25,7 +25,7 @@ import { ModelFile } from 'composer-concerto';
 import { TemplateLogic } from '@accordproject/ergo-compiler';
 // import { Engine } from '@accordproject/ergo-engine';
 
-const Engine = {};
+// const Engine = {};
 
 function getUrlVars() {
   const vars = {};
@@ -145,8 +145,6 @@ function compileLogic(editor, markers, logic, model, log) {
       modelContent.push(m.content);
     });
     logic.forEach((l) => {
-      console.log('CONTENT IN LOOP: ', l.content);
-      console.log('NAME IN LOOP: ', l.name);
       templateLogic.addLogicFile(l.content, l.name);
     });
     templateLogic.addModelFiles(modelContent, modelNames);
@@ -217,15 +215,17 @@ function runInit(templateLogic, contract) {
   // const scriptManager = templateLogic.getScriptManager();
   // engine.compileJsLogic(scriptManager, contract.contractId)
   // templateLogic.compileLogicSync(true);
-  templateLogic.scriptManager.getCompiledScript().getContents();
+  // templateLogic.scriptManager.getCompiledScript().getContents();
 
   // console.log('TEMPLATE LOGIC GET INIT CALL: ', templateLogic.getLogic());
 
-
   // return engine.init(templateLogic, contract.contractId, contract, moment());
+  const contentGet = templateLogic.scriptManager.getCompiledScript().getContents();
+  const jContract = JSON.stringify(contract);
+  const nowTime = moment().format();
+  const callInit = templateLogic.getInitCall();
 
-
-  const clauseCall = `${templateLogic.scriptManager.getCompiledScript().getContents()}const data = ${JSON.stringify(contract)};const now = moment.parseZone();${templateLogic.getInitCall()}`;
+  const clauseCall = `${contentGet}const data = ${jContract};const now = ${nowTime};${callInit}`;
   console.log('EVAL JAVASCRIPT: ', clauseCall);
   return eval(clauseCall);
 
