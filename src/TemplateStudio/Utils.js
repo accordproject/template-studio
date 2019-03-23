@@ -225,7 +225,7 @@ function runInit(templateLogic, contract) {
   const nowTime = moment().format();
   const callInit = templateLogic.getInitCall();
 
-  const clauseCall = `${contentGet}const data = ${jContract};const now = ${nowTime};${callInit}`;
+  const clauseCall = `const now = '${nowTime}'; const utcOffset = moment.parseZone(now).utcOffset();${contentGet}const data = ${jContract};${callInit}`;
   console.log('EVAL JAVASCRIPT: ', clauseCall);
   return eval(clauseCall);
 
