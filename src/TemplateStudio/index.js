@@ -515,7 +515,7 @@ class TemplateStudio extends Component {
   loadTemplateLibrary() {
     const templateLibrary = new TemplateLibrary();
     const promisedIndex =
-              templateLibrary.getTemplateIndex({ latestVersion: true, ciceroVersion });
+          templateLibrary.getTemplateIndex({ latestVersion: false, ciceroVersion });
     return promisedIndex.then((templateIndex) => {
       const templates = [];
       for (const t in templateIndex) {
