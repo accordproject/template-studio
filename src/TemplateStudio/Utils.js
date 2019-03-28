@@ -23,9 +23,7 @@ import { ModelFile } from 'composer-concerto';
 /* Ergo */
 
 import { TemplateLogic } from '@accordproject/ergo-compiler';
-// import { Engine } from '@accordproject/ergo-engine';
-
-// const Engine = {};
+import { EvalEngine } from '@accordproject/ergo-engine/index.browser.js';
 
 function getUrlVars() {
   const vars = {};
@@ -137,7 +135,7 @@ function compileLogic(editor, markers, logic, model, log) {
   }
 
   try {
-    const templateLogic = new TemplateLogic('es5');
+    const templateLogic = new TemplateLogic('cicero');
     const modelNames = [];
     const modelContent = [];
     model.forEach((m) => {
@@ -149,7 +147,6 @@ function compileLogic(editor, markers, logic, model, log) {
     });
     templateLogic.addModelFiles(modelContent, modelNames);
     templateLogic.compileLogicSync(true);
-    console.log('TEMPLATE AFTER COMPILE: ', templateLogic);
     changes.templateLogic = templateLogic;
 
     // const compiledLogic = Ergo.compileToJavaScript(logic, model, 'cicero', false);
@@ -186,6 +183,7 @@ function compileLogic(editor, markers, logic, model, log) {
     //   newLogic = logic;
     //   changes.log = logicLog(log, 'Compilation successful');
     // }
+    newLogic = logic;
   } catch (error) {
     console.log(error);
     newLogic = logic;
@@ -196,42 +194,16 @@ function compileLogic(editor, markers, logic, model, log) {
   return changes;
 }
 
-function runLogic(compiledLogic, contract, request, cstate) {
-  console.log('GOT HERE: RUN LOGIC');
-  const params = { contract, request, state: cstate, emit: [], now: moment() }; // eslint-disable-line no-unused-vars
-  const clauseCall = 'dispatch(params);'; // Create the clause call
-  const response = eval(compiledLogic + clauseCall); // Call the logic
-  return response;
+async function runLogic(templateLogic, contract, request, cstate) {
+  const engine = new EvalEngine();
+  const result = await engine.execute(templateLogic, 'test', contract, request, cstate, moment().format());
+  return result;
 }
 
-function runInit(templateLogic, contract) {
-  console.log('CONTRACT HERE: ', contract);
-
-  // __init({ contract: data, emit: [], now, request: null });
-
-
-  const params = { contract, request: null, state: null, emit: [], now: moment() }; // eslint-disable-line no-unused-vars
-  // const engine = new Engine();
-  // const scriptManager = templateLogic.getScriptManager();
-  // engine.compileJsLogic(scriptManager, contract.contractId)
-  // templateLogic.compileLogicSync(true);
-  // templateLogic.scriptManager.getCompiledScript().getContents();
-
-  // console.log('TEMPLATE LOGIC GET INIT CALL: ', templateLogic.getLogic());
-
-  // return engine.init(templateLogic, contract.contractId, contract, moment());
-  const contentGet = templateLogic.scriptManager.getCompiledScript().getContents();
-  const jContract = JSON.stringify(contract);
-  const nowTime = moment().format();
-  const callInit = templateLogic.getInitCall();
-
-  const clauseCall = `const now = '${nowTime}'; const utcOffset = moment.parseZone(now).utcOffset();${contentGet}const data = ${jContract};${callInit}`;
-  console.log('EVAL JAVASCRIPT: ', clauseCall);
-  return eval(clauseCall);
-
-  // const clauseCall = 'init(params);'; // Create the clause call
-  // const response = eval(compiledLogic + clauseCall); // Call the logic
-  // return response;
+async function runInit(templateLogic, contract) {
+  const engine = new EvalEngine();
+  const response = await engine.init(templateLogic, 'test', contract, {}, moment().format());
+  return response;
 }
 
 function updateRequest(clause, oldrequest, request) {
