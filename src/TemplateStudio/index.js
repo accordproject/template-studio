@@ -457,62 +457,49 @@ class TemplateStudio extends Component {
     // XXX Should check whether the NL parses & the logic
     // compiles & the state/request are valid JSON first
     const state = this.state;
-    try {
-      const compiledLogic = state.templateLogic;
-      const contract = JSON.parse(state.data);
-      const request = JSON.parse(state.request);
-      const cstate = JSON.parse(state.cstate);
-      const response = Utils.runLogic(compiledLogic, contract, request, cstate);
-      if (response.hasOwnProperty('left')) {
+    const compiledLogic = state.templateLogic;
+    const contract = JSON.parse(state.data);
+    const request = JSON.parse(state.request);
+    const cstate = JSON.parse(state.cstate);
+    Utils.runLogic(compiledLogic, contract, request, cstate)
+      .then((response) => {
         state.log.execute = 'Execution successful!';
-        state.response = JSON.stringify(response.left.response, null, 2);
-        state.cstate = JSON.stringify(response.left.state, null, 2);
-        state.emit = JSON.stringify(response.left.emit, null, 2);
-      } else {
+        state.response = JSON.stringify(response.response, null, 2);
+        state.cstate = JSON.stringify(response.state, null, 2);
+        state.emit = JSON.stringify(response.emit, null, 2);
+        this.setState(state);
+      }).catch((error) => {
         state.response = 'null';
         state.cstate = 'null';
         state.emit = '[]';
-        state.log.execute = `[Ergo Error] ${JSON.stringify(response.right)}`;
-      }
-    } catch (error) {
-      state.response = 'null';
-      state.cstate = 'null';
-      state.emit = '[]';
-      console.log('run ERROR HERE!!! ', error);
-      state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
-    }
-    this.setState(state);
+        console.log('run ERROR HERE!!! ', error);
+        state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
+        this.setState(state);
+      });
   }
 
   handleInitLogic() {
     // XXX Should check whether the NL parses & the logic
     // compiles & the state/request are valid JSON first
     const state = this.state;
-    try {
-      console.log('Initializing contract');
-      const compiledLogic = state.templateLogic;
-      const contract = JSON.parse(state.data);
-      console.log('we got here ----------------------------------');
-      const response = Utils.runInit(compiledLogic, contract);
-      if (response.hasOwnProperty('left')) {
+    console.log('Initializing contract');
+    const compiledLogic = state.templateLogic;
+    const contract = JSON.parse(state.data);
+    Utils.runInit(compiledLogic, contract)
+      .then((response) => {
         state.log.execute = 'Execution successful!';
-        state.response = JSON.stringify(response.left.response, null, 2);
-        state.cstate = JSON.stringify(response.left.state, null, 2);
-        state.emit = JSON.stringify(response.left.emit, null, 2);
-      } else {
+        state.response = JSON.stringify(response.response, null, 2);
+        state.cstate = JSON.stringify(response.state, null, 2);
+        state.emit = JSON.stringify(response.emit, null, 2);
+        this.setState(state);
+      }).catch((error) => {
         state.response = 'null';
         state.cstate = 'null';
         state.emit = '[]';
-        state.log.execute = `[Ergo Error] ${JSON.stringify(response.right)}`;
-      }
-    } catch (error) {
-      state.response = 'null';
-      state.cstate = 'null';
-      state.emit = '[]';
-      console.log('init ERROR HERE!!! ', error);
-      state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
-    }
-    this.setState(state);
+        console.log('init ERROR HERE!!! ', error);
+        state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
+        this.setState(state);
+      });
   }
 
   loadTemplateLibrary() {
