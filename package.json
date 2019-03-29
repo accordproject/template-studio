@@ -18,8 +18,8 @@
   "dependencies": {
     "@accordproject/cicero-core": "0.11.1",
     "@accordproject/cicero-template-library": "git+https://git@github.com/accordproject/cicero-template-library.git",
-    "@accordproject/ergo-compiler": "0.7.4-20190328211107",
-    "@accordproject/ergo-engine": "0.7.4-20190328211107",
+    "@accordproject/ergo-compiler": "0.7.4-20190329142625",
+    "@accordproject/ergo-engine": "0.7.4-20190329142625",
     "codemirror": "^5.40.2",
     "composer-concerto": "0.70.1",
     "file-saver": "^2.0.0-rc.3",

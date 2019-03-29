@@ -400,8 +400,8 @@ class TemplateStudio extends Component {
       try {
         this.setState(Utils.parseSample(clause, this.state.text, this.state.log));
         try {
-          const { markers, logic, log } = this.state;
-          const changesLogic = Utils.compileLogic(editor, markers, logic, this.state.model, log);
+            const { markers, logic, log, model } = this.state;
+          const changesLogic = Utils.compileLogic(editor, markers, logic, model, log);
           this.setState(changesLogic);
         } catch (error) {
           console.log(`ERROR! ${error.message}`);
@@ -470,9 +470,8 @@ class TemplateStudio extends Component {
         this.setState(state);
       }).catch((error) => {
         state.response = 'null';
-        state.cstate = 'null';
+        state.cstate = 'null'; // XXX SHOULD NOT CHANGE STATE!
         state.emit = '[]';
-        console.log('run ERROR HERE!!! ', error);
         state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
         this.setState(state);
       });
@@ -496,7 +495,6 @@ class TemplateStudio extends Component {
         state.response = 'null';
         state.cstate = 'null';
         state.emit = '[]';
-        console.log('init ERROR HERE!!! ', error);
         state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
         this.setState(state);
       });
