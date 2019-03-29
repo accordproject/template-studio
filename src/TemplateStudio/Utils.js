@@ -159,7 +159,6 @@ function compileLogic(editor, markers, logic, model, log) {
       } catch (error) {
           const message = error.message;
           const descriptor = error.descriptor;
-          console.log(`ERROR DESCRIPTOR is ${JSON.stringify(descriptor)}`);
           changes.log = logicLog(log, message);
           logic.forEach((m) => {
               if (message.indexOf(m.name) !== -1) {
