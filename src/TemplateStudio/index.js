@@ -470,7 +470,7 @@ class TemplateStudio extends Component {
         this.setState(state);
       }).catch((error) => {
         state.response = 'null';
-        state.cstate = 'null'; // XXX SHOULD NOT CHANGE STATE!
+        // state.cstate = 'null'; // XXX State should remain the initial state if execution fails
         state.emit = '[]';
         state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
         this.setState(state);
