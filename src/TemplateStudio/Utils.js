@@ -128,64 +128,57 @@ function refreshMarkers(editor, oldMarkers, newMarkersSource) {
 
 function compileLogic(editor, markers, logic, model, log) {
   const changes = {};
-  const newMarkers = [];
+  let newMarkers = [];
   let newLogic = [];
   if (logic.length === 0) {
     return;
   }
 
   try {
-    const templateLogic = new TemplateLogic('cicero');
-    const modelNames = [];
-    const modelContent = [];
-    model.forEach((m) => {
-      modelNames.push(m.name);
-      modelContent.push(m.content);
-    });
-    logic.forEach((l) => {
-      templateLogic.addLogicFile(l.content, l.name);
-    });
-    templateLogic.addModelFiles(modelContent, modelNames);
-    templateLogic.compileLogicSync(true);
-    changes.templateLogic = templateLogic;
-
-    // const compiledLogic = Ergo.compileToJavaScript(logic, model, 'cicero', false);
-    // if (compiledLogic.hasOwnProperty('error')) {
-    //   const error = compiledLogic.error;
-    //   changes.log = logicLog(log, error.verbose);
-    //   logic.forEach((m) => {
-    //     if (error.verbose.indexOf(m.name) !== -1) {
-    //       const mfix = m;
-    //       mfix.markersSource = [];
-    //       mfix.markersSource.push(
-    //         { start: { line: error.locstart.line - 1, ch: error.locstart.character },
-    //           end: { line: error.locend.line - 1, ch: error.locend.character + 1 },
-    //           kind: { className: 'syntax-error', title: error.verbose } },
-    //       );
-    //       newMarkers = mfix.markersSource;
-    //       newLogic.push(mfix);
-    //     } else {
-    //       newLogic.push(m);
-    //     }
-    //   });
-    // } else {
-    //   const compiledLogicLinked = Ergo.compileToJavaScript(logic, model, 'cicero', true);
-    //   changes.clogic = {
-    //     compiled: compiledLogic.success,
-    //     compiledLinked: compiledLogicLinked.success,
-    //   };
-    //   logic.forEach((m) => {
-    //     const mfix = m;
-    //     mfix.markersSource = [];
-    //     newMarkers = mfix.markersSource;
-    //     newLogic.push(mfix);
-    //   });
-    //   newLogic = logic;
-    //   changes.log = logicLog(log, 'Compilation successful');
-    // }
-    newLogic = logic;
+      const templateLogic = new TemplateLogic('cicero');
+      const modelNames = [];
+      const modelContent = [];
+      model.forEach((m) => {
+          modelNames.push(m.name);
+          modelContent.push(m.content);
+      });
+      logic.forEach((l) => {
+          templateLogic.addLogicFile(l.content, l.name);
+      });
+      templateLogic.addModelFiles(modelContent, modelNames);
+      try {
+          templateLogic.compileLogicSync(true);
+          logic.forEach((m) => {
+              const mfix = m;
+              mfix.markersSource = [];
+              newMarkers = mfix.markersSource;
+              newLogic.push(mfix);
+          });
+          newLogic = logic;
+          changes.log = logicLog(log, 'Compilation successful');
+      } catch (error) {
+          const message = error.message;
+          const descriptor = error.descriptor;
+          console.log(`ERROR DESCRIPTOR is ${JSON.stringify(descriptor)}`);
+          changes.log = logicLog(log, message);
+          logic.forEach((m) => {
+              if (message.indexOf(m.name) !== -1) {
+                  const mfix = m;
+                  mfix.markersSource = [];
+                  mfix.markersSource.push(
+                      { start: { line: descriptor.locstart.line - 1, ch: descriptor.locstart.character },
+                        end: { line: descriptor.locend.line - 1, ch: descriptor.locend.character + 1 },
+                        kind: { className: 'syntax-error', title: descriptor.verbose } },
+                  );
+                  newMarkers = mfix.markersSource;
+                  newLogic.push(mfix);
+              } else {
+                  newLogic.push(m);
+              }
+          });
+      }
+      changes.templateLogic = templateLogic;
   } catch (error) {
-    console.log(error);
     newLogic = logic;
     changes.log = logicLog(log, `Compilation error ${error.message}`);
   }
