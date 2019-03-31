@@ -66,7 +66,6 @@ class ExecuteForm extends Form {
 
   render() {
     const { request, cstate, response, emit, model } = this.props;
-    console.log(emit);
     const obligations = JSON.parse(emit).map((obligation, index) =>
       (<CtoInput
         key={index}
