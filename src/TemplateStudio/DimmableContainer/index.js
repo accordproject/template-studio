@@ -178,6 +178,7 @@ class DimmableContainer extends React.Component {
               cstate={cstate}
               response={response}
               emit={emit}
+              model={model}
               handleRequestChange={this.props.handleRequestChange}
               handleStateChange={this.props.handleStateChange}
               handleResponseChange={this.handleResponseChange}

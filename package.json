@@ -22,6 +22,7 @@
     "@accordproject/ergo-engine": "0.7.4-20190401202717",
     "codemirror": "^5.40.2",
     "composer-concerto": "0.70.2",
+    "concerto-form-react": "^0.3.9",
     "file-saver": "^2.0.0-rc.3",
     "filepond": "^3.2.5",
     "fs-extra": "^7.0.1",

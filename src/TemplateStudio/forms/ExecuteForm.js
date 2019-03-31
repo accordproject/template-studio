@@ -14,7 +14,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import JsonInput from '../inputs/JsonInput';
+import CtoInput from '../inputs/CtoInput';
 import { Form, Divider, Grid, Button, Tab, Icon } from 'semantic-ui-react';
 
 class ExecuteForm extends Form {
@@ -52,8 +52,30 @@ class ExecuteForm extends Form {
     this.props.handleInitLogic(text);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.response !== this.props.response) {
+      this.handleResponseChange(nextProps.response);
+    }
+    if (nextProps.cstate !== this.props.cstate) {
+      this.handleStateChange(nextProps.cstate);
+    }
+    if (nextProps.emit !== this.props.emit) {
+      this.handleEmitChange(nextProps.emit);
+    }
+  }
+
   render() {
-    const { request, cstate, response, emit } = this.props;
+    const { request, cstate, response, emit, model } = this.props;
+    console.log(emit);
+    const obligations = JSON.parse(emit).map((obligation, index) =>
+      (<CtoInput
+        key={index}
+        json={JSON.stringify(obligation)}
+        model={model[0].content}
+        handleJSONChange={this.handleEmitChange}
+        readOnly
+      />),
+    );
     return (
       <Tab.Pane>
         <Button size="small" type="submit" color="blue" onClick={this.handleRunLogic} compact><Icon name="send" /> Send Request</Button>
@@ -65,8 +87,9 @@ class ExecuteForm extends Form {
               <Form.Field>
                 <label>Request</label>
               </Form.Field>
-              <JsonInput
+              <CtoInput
                 json={request}
+                model={model[0].content}
                 handleJSONChange={this.handleRequestChange}
               />
             </Grid.Column>
@@ -74,9 +97,11 @@ class ExecuteForm extends Form {
               <Form.Field>
                 <label>Response</label>
               </Form.Field>
-              <JsonInput
+              <CtoInput
                 json={response}
+                model={model[0].content}
                 handleJSONChange={this.handleResponseChange}
+                readOnly
               />
             </Grid.Column>
           </Grid.Row>
@@ -85,8 +110,9 @@ class ExecuteForm extends Form {
               <Form.Field>
                 <label>Contract State</label>
               </Form.Field>
-              <JsonInput
+              <CtoInput
                 json={cstate}
+                model={model[0].content}
                 handleJSONChange={this.handleStateChange}
               />
             </Grid.Column>
@@ -94,10 +120,7 @@ class ExecuteForm extends Form {
               <Form.Field>
                 <label>Obligations</label>
               </Form.Field>
-              <JsonInput
-                json={emit}
-                handleJSONChange={this.handleEmitChange}
-              />
+              {obligations}
             </Grid.Column>
           </Grid.Row>
         </Grid>
