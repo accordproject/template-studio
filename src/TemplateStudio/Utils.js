@@ -98,6 +98,38 @@ function updateSample(clause, sample) {
   return false;
 }
 
+function updateRequest(clause, oldrequest, request) {
+  if (oldrequest !== request) {
+    try {
+      clause.getTemplate().setRequest(JSON.parse(request));
+    } catch (error) {
+      console.log(`Update request error: ${error}`);
+    }
+    return true;
+  }
+  return false;
+}
+function updateModel(clause, name, newcontent, grammar) {
+    const template = clause.getTemplate();
+    const templateLogic = template.getTemplateLogic();
+    try {
+        templateLogic.updateModel(newcontent, name);
+        // XXX Have to re-generate the grammar if the model changes
+        clause.getTemplate().buildGrammar(grammar);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+function updateLogic(clause, name, content) {
+  const scriptManager = clause.getTemplate().getScriptManager();
+  if (scriptManager.getScript(name).getContents() !== content) {
+    scriptManager.modifyScript(name, '.ergo', content);
+    return true;
+  }
+  return false;
+}
+
 function generateText(clause, data, log) {
   const changes = {};
   try {
@@ -196,47 +228,6 @@ async function runInit(templateLogic, contract) {
   const engine = new EvalEngine();
   const response = await engine.init(templateLogic, 'test', contract, {}, moment().format());
   return response;
-}
-
-function updateRequest(clause, oldrequest, request) {
-  if (oldrequest !== request) {
-    try {
-      clause.getTemplate().setRequest(JSON.parse(request));
-    } catch (error) {
-      console.log(`Update request error: ${error}`);
-    }
-    return true;
-  }
-  return false;
-}
-function updateModel(clause, name, oldcontent, newcontent, grammar) {
-  const modelManager = clause.getTemplate().getModelManager();
-  try {
-    if (oldcontent !== newcontent) {
-      modelManager.validateModelFile(newcontent, name);
-      const oldNamespace = new ModelFile(modelManager, oldcontent, name).getNamespace();
-      const newNamespace = new ModelFile(modelManager, newcontent, name).getNamespace();
-      if (oldNamespace === newNamespace) {
-        modelManager.updateModelFile(newcontent, name, true);
-      } else {
-        modelManager.deleteModelFile(oldNamespace);
-        modelManager.addModelFile(newcontent, name, true);
-      }
-      // XXX Have to re-generate the grammar if the model changes
-      clause.getTemplate().buildGrammar(grammar);
-    }
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-function updateLogic(clause, name, content) {
-  const scriptManager = clause.getTemplate().getScriptManager();
-  if (scriptManager.getScript(name).getContents() !== content) {
-    scriptManager.modifyScript(name, '.ergo', content);
-    return true;
-  }
-  return false;
 }
 
 export {
