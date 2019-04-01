@@ -360,6 +360,7 @@ class TemplateStudio extends Component {
 
   handleModelChange(editor, name, model) {
     const clause = this.state.clause;
+    const templateLogic = this.state.templateLogic;
     const oldModel = this.state.model;
     const newModel = [];
     let modelFails = false;
@@ -368,7 +369,7 @@ class TemplateStudio extends Component {
     oldModel.forEach((m) => {
       if (m.name === name) {
         try {
-          if (Utils.updateModel(clause, name, m.content, model, this.state.grammar)) {
+            if (Utils.updateModel(clause, 'models/'+name, model, this.state.grammar)) {
             status = 'changed';
             logModel = 'Load model successful';
           }
