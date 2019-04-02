@@ -1,4 +1,4 @@
-3.{
+{
   "name": "template-studio",
   "version": "0.0.1",
   "description": "",
@@ -21,7 +21,7 @@
     "@accordproject/ergo-compiler": "0.6.3",
     "codemirror": "^5.40.2",
     "composer-concerto": "0.70.2",
-    "concerto-form-react": "^0.3.8",
+    "concerto-form-react": "^0.3.9",
     "file-saver": "^2.0.0-rc.3",
     "filepond": "^3.2.5",
     "fs-extra": "^7.0.1",

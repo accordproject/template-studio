@@ -67,13 +67,15 @@ class ExecuteForm extends Form {
   render() {
     const { request, cstate, response, emit, model } = this.props;
     const obligations = JSON.parse(emit).map((obligation, index) =>
-      (<CtoInput
-        key={index}
-        json={JSON.stringify(obligation)}
-        model={model[0].content}
-        handleJSONChange={this.handleEmitChange}
-        readOnly
-      />),
+      (<div key={index}>
+        <CtoInput
+          json={JSON.stringify(obligation)}
+          model={model[0].content}
+          handleJSONChange={this.handleEmitChange}
+          readOnly
+        />
+        <Divider />
+      </div>),
     );
     return (
       <Tab.Pane>
