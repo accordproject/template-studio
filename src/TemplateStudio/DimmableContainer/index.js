@@ -132,12 +132,13 @@ class DimmableContainer extends React.Component {
               handleTextChange={this.props.handleGrammarChange}
             />
           </Tab.Pane> :
-          this.state.activeLegal === 'sample' ?
+          !this.state.loading && this.state.activeLegal === 'sample' ?
             <ParseForm
               text={text}
               grammar={grammar}
               log={log.text}
               data={data}
+              model={model}
               handleSampleChange={this.props.handleSampleChange}
               handleJSONChange={this.props.handleJSONChange}
             /> : null }
@@ -172,7 +173,7 @@ class DimmableContainer extends React.Component {
               handleLogicChange={this.props.handleLogicChange}
             />
           </Tab.Pane> :
-          this.state.activeLogic === 'execution' ?
+          !this.state.loading && this.state.activeLogic === 'execution' ?
             <ExecuteForm
               request={request}
               cstate={cstate}

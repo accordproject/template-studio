@@ -20,11 +20,12 @@ class CtoInput extends Component {
   constructor(props) {
     super(props);
     this.form = React.createRef();
-    this.onModelChange = this.onModelChange.bind(this);
     this.onValueChange = this.onValueChange.bind(this);
+    this.onModelChange = this.onModelChange.bind(this);
   }
 
-  onModelChange() {
+  onModelChange(modelProps) {
+    this.setState(modelProps);
   }
 
   onValueChange(json) {
@@ -37,10 +38,10 @@ class CtoInput extends Component {
     return (json &&
       <ConcertoForm
         ref={this.form}
-        model={json.$class}
-        modelFile={this.props.model}
-        onModelChange={this.onModelChange}
         onValueChange={this.onValueChange}
+        onModelChange={this.onModelChange}
+        type={json.$class}
+        model={this.props.model}
         json={json}
         options={this.props.options}
         readOnly={this.props.readOnly}
