@@ -14,7 +14,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import JsonInput from '../inputs/JsonInput';
+import CtoInput from '../inputs/CtoInput';
 import SampleInput from '../inputs/SampleInput';
 import { Form, Divider, Tab } from 'semantic-ui-react';
 
@@ -34,7 +34,7 @@ class ParseForm extends Form {
   }
 
   render() {
-    const { text, data } = this.props;
+    const { text, data, model } = this.props;
     return (
       <Tab.Pane>
         <SampleInput
@@ -45,8 +45,9 @@ class ParseForm extends Form {
         <Form.Field>
           <label>Contract Data</label>
         </Form.Field>
-        <JsonInput
+        <CtoInput
           json={data}
+          model={model[0].content}
           handleJSONChange={this.handleJSONChange}
         />
       </Tab.Pane>
