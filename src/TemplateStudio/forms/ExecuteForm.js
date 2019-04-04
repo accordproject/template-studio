@@ -92,6 +92,7 @@ class ExecuteForm extends Form {
                 json={request}
                 model={model[0].content}
                 handleJSONChange={this.handleRequestChange}
+                showSelect
               />
             </Grid.Column>
             <Grid.Column>
