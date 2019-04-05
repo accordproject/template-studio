@@ -14,7 +14,7 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ConcertoForm } from 'concerto-form-react';
+import { ConcertoForm } from '@accordproject/concerto-ui-react';
 import { Tab, Message } from 'semantic-ui-react';
 import JsonInput from '../inputs/JsonInput';
 
