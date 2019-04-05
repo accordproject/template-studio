@@ -14,7 +14,7 @@
 
 /* Libraries */
 
-import moment from 'moment'; // For DateTime support during contract execution
+import moment from 'moment-mini'; // For DateTime support during contract execution
 
 /* Concerto */
 
