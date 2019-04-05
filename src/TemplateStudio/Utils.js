@@ -75,11 +75,14 @@ function logicLog(log, msg) {
 function parseSample(clause, text, log) {
   const changes = {};
   try {
+    console.log('PARSING SAMPLE TEXT: ' + text);
     clause.parse(text);
     changes.data = JSON.stringify(clause.getData(), null, 2);
+    console.log('SUCCESS AND DATA IS : ' + changes.data);
     changes.log = textLog(log, 'Parse successful!');
     changes.text = text;
   } catch (error) {
+    console.log('FAILURE!' + error.message);
     changes.data = 'null';
     changes.log = textLog(log, `[Parse Contract] ${error.message}`);
     changes.text = text;

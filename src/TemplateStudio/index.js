@@ -14,7 +14,7 @@
 
 /* Default values */
 
-const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.9.0.cta`;
+const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.10.0.cta`;
 
 /* Utilities */
 
@@ -145,7 +145,7 @@ class TemplateStudio extends Component {
       const stringifiedPackage = JSON.stringify(packageJson, null, 2);
       const templateName = packageJson.name;
       const templateVersion = packageJson.version;
-      const templateType = packageJson.cicero.template;
+      const templateType = packageJson.accordproject.template;
       // Make sure to try re-parsing
       const stateChanges = Utils.parseSample(this.state.clause, this.state.text, { ...this.state.log, meta: 'package.json change successful!' });
       this.setState({
@@ -228,7 +228,7 @@ class TemplateStudio extends Component {
   handleTypeChange(e, input) {
     try {
       const packageJson = JSON.parse(this.state.package);
-      packageJson.cicero.template = input.value;
+      packageJson.accordproject.template = input.value;
       this.state.clause.getTemplate().setPackageJson(packageJson);
       const stringifiedPackage = JSON.stringify(packageJson, null, 2);
       const status = 'changed';
@@ -303,7 +303,7 @@ class TemplateStudio extends Component {
         const logText = 'Grammar change successful!';
         let changes = {};
         if (data !== 'null') {
-          clause.getTemplate().buildGrammar(text);
+          clause.getTemplate().getParserManager().buildGrammar(text);
           changes = Utils.generateText(clause, data, { ...this.state.log, text: logText });
           if (changes.log.text.indexOf('successful') === -1) {
             throw new Error('Error generating text from this new grammar');
@@ -320,7 +320,7 @@ class TemplateStudio extends Component {
           console.log(`Error building grammar ${error1.message}`);
           const status = 'changed';
           const template = clause.getTemplate();
-          template.buildGrammar(text);
+          template.getParserManager().buildGrammar(text);
           const log = { ...this.state.log, text: `[Change Template] ${error1.message}` };
           const changesText = Utils.parseSample(clause, this.state.text, log);
           this.setState({
@@ -536,7 +536,7 @@ class TemplateStudio extends Component {
       state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
       state.templateType = state.clause.getTemplate().getMetadata().getTemplateType();
       state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
-      state.grammar = template.getTemplatizedGrammar();
+      state.grammar = template.getParserManager().getTemplatizedGrammar();
       state.model = template.getModelManager().getModels();
       state.logic = template.getScriptManager().getLogic();
       state.text = template.getMetadata().getSamples().default;
@@ -582,7 +582,7 @@ class TemplateStudio extends Component {
       state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
       state.templateType = state.clause.getTemplate().getMetadata().getTemplateType();
       state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
-      state.grammar = template.getTemplatizedGrammar();
+      state.grammar = template.getParserManager().getTemplatizedGrammar();
       state.model = template.getModelManager().getModels();
       state.logic = template.getScriptManager().getLogic();
       state.text = template.getMetadata().getSamples().default;
