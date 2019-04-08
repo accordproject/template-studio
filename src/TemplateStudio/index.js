@@ -399,6 +399,7 @@ class TemplateStudio extends Component {
     });
     if (!modelFails) {
       try {
+        clause.getTemplate().getParserManager().buildGrammar(this.state.grammar);
         this.setState(Utils.parseSample(clause, this.state.text, this.state.log));
         try {
             const { markers, logic, log, model } = this.state;
