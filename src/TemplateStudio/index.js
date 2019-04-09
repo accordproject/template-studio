@@ -90,7 +90,7 @@ class TemplateStudio extends Component {
     this.handleRunLogic = this.handleRunLogic.bind(this);
     this.handleSampleChange = this.handleSampleChange.bind(this);
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.handleStatusChange = this.handleStateChange.bind(this);
+    this.handleStatusChange = this.handleStatusChange.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
     this.loadTemplateLibrary = this.loadTemplateLibrary.bind(this);
     this.loadTemplateFromUrl = this.loadTemplateFromUrl.bind(this);
