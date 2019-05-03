@@ -15,9 +15,9 @@
   "author": "accordproject.org",
   "license": "Apache-2.0",
   "dependencies": {
-    "@accordproject/cicero-core": "0.12.1",
-    "@accordproject/ergo-compiler": "0.8.1",
-    "@accordproject/ergo-engine": "0.8.1",
+    "@accordproject/cicero-core": "0.12.2",
+    "@accordproject/ergo-compiler": "0.8.2",
+    "@accordproject/ergo-engine": "0.8.2",
     "codemirror": "^5.40.2",
     "composer-concerto": "0.70.2",
     "file-saver": "^2.0.0-rc.3",
