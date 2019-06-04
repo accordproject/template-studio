@@ -12,6 +12,10 @@
  * limitations under the License.
  */
 
+'use strict';
+import '../static/css/template-studio.styl';
+import '../static/css/semantic-override.styl';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 

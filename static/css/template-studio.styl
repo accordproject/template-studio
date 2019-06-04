@@ -1,0 +1,122 @@
+body, html
+  font-family: 'Graphik', sans-serif
+  font-size: 14px
+  background: #FFFFF
+  color: #484848
+  min-height: 600px
+  min-width: 800px
+  position: relative
+
+h1, h2, h3, h4, h5, h6
+  font-family: 'Graphik', sans-serif
+  font-weight: 500
+  color: #484848
+  margin: 0 0 10px
+  transition: .3s ease
+
+p
+  font-family: 'Graphik', sans-serif
+  font-weight: 300
+  color: #484848
+  margin: 0 0 5px
+  transition: .3s ease
+
+h1
+  font-weight: 400
+  font-size: 34px
+
+h2
+  font-weight: 500
+  font-size: 20px
+
+h3
+  font-weight: 500
+  font-size: 16px
+
+h4
+  font-weight: 500
+  font-size: 12px
+
+a
+  color: inherit
+  font-family: 'Graphik', sans-serif
+  text-decoration: none
+  transition: .3s ease
+  cursor: pointer
+  &.active
+    color:color_blue
+  &:hover
+    color:color_blue
+  h1, h2, h3, h4, h5, h6
+    &:hover
+      color:color_blue
+
+b
+  font-weight: bold
+
+em
+  font-style: italic
+
+.float-right
+  float: right
+
+.right-padding-m
+    float: right
+    padding-top: 20px
+
+.float-left
+  float: left
+
+// The micro clearfix http://nicolasgallagher.com/micro-clearfix-hack/
+.clearfix
+  zoom: 1
+  &:before, &:after
+    content: ""
+    display: table
+  &:after
+    clear: both
+
+.hide
+  display:none
+
+pre
+    padding-left: 0.5em
+    white-space: pre-wrap
+    color: #555
+
+pre, .CodeMirror
+    font-family: Menlo
+
+span.emit
+    color: hotpink
+span.failure
+    color: red
+span.state
+    color: blue
+span.response
+    color: green
+
+.react-codemirror2
+    height: 100%
+
+.CodeMirror
+    height: 100% !important
+
+.ui.footer
+    text-align: right
+
+.Site
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column
+
+.github-fork-ribbon.right-top:before
+    background-color: #19C6C6
+
+.ui.color1
+  background-color: #1b2540
+
+.syntax-error
+    width:200px
+    border-bottom:2px solid red
+    padding-bottom:2px

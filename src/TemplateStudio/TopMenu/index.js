@@ -140,7 +140,7 @@ class TopMenu extends React.Component {
     const EMPTY_CLAUSE_TEMPLATE = `${ROOT_URI}/static/archives/empty@0.5.0.cta`;
 
     return (
-      <Menu fixed="top" inverted>
+      <Menu fixed="top" inverted style={{ background: '#1b2540'}}>
         <Container fluid>
           <Menu.Item header>
             <Image size="small" href="https://www.accordproject.org" src="static/img/logo.png" style={{ marginRight: '1.5em' }} target="_blank" />
