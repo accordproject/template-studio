@@ -37,10 +37,10 @@ const ModalURL = props => (
       />
     </Modal.Content>
     <Modal.Actions>
-      <Button color="red" onClick={props.handleURLAbort} inverted>
+      <Button onClick={props.handleURLAbort}>
         <Icon name="close" /> Cancel
       </Button>
-      <Button color="green" onClick={props.handleURLConfirm} inverted>
+      <Button primary onClick={props.handleURLConfirm}>
         <Icon name="checkmark" /> Upload
       </Button>
     </Modal.Actions>

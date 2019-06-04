@@ -43,7 +43,7 @@ class ExportButton extends Button {
   }
   render() {
     return (
-      <Button size="mini" color="blue" onClick={() => this.downloadCta(this.props.clause)}>
+      <Button size="mini" primary onClick={() => this.downloadCta(this.props.clause)}>
         <Icon name="download" />
         Export
       </Button>
@@ -66,11 +66,11 @@ class DiscardButton extends Button {
   render() {
     return (
       this.props.enabled ?
-        <Button size="mini" basic color="blue" onClick={this.handleDiscardChange}>
+        <Button size="mini" secondary onClick={this.handleDiscardChange}>
           <Icon name="redo" flipped="horizontally" />
           Discard Changes
         </Button> :
-        <Button size="mini" basic color="blue" disabled>
+        <Button size="mini" secondary disabled>
           <Icon name="redo" flipped="horizontally" />
           Discard Changes
         </Button>
