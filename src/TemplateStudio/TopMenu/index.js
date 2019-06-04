@@ -194,7 +194,7 @@ class TopMenu extends React.Component {
                 <Menu.Item href="https://docs.accordproject.org/" target="_blank">
                   <Icon name="info" /> Accord Project Documentation
                 </Menu.Item>
-                <Menu.Item href="https://docs.accordproject.org/docs/ergo-lang.html" target="_blank">
+                <Menu.Item href="https://docs.accordproject.org/docs/logic-ergo.html" target="_blank">
                   <Icon name="lab" /> Ergo Language Guide
                 </Menu.Item>
               </Dropdown.Menu>
