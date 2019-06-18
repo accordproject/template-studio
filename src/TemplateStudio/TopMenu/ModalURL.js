@@ -32,7 +32,7 @@ const ModalURL = props => (
         labelPosition="left"
         onChange={props.handleURLChange}
         value={props.newTemplateURL}
-        placeholder="e.g., https://templates.accordproject.org/archives/helloworld@0.9.0.cta"
+        placeholder="e.g., https://templates.accordproject.org/archives/helloworld@0.12.0.cta"
         fluid
       />
     </Modal.Content>

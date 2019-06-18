@@ -136,8 +136,8 @@ class TopMenu extends React.Component {
   }
 
   render() {
-    const EMPTY_CONTRACT_TEMPLATE = `${ROOT_URI}/static/archives/empty-contract@0.5.0.cta`;
-    const EMPTY_CLAUSE_TEMPLATE = `${ROOT_URI}/static/archives/empty@0.6.0.cta`;
+    const EMPTY_CONTRACT_TEMPLATE = `${ROOT_URI}/static/archives/empty-contract@0.6.0.cta`;
+    const EMPTY_CLAUSE_TEMPLATE = `${ROOT_URI}/static/archives/empty@0.7.0.cta`;
 
     return (
       <Menu fixed="top" inverted style={{ background: '#1b2540'}}>

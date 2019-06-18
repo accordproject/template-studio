@@ -76,12 +76,10 @@ function parseSample(clause, text, log) {
     changes.data = JSON.stringify(clause.getData(), null, 2);
     console.log('SUCCESS AND DATA IS : ' + changes.data);
     changes.log = textLog(log, 'Parse successful!');
-    changes.text = text;
   } catch (error) {
     console.log('FAILURE!' + error.message);
     changes.data = 'null';
     changes.log = textLog(log, `[Parse Contract] ${error.message}`);
-    changes.text = text;
   }
   return changes;
 }
@@ -129,12 +127,16 @@ function updateLogic(clause, name, content) {
   return false;
 }
 
-function generateText(clause, data, log) {
+async function generateText(clause, data, log) {
   const changes = {};
   try {
     const dataContent = JSON.parse(data);
     clause.setData(dataContent);
-    const text = clause.generateText();
+    const options = {
+      wrapVariables: false
+    };
+    const text = await clause.generateText(options);
+    console.log('>>> GENERATETEXT text' + JSON.stringify(text));
     changes.text = text;
     changes.data = data;
     if (updateSample(clause, text)) {
@@ -157,7 +159,7 @@ function refreshMarkers(editor, oldMarkers, newMarkersSource) {
   return newMarkers;
 }
 
-function compileLogic(editor, markers, logic, model, log) {
+function compileLogic(editor, markers, logic, model, grammar, clause, log) {
   const changes = {};
   let newMarkers = [];
   let newLogic = [];
@@ -167,6 +169,7 @@ function compileLogic(editor, markers, logic, model, log) {
 
   try {
       const logicManager = new LogicManager('cicero');
+      logicManager.getScriptManager().addTemplateFile(grammar, 'grammar/template.tem');
       const modelNames = [];
       const modelContent = [];
       model.forEach((m) => {
@@ -207,12 +210,14 @@ function compileLogic(editor, markers, logic, model, log) {
               }
           });
       }
+      clause.getTemplate().logicManager = logicManager;
       changes.logicManager = logicManager;
+      changes.grammar = grammar;
   } catch (error) {
     newLogic = logic;
     changes.log = logicLog(log, `Compilation error ${error.message}`);
   }
-  changes.markers = refreshMarkers(editor, markers, newMarkers);
+  if (editor) { changes.markers = refreshMarkers(editor, markers, newMarkers) };
   changes.logic = newLogic;
   return changes;
 }

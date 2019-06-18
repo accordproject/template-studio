@@ -19,7 +19,7 @@ import { Controlled as ReactCodeMirror } from 'react-codemirror2';
 import Resizable from 're-resizable';
 
 require('codemirror/addon/mode/simple.js');
-require('codemirror/mode/markdown/markdown');
+require('codemirror/mode/handlebars/handlebars');
 
 class GrammarInput extends TextArea {
   constructor(props) {
@@ -33,7 +33,7 @@ class GrammarInput extends TextArea {
 
   render() {
     const { grammar } = this.props;
-    const options = { lineWrapping: true, lineNumbers: true, mode: 'markdown', theme: 'eclipse', matchBrackets: true, viewportMargin: Infinity };
+    const options = { lineWrapping: true, lineNumbers: true, mode: 'handlebars', theme: 'eclipse', matchBrackets: true, viewportMargin: Infinity };
     return (
       <Resizable
         bounds="parent"
