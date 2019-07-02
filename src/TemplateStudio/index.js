@@ -14,7 +14,7 @@
 
 /* Default values */
 
-const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.10.0.cta`;
+const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.11.0.cta`;
 
 /* Utilities */
 
@@ -69,7 +69,7 @@ class TemplateStudio extends Component {
       cstate: 'null',
       response: JSON.stringify(null, null, 2),
       emit: '[]',
-      templateLogic: null,
+      logicManager: null,
       status: 'empty',
       loading: false,
       markers: [],
@@ -360,7 +360,7 @@ class TemplateStudio extends Component {
 
   handleModelChange(editor, name, model) {
     const clause = this.state.clause;
-    const templateLogic = this.state.templateLogic;
+    const logicManager = this.state.logicManager;
     const oldModel = this.state.model;
     const newModel = [];
     let modelFails = false;
@@ -459,7 +459,7 @@ class TemplateStudio extends Component {
     // XXX Should check whether the NL parses & the logic
     // compiles & the state/request are valid JSON first
     const state = this.state;
-    const compiledLogic = state.templateLogic;
+    const compiledLogic = state.logicManager;
     const contract = JSON.parse(state.data);
     const request = JSON.parse(state.request);
     const cstate = JSON.parse(state.cstate);
@@ -484,7 +484,7 @@ class TemplateStudio extends Component {
     // compiles & the state/request are valid JSON first
     const state = this.state;
     console.log('Initializing contract');
-    const compiledLogic = state.templateLogic;
+    const compiledLogic = state.logicManager;
     const contract = JSON.parse(state.data);
     Utils.runInit(compiledLogic, contract)
       .then((response) => {
