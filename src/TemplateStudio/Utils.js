@@ -22,7 +22,7 @@ import { ModelFile } from 'composer-concerto';
 
 /* Ergo */
 
-import { TemplateLogic } from '@accordproject/ergo-compiler';
+import { LogicManager } from '@accordproject/ergo-compiler';
 import { EvalEngine } from '@accordproject/ergo-engine/index.browser.js';
 
 function getUrlVars() {
@@ -114,9 +114,9 @@ function updateRequest(clause, oldrequest, request) {
 }
 function updateModel(clause, name, newcontent, grammar) {
     const template = clause.getTemplate();
-    const templateLogic = template.getTemplateLogic();
+    const logicManager = template.getLogicManager();
     try {
-        templateLogic.updateModel(newcontent, name);
+        logicManager.updateModel(newcontent, name);
         // XXX Have to re-generate the grammar if the model changes
         clause.getTemplate().buildGrammar(grammar);
         return true;
@@ -170,7 +170,7 @@ function compileLogic(editor, markers, logic, model, log) {
   }
 
   try {
-      const templateLogic = new TemplateLogic('cicero');
+      const logicManager = new LogicManager('cicero');
       const modelNames = [];
       const modelContent = [];
       model.forEach((m) => {
@@ -178,11 +178,11 @@ function compileLogic(editor, markers, logic, model, log) {
           modelContent.push(m.content);
       });
       logic.forEach((l) => {
-          templateLogic.addLogicFile(l.content, l.name);
+          logicManager.addLogicFile(l.content, l.name);
       });
-      templateLogic.addModelFiles(modelContent, modelNames);
+      logicManager.addModelFiles(modelContent, modelNames);
       try {
-          templateLogic.compileLogicSync(true);
+          logicManager.compileLogicSync(true);
           logic.forEach((m) => {
               const mfix = m;
               mfix.markersSource = [];
@@ -193,16 +193,16 @@ function compileLogic(editor, markers, logic, model, log) {
           changes.log = logicLog(log, 'Compilation successful');
       } catch (error) {
           const message = error.message;
-          const descriptor = error.descriptor;
+          const descriptor = error.fileLocation;
           changes.log = logicLog(log, message);
           logic.forEach((m) => {
               if (message.indexOf(m.name) !== -1) {
                   const mfix = m;
                   mfix.markersSource = [];
                   mfix.markersSource.push(
-                      { start: { line: descriptor.locstart.line - 1, ch: descriptor.locstart.character },
-                        end: { line: descriptor.locend.line - 1, ch: descriptor.locend.character + 1 },
-                        kind: { className: 'syntax-error', title: descriptor.verbose } },
+                      { start: { line: descriptor.start.line - 1, ch: descriptor.start.character },
+                        end: { line: descriptor.end.line - 1, ch: descriptor.end.character + 1 },
+                        kind: { className: 'syntax-error', title: descriptor.message } },
                   );
                   newMarkers = mfix.markersSource;
                   newLogic.push(mfix);
@@ -211,7 +211,7 @@ function compileLogic(editor, markers, logic, model, log) {
               }
           });
       }
-      changes.templateLogic = templateLogic;
+      changes.logicManager = logicManager;
   } catch (error) {
     newLogic = logic;
     changes.log = logicLog(log, `Compilation error ${error.message}`);
@@ -221,15 +221,15 @@ function compileLogic(editor, markers, logic, model, log) {
   return changes;
 }
 
-async function runLogic(templateLogic, contract, request, cstate) {
+async function runLogic(logicManager, contract, request, cstate) {
   const engine = new EvalEngine();
-  const result = await engine.execute(templateLogic, 'test', contract, request, cstate, moment().format());
+  const result = await engine.execute(logicManager, 'test', contract, request, cstate, moment().format());
   return result;
 }
 
-async function runInit(templateLogic, contract) {
+async function runInit(logicManager, contract) {
   const engine = new EvalEngine();
-  const response = await engine.init(templateLogic, 'test', contract, {}, moment().format());
+  const response = await engine.init(logicManager, 'test', contract, {}, moment().format());
   return response;
 }
 
