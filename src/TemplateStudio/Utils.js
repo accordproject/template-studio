@@ -16,10 +16,6 @@
 
 import moment from 'moment-mini'; // For DateTime support during contract execution
 
-/* Concerto */
-
-import { ModelFile } from 'composer-concerto';
-
 /* Ergo */
 
 import { LogicManager } from '@accordproject/ergo-compiler';
