@@ -160,6 +160,9 @@ class TopMenu extends React.Component {
               onChange={this.handleSelectTemplate}
             />
           </Menu.Item>
+          <Menu.Item href="https://www.accordproject.org" target="_blank">
+            All Templates
+          </Menu.Item>
           <Menu.Item>
             <Dropdown item text="New Template" simple>
               <Dropdown.Menu>
