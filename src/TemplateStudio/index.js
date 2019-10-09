@@ -462,8 +462,6 @@ class TemplateStudio extends Component {
 
   handleLogicGrammarChange(grammar) {
     const { clause, text, log, model, logic, markers } = this.state;
-    let status = this.state.status;
-    let logLogic = this.state.log.logic;
     const changesLogic = Utils.compileLogic(null, markers, logic, model, grammar, clause, this.state.log);
     this.setState(changesLogic);
   }
@@ -521,7 +519,7 @@ class TemplateStudio extends Component {
   }
 
   loadTemplateLibrary() {
-    const templateLibrary = new TemplateLibrary('https://5d92e9c82562c2000a6dfbfe--templates-accordproject.netlify.com');
+    const templateLibrary = new TemplateLibrary('https://js-release-0-20--templates-accordproject.netlify.com');
     const promisedIndex =
           templateLibrary.getTemplateIndex({ latestVersion: true, ciceroVersion });
     return promisedIndex.then((templateIndex) => {
@@ -537,7 +535,7 @@ class TemplateStudio extends Component {
 
   loadTemplateFromUrl(templateURL) {
     const thisTemplateURL =
-      templateURL.replace('ap://','https://5d92e9c82562c2000a6dfbfe--templates-accordproject.netlify.com/archives/').replace('#hash','.cta');
+      templateURL.replace('ap://','https://js-release-0-20--templates-accordproject.netlify.com/archives/').replace('#hash','.cta');
     let state = this.state;
     state.loading = true;
     this.setState(state);
