@@ -135,6 +135,8 @@ async function generateText(clause, data, log) {
     const options = {
       wrapVariables: false
     };
+    // clear engine script cache before re-generating text 
+    clause.getEngine().clearCacheJsScript();
     const text = await clause.generateText(options);
     console.log('>>> GENERATETEXT text' + JSON.stringify(text));
     changes.text = text;
