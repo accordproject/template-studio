@@ -1,5 +1,7 @@
 # Accord Project Template Studio
 
+[![GitHub license](https://img.shields.io/github/license/accordproject/template-studio)](https://github.com/accordproject/template-studio/blob/master/LICENSE) [![join slack](https://img.shields.io/badge/Accord%20Project-Join%20Slack-blue)](https://accord-project-slack-signup.herokuapp.com/)
+
 A simple Web-based editor for Accord Project templates.
 
 <img src="https://raw.githubusercontent.com/accordproject/template-studio/master/studio.png" width="350">
