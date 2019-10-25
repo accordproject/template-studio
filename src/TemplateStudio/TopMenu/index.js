@@ -159,16 +159,17 @@ class TopMenu extends React.Component {
               options={this.props.templates}
               onChange={this.handleSelectTemplate}
             />
+            <Popup content='Template Library' trigger={<Button inverted icon='book' style={{ marginLeft: '1em' }} href="https://templates.accordproject.org" target="_blank" />} />
           </Menu.Item>
           <Menu.Item>
             <Dropdown item text="New Template" simple>
               <Dropdown.Menu>
                 <Confirm content="Your template has been edited, are you sure you want to load a new one? You can save your current template by using the Export button." confirmButton="I am sure" cancelButton="Cancel" open={this.state.confirmNew.flag} onCancel={this.handleNewAborted} onConfirm={this.handleNewConfirmed} />
                 <Menu.Item onClick={() => this.handleNewChange(EMPTY_CONTRACT_TEMPLATE)}>
-                  <Icon name="file alternate outline" /> Empty Contract
+                  <Icon name="file alternate outline" /> Contract Template
                 </Menu.Item>
                 <Menu.Item onClick={() => this.handleNewChange(EMPTY_CLAUSE_TEMPLATE)}>
-                  <Icon name="file outline" /> Empty Clause
+                  <Icon name="file outline" /> Clause Template
                 </Menu.Item>
                 <Header as="h4">Import</Header>
                 <ModalURL
