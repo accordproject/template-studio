@@ -111,12 +111,12 @@ class DimmableContainer extends React.Component {
             name="template"
             active={this.state.activeLegal === 'template'}
             onClick={this.handleLegalTabChange}
-          >Template</Menu.Item>
+          >Grammar</Menu.Item>
           <Menu.Item
             name="sample"
             active={this.state.activeLegal === 'sample'}
             onClick={this.handleLegalTabChange}
-          >Test Contract</Menu.Item>
+          >Test Sample</Menu.Item>
           <Menu.Item
             href="https://docs.accordproject.org/docs/spec-template.html#grammar"
             target="_blank"
@@ -150,12 +150,12 @@ class DimmableContainer extends React.Component {
             name="ergo"
             active={this.state.activeLogic === 'ergo'}
             onClick={this.handleLogicTabChange}
-          >Ergo</Menu.Item>
+          >Logic</Menu.Item>
           <Menu.Item
             name="execution"
             active={this.state.activeLogic === 'execution'}
             onClick={this.handleLogicTabChange}
-          >Test Execution</Menu.Item>
+          >Test Request</Menu.Item>
           <Menu.Item
             href="https://docs.accordproject.org/docs/spec-template.html#logic"
             target="_blank"
@@ -251,7 +251,7 @@ class DimmableContainer extends React.Component {
     const viewMenu = () =>
       (<Menu fluid vertical pointing>
         <Menu.Item name="legal" active={this.state.activeItem === 'legal'} onClick={this.handleItemClick}>
-                   Contract Text
+                   Text
         </Menu.Item>
         <Menu.Item name="model" active={this.state.activeItem === 'model'} onClick={this.handleItemClick}>
                    Model
