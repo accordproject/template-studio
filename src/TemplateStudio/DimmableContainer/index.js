@@ -264,7 +264,7 @@ class DimmableContainer extends React.Component {
         </Menu.Item>
       </Menu>);
     return (
-      <Container fluid style={{ marginTop: '7em', marginBottom: '5em' }}>
+      <Container fluid style={{ marginTop: '7em' }}>
         <Confirm
           header="Could not load template"
           content={this.props.log.loading}
