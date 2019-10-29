@@ -308,7 +308,7 @@ class TemplateStudio extends Component {
         if (data !== 'null') {
           clause.getTemplate().getParserManager().buildGrammar(text);
           this.handleLogicGrammarChange(text);
-          Utils.generateText(clause, data, { ...this.state.log, text: logText }).then((changes) => {
+          Utils.draft(clause, data, { ...this.state.log, text: logText }).then((changes) => {
             if (changes.log.text.indexOf('successful') === -1) {
               //throw new Error('Error generating text from this new grammar');
             }
@@ -423,7 +423,7 @@ class TemplateStudio extends Component {
   handleJSONChange(data) {
     const { clause, log } = this.state;
     if (data !== null) {
-      Utils.generateText(clause, data, log).then((text) => {
+      Utils.draft(clause, data, log).then((text) => {
         this.setState(text);
       }).catch((error) => {
         throw error;
@@ -574,6 +574,7 @@ class TemplateStudio extends Component {
       state = this.state;
       state.loading = false;
       this.setState(state);
+      this.handleJSONChange(state.data);
       return true;
     }, (reason) => {
       console.log(`LOAD FAILED! ${reason.message}`); // Error!
@@ -612,6 +613,7 @@ class TemplateStudio extends Component {
       this.setState(Utils.compileLogic(null, state.markers, state.logic, state.model, state.grammar, state.clause, state.log));
       this.handleModelChange(null, state, state.model);
       this.handleSampleChange(state.text);
+      this.handleJSONChange(state.data);
       this.handleLogicChange(null, state, state.logic);
       this.handlePackageChange(state.package);
       this.handleInitLogic(); // Initializes the contract state
