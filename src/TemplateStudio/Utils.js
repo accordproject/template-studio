@@ -127,7 +127,7 @@ function updateLogic(clause, name, content) {
   return false;
 }
 
-async function generateText(clause, data, log) {
+async function draft(clause, data, log) {
   const changes = {};
   try {
     const dataContent = JSON.parse(data);
@@ -137,8 +137,8 @@ async function generateText(clause, data, log) {
     };
     // clear engine script cache before re-generating text 
     clause.getEngine().clearCacheJsScript();
-    const text = await clause.generateText(options);
-    console.log('>>> GENERATETEXT text' + JSON.stringify(text));
+    const text = await clause.draft(options);
+    console.log('>>> DRAFT text' + JSON.stringify(text));
     changes.text = text;
     changes.data = data;
     if (updateSample(clause, text)) {
@@ -239,7 +239,7 @@ async function runInit(logicManager, contract) {
 export {
   initUrl,
   parseSample,
-  generateText,
+  draft,
   refreshMarkers,
   compileLogic,
   runLogic,

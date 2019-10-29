@@ -159,7 +159,6 @@ class TopMenu extends React.Component {
               options={this.props.templates}
               onChange={this.handleSelectTemplate}
             />
-            <Popup content='Template Library' trigger={<Button inverted icon='book' style={{ marginLeft: '1em' }} href="https://templates.accordproject.org" target="_blank" />} />
           </Menu.Item>
           <Menu.Item>
             <Dropdown item text="New Template" simple>
@@ -191,6 +190,13 @@ class TopMenu extends React.Component {
             <Dropdown item text="Help" simple>
               <Dropdown.Menu>
                 <ModalAbout />
+                <Header as="h4">Content</Header>
+                <Menu.Item href="https://templates.accordproject.org/" target="_blank">
+                  <Icon name="book" /> Accord Project Template Library
+                </Menu.Item>
+                <Menu.Item href="https://models.accordproject.org/" target="_blank">
+                  <Icon name="sitemap" /> Accord Project Models Library
+                </Menu.Item>
                 <Header as="h4">Documentation</Header>
                 <Menu.Item href="https://docs.accordproject.org/" target="_blank">
                   <Icon name="info" /> Accord Project Documentation
