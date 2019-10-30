@@ -84,7 +84,7 @@ function parseSample(clause, text, log) {
   return changes;
 }
 
-function updateSample(clause, sample) {
+function updateTemplateSample(clause, sample) {
   const template = clause.getTemplate();
   const samples = template.getMetadata().getSamples();
   if (samples.default !== sample) {
@@ -141,7 +141,7 @@ async function draft(clause, data, log) {
     console.log('>>> DRAFT text' + JSON.stringify(text));
     changes.text = text;
     changes.data = data;
-    if (updateSample(clause, text)) {
+    if (updateTemplateSample(clause, text)) {
       changes.status = 'changed';
     }
     changes.log = textLog(log, 'GenerateText successful!');
@@ -226,7 +226,7 @@ function compileLogic(editor, markers, logic, model, grammar, clause, log) {
 
 async function runLogic(logicManager, contract, request, cstate) {
   const engine = new EvalEngine();
-  const result = await engine.execute(logicManager, 'test', contract, request, cstate, moment().format());
+  const result = await engine.trigger(logicManager, 'test', contract, request, cstate, moment().format());
   return result;
 }
 
@@ -244,7 +244,7 @@ export {
   compileLogic,
   runLogic,
   runInit,
-  updateSample,
+  updateTemplateSample,
   updateRequest,
   updateModel,
   updateLogic,
