@@ -88,6 +88,7 @@ class TemplateStudio extends Component {
     this.handleREADMEChange = this.handleREADMEChange.bind(this);
     this.handleRequestChange = this.handleRequestChange.bind(this);
     this.handleRunLogic = this.handleRunLogic.bind(this);
+    this.handleSampleChangeInit = this.handleSampleChangeInit.bind(this);
     this.handleSampleChange = this.handleSampleChange.bind(this);
     this.handleStateChange = this.handleStateChange.bind(this);
     this.handleStatusChange = this.handleStatusChange.bind(this);
@@ -281,11 +282,11 @@ class TemplateStudio extends Component {
     }
   }
 
-  handleSampleChange(text) {
+  handleSampleChangeInit(text) {
     const { clause, log } = this.state;
     this.setState({ text });
     let status = this.state.status;
-    if (Utils.updateSample(clause, text)) {
+    if (Utils.updateTemplateSample(clause, text)) {
       status = 'changed';
     }
     const stateChanges = Utils.parseSample(clause, text, log);
@@ -293,6 +294,23 @@ class TemplateStudio extends Component {
       ...stateChanges,
       status,
     });
+  }
+
+  handleSampleChange(text) {
+    console.log('SAMPLE CHANGE! ' + JSON.stringify(text));
+    const { clause, log } = this.state;
+    this.setState({ text });
+    let status = this.state.status;
+    if (Utils.updateTemplateSample(clause, text)) {
+      status = 'changed';
+    }
+    const stateChanges = Utils.parseSample(clause, text, log);
+    this.setState({
+      ...stateChanges,
+      status,
+    });
+    //console.log('DATA CHANGE INSIDE SAMPLE! ' + JSON.stringify(this.state.data));
+    //this.handleJSONChange(this.state.data);
   }
 
   handleGrammarChange(text) {
@@ -567,7 +585,7 @@ class TemplateStudio extends Component {
         Utils.compileLogic(null, state.markers, state.logic, state.model, state.grammar, state.clause, state.log),
       ); // Now returns changes, not setting the rest of the state
       this.handleModelChange(null, state, state.model);
-      this.handleSampleChange(state.text);
+      this.handleSampleChangeInit(state.text);
       this.handleLogicChange(null, state, state.logic);
       this.handlePackageChange(state.package);
       this.handleInitLogic(); // Initializes the contract state
@@ -612,7 +630,7 @@ class TemplateStudio extends Component {
       this.setState(state);
       this.setState(Utils.compileLogic(null, state.markers, state.logic, state.model, state.grammar, state.clause, state.log));
       this.handleModelChange(null, state, state.model);
-      this.handleSampleChange(state.text);
+      this.handleSampleChangeInit(state.text);
       this.handleJSONChange(state.data);
       this.handleLogicChange(null, state, state.logic);
       this.handlePackageChange(state.package);
