@@ -192,14 +192,14 @@ class TopMenu extends React.Component {
                 <ModalAbout />
                 <Header as="h4">Content</Header>
                 <Menu.Item href="https://templates.accordproject.org/" target="_blank">
-                  <Icon name="book" /> Accord Project Template Library
+                  <Icon name="book" /> Template Library
                 </Menu.Item>
                 <Menu.Item href="https://models.accordproject.org/" target="_blank">
-                  <Icon name="sitemap" /> Accord Project Models Library
+                  <Icon name="sitemap" /> Models Library
                 </Menu.Item>
                 <Header as="h4">Documentation</Header>
                 <Menu.Item href="https://docs.accordproject.org/" target="_blank">
-                  <Icon name="info" /> Accord Project Documentation
+                  <Icon name="info" /> Documentation
                 </Menu.Item>
                 <Menu.Item href="https://docs.accordproject.org/docs/logic-ergo.html" target="_blank">
                   <Icon name="lab" /> Ergo Language Guide
