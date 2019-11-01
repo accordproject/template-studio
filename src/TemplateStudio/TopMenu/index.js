@@ -201,7 +201,7 @@ class TopMenu extends React.Component {
             </Dropdown>
           </Menu.Item>
           <Menu.Item>
-            <Popup content='Template Studio Compatible with Cicero 0.20' trigger={<Button inverted color="red" style={{ marginLeft: '1em' }} href="https://js-release-0-20--template-studio.netlify.com">Switch to Version 0.20</Button>} />
+            <Popup content='Template Studio Compatible with Cicero 0.20' trigger={<Button inverted color="red" style={{ marginLeft: '1em' }} href="https://studio.accordproject.org">Switch to Version 0.20</Button>} />
           </Menu.Item>
         </Container>
       </Menu>

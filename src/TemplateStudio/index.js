@@ -503,7 +503,7 @@ class TemplateStudio extends Component {
   }
 
   loadTemplateLibrary() {
-    const templateLibrary = new TemplateLibrary('https://js-release-0-20--templates-accordproject.netlify.com');
+    const templateLibrary = new TemplateLibrary();
     const promisedIndex =
           templateLibrary.getTemplateIndex({ latestVersion: false, ciceroVersion });
     return promisedIndex.then((templateIndex) => {
@@ -518,8 +518,7 @@ class TemplateStudio extends Component {
   }
 
   loadTemplateFromUrl(templateURL) {
-    const thisTemplateURL =
-      templateURL.replace('ap://','https://js-release-0-20--templates-accordproject.netlify.com/archives/').replace('#hash','.cta');
+    const thisTemplateURL = templateURL;
     let state = this.state;
     state.loading = true;
     this.setState(state);
