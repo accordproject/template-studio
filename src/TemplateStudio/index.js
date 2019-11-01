@@ -503,7 +503,7 @@ class TemplateStudio extends Component {
   }
 
   loadTemplateLibrary() {
-    const templateLibrary = new TemplateLibrary();
+    const templateLibrary = new TemplateLibrary('https://js-release-0-20--templates-accordproject.netlify.com');
     const promisedIndex =
           templateLibrary.getTemplateIndex({ latestVersion: false, ciceroVersion });
     return promisedIndex.then((templateIndex) => {
@@ -518,20 +518,22 @@ class TemplateStudio extends Component {
   }
 
   loadTemplateFromUrl(templateURL) {
+    const thisTemplateURL =
+      templateURL.replace('ap://','https://js-release-0-20--templates-accordproject.netlify.com/archives/').replace('#hash','.cta');
     let state = this.state;
     state.loading = true;
     this.setState(state);
-    console.log(`Loading template:  ${templateURL}`);
+    console.log(`Loading template:  ${thisTemplateURL}`);
     let promisedTemplate;
     try {
-      promisedTemplate = Template.fromUrl(templateURL);
+      promisedTemplate = Template.fromUrl(thisTemplateURL);
     } catch (error) {
       console.log(`LOAD FAILED! ${error.message}`); // Error!
       this.handleLoadingFailed(error.message);
       return false;
     }
     return promisedTemplate.then((template) => {
-      state.templateURL = templateURL;
+      state.templateURL = thisTemplateURL;
       state.clause = new Clause(template);
       state.templateName = state.clause.getTemplate().getMetadata().getName();
       state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
