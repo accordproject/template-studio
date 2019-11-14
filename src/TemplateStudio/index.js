@@ -557,9 +557,7 @@ class TemplateStudio extends Component {
 
     loadTemplateFromUrl(templateURL) {
         const thisTemplateURL = templateURL;
-        let state = this.state;
-        state.loading = true;
-        this.setState(state);
+        this.setState({ loading: true });
         console.log(`Loading template:  ${thisTemplateURL}`);
         let promisedTemplate;
         try {
@@ -570,32 +568,30 @@ class TemplateStudio extends Component {
             return false;
         }
         return promisedTemplate.then((template) => {
-            state.templateURL = thisTemplateURL;
-            state.clause = new Clause(template);
-            state.templateName = state.clause.getTemplate().getMetadata().getName();
-            state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
-            state.templateType = state.clause.getTemplate().getMetadata().getTemplateType();
-            state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
-            state.grammar = template.getParserManager().getTemplatizedGrammar();
-            state.model = template.getModelManager().getModels();
-            state.logic = template.getScriptManager().getLogic();
-            state.text = template.getMetadata().getSamples().default;
-            state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
-            state.data = 'null';
-            state.status = 'loaded';
-            this.setState(state);
+            const newState = {...this.state};
+            newState.templateURL = thisTemplateURL;
+            newState.clause = new Clause(template);
+            newState.templateName = newState.clause.getTemplate().getMetadata().getName();
+            newState.templateVersion = newState.clause.getTemplate().getMetadata().getVersion();
+            newState.templateType = newState.clause.getTemplate().getMetadata().getTemplateType();
+            newState.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
+            newState.grammar = template.getParserManager().getTemplatizedGrammar();
+            newState.model = template.getModelManager().getModels();
+            newState.logic = template.getScriptManager().getLogic();
+            newState.text = template.getMetadata().getSamples().default;
+            newState.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
+            newState.data = 'null';
+            this.setState(newState);
             this.setState(
-                Utils.compileLogic(null, state.markers, state.logic, state.model, state.grammar, state.clause, state.log),
+                Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.model, this.state.grammar, this.state.clause, this.state.log),
             ); // Now returns changes, not setting the rest of the state
-            this.handleModelChange(null, state, state.model);
-            this.handleSampleChangeInit(state.text);
-            this.handleLogicChange(null, state, state.logic);
-            this.handlePackageChange(state.package);
+            this.handleModelChange(null, this.state, this.state.model);
+            this.handleSampleChangeInit(this.state.text);
+            this.handleLogicChange(null, this.state, this.state.logic);
+            this.handlePackageChange(this.state.package);
+            this.setState({loading: false, status:'loaded'});
+            this.handleJSONChange(this.state.data);
             this.handleInitLogic(); // Initializes the contract state
-            state = this.state;
-            state.loading = false;
-            this.setState(state);
-            this.handleJSONChange(state.data);
             return true;
         }, (reason) => {
             console.log(`LOAD FAILED! ${reason.message}`); // Error!
@@ -606,8 +602,7 @@ class TemplateStudio extends Component {
 
     loadTemplateFromBuffer(buffer) {
         let state = this.state;
-        state.loading = true;
-        this.setState(state);
+        this.setState({ loading: true });
         console.log('Loading template from Buffer');
         let promisedTemplate;
         try {
@@ -618,29 +613,29 @@ class TemplateStudio extends Component {
             return false;
         }
         return promisedTemplate.then((template) => {
-            state.clause = new Clause(template);
-            state.templateName = state.clause.getTemplate().getMetadata().getName();
-            state.templateVersion = state.clause.getTemplate().getMetadata().getVersion();
-            state.templateType = state.clause.getTemplate().getMetadata().getTemplateType();
-            state.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
-            state.grammar = template.getParserManager().getTemplatizedGrammar();
-            state.model = template.getModelManager().getModels();
-            state.logic = template.getScriptManager().getLogic();
-            state.text = template.getMetadata().getSamples().default;
-            state.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
-            state.data = 'null';
-            state.status = 'loaded';
-            this.setState(state);
-            this.setState(Utils.compileLogic(null, state.markers, state.logic, state.model, state.grammar, state.clause, state.log));
-            this.handleModelChange(null, state, state.model);
-            this.handleSampleChangeInit(state.text);
-            this.handleJSONChange(state.data);
-            this.handleLogicChange(null, state, state.logic);
-            this.handlePackageChange(state.package);
+            const newState = {...this.state};
+            newState.clause = new Clause(template);
+            newState.templateName = newState.clause.getTemplate().getMetadata().getName();
+            newState.templateVersion = newState.clause.getTemplate().getMetadata().getVersion();
+            newState.templateType = newState.clause.getTemplate().getMetadata().getTemplateType();
+            newState.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
+            newState.grammar = template.getParserManager().getTemplatizedGrammar();
+            newState.model = template.getModelManager().getModels();
+            newState.logic = template.getScriptManager().getLogic();
+            newState.text = template.getMetadata().getSamples().default;
+            newState.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
+            newState.data = 'null';
+            newState.status = 'loaded';
+            this.setState(newState);
+            this.setState(Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.model, this.state.grammar, this.state.clause, this.state.log));
+            this.handleModelChange(null, this.state, this.state.model);
+            this.handleSampleChangeInit(this.state.text);
+            this.handleJSONChange(this.state.data);
+            this.handleLogicChange(null, this.state, this.state.logic);
+            this.handlePackageChange(this.state.package);
+            this.setState({loading: false, status:'loaded'});
+            this.handleJSONChange(this.state.data);
             this.handleInitLogic(); // Initializes the contract state
-            state = this.state;
-            state.loading = false;
-            this.setState(state);
             return true;
         }, (reason) => {
             console.log(`LOAD FAILED! ${reason.message}`); // Error!
