@@ -85,6 +85,7 @@ class TemplateStudio extends Component {
         this.handleGrammarChange = this.handleGrammarChange.bind(this);
         this.handleInitLogic = this.handleInitLogic.bind(this);
         this.handleJSONChange = this.handleJSONChange.bind(this);
+        this.handleLoadingSucceeded = this.handleLoadingSucceeded.bind(this);
         this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
         this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
         this.handleLogicChange = this.handleLogicChange.bind(this);
@@ -106,7 +107,7 @@ class TemplateStudio extends Component {
     }
 
     componentDidMount() {
-        this.loadTemplateLibrary().then(() => {
+        return this.loadTemplateLibrary().then(() => {
             if (!this.loadTemplateFromUrl(Utils.initUrl(DEFAULT_TEMPLATE))) {
                 this.loadTemplateFromUrl(DEFAULT_TEMPLATE);
             }
@@ -129,6 +130,13 @@ class TemplateStudio extends Component {
                 ...this.state.log,
                 loading: message,
             },
+        });
+    }
+
+    handleLoadingSucceeded() {
+        this.setState({
+            loading: false,
+            status: 'loaded'
         });
     }
 
@@ -331,7 +339,7 @@ class TemplateStudio extends Component {
             if (data !== 'null') {
                 clause.getTemplate().getParserManager().buildGrammar(text);
                 this.handleLogicGrammarChange(text);
-                Utils.draft(clause, data, { ...this.state.log, text: logText }).then((changes) => {
+                return Utils.draft(clause, data, { ...this.state.log, text: logText }).then((changes) => {
                     if (changes.log.text.indexOf('successful') === -1) {
                         //throw new Error('Error generating text from this new grammar');
                     }
@@ -445,7 +453,7 @@ class TemplateStudio extends Component {
     handleJSONChange(data) {
         const { clause, log } = this.state;
         if (data !== null) {
-            Utils.draft(clause, data, log).then((text) => {
+            return Utils.draft(clause, data, log).then((text) => {
                 this.setState(text);
             }).catch((error) => {
                 throw error;
@@ -501,7 +509,7 @@ class TemplateStudio extends Component {
         const contract = JSON.parse(state.data);
         const request = JSON.parse(state.request);
         const cstate = JSON.parse(state.cstate);
-        Utils.runLogic(compiledLogic, contract, request, cstate)
+        return Utils.runLogic(compiledLogic, contract, request, cstate)
             .then((response) => {
                 state.log.execute = 'Execution successful!';
                 state.response = JSON.stringify(response.response, null, 2);
@@ -524,7 +532,7 @@ class TemplateStudio extends Component {
         console.log('Initializing contract');
         const compiledLogic = state.logicManager;
         const contract = JSON.parse(state.data);
-        Utils.runInit(compiledLogic, contract)
+        return Utils.runInit(compiledLogic, contract)
             .then((response) => {
                 state.log.execute = 'Execution successful!';
                 state.response = JSON.stringify(response.response, null, 2);
@@ -555,19 +563,19 @@ class TemplateStudio extends Component {
         });
     }
 
-    loadTemplateFromUrl(templateURL) {
+    async loadTemplateFromUrl(templateURL) {
         const thisTemplateURL = templateURL;
         this.setState({ loading: true });
         console.log(`Loading template:  ${thisTemplateURL}`);
-        let promisedTemplate;
+        let template;
         try {
-            promisedTemplate = Template.fromUrl(thisTemplateURL);
+            template = await Template.fromUrl(thisTemplateURL);
         } catch (error) {
             console.log(`LOAD FAILED! ${error.message}`); // Error!
             this.handleLoadingFailed(error.message);
             return false;
         }
-        return promisedTemplate.then((template) => {
+        try {
             const newState = {...this.state};
             newState.templateURL = thisTemplateURL;
             newState.clause = new Clause(template);
@@ -582,37 +590,34 @@ class TemplateStudio extends Component {
             newState.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             newState.data = 'null';
             this.setState(newState);
-            this.setState(
-                Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.model, this.state.grammar, this.state.clause, this.state.log),
-            ); // Now returns changes, not setting the rest of the state
+            this.setState(Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.model, this.state.grammar, this.state.clause, this.state.log));
             this.handleModelChange(null, this.state, this.state.model);
             this.handleSampleChangeInit(this.state.text);
             this.handleLogicChange(null, this.state, this.state.logic);
             this.handlePackageChange(this.state.package);
-            this.setState({loading: false, status:'loaded'});
-            this.handleJSONChange(this.state.data);
-            this.handleInitLogic(); // Initializes the contract state
+            await this.handleJSONChange(this.state.data);
+            await this.handleInitLogic(); // Initializes the contract state
+            this.handleLoadingSucceeded();
             return true;
-        }, (reason) => {
+        } catch (reason) {
             console.log(`LOAD FAILED! ${reason.message}`); // Error!
             this.handleLoadingFailed(reason.message);
             return false;
-        });
+        };
     }
 
-    loadTemplateFromBuffer(buffer) {
-        let state = this.state;
+    async loadTemplateFromBuffer(buffer) {
         this.setState({ loading: true });
         console.log('Loading template from Buffer');
-        let promisedTemplate;
+        let template;
         try {
-            promisedTemplate = Template.fromArchive(buffer);
+            template = await Template.fromArchive(buffer);
         } catch (error) {
             console.log(`LOAD FAILED! ${error.message}`); // Error!
             this.handleLoadingFailed(error.message);
             return false;
         }
-        return promisedTemplate.then((template) => {
+        try {
             const newState = {...this.state};
             newState.clause = new Clause(template);
             newState.templateName = newState.clause.getTemplate().getMetadata().getName();
@@ -625,23 +630,21 @@ class TemplateStudio extends Component {
             newState.text = template.getMetadata().getSamples().default;
             newState.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             newState.data = 'null';
-            newState.status = 'loaded';
             this.setState(newState);
             this.setState(Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.model, this.state.grammar, this.state.clause, this.state.log));
             this.handleModelChange(null, this.state, this.state.model);
             this.handleSampleChangeInit(this.state.text);
-            this.handleJSONChange(this.state.data);
             this.handleLogicChange(null, this.state, this.state.logic);
             this.handlePackageChange(this.state.package);
-            this.setState({loading: false, status:'loaded'});
-            this.handleJSONChange(this.state.data);
-            this.handleInitLogic(); // Initializes the contract state
+            await this.handleJSONChange(this.state.data);
+            await this.handleInitLogic(); // Initializes the contract state
+            this.handleLoadingSucceeded();
             return true;
-        }, (reason) => {
+        } catch (reason) {
             console.log(`LOAD FAILED! ${reason.message}`); // Error!
             this.handleLoadingFailed(reason.message);
             return false;
-        });
+        };
     }
 
     render() {
