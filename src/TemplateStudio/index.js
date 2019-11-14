@@ -70,10 +70,10 @@ class TemplateStudio extends Component {
             cstate: 'null',
             response: JSON.stringify(null, null, 2),
             emit: '[]',
-            logicManager: null,
             status: 'empty',
             loading: false,
             markers: [],
+            editor: null,
         };
         this.handleErgoMounted = this.handleErgoMounted.bind(this);
         this._handleGrammarChange = this._handleGrammarChange.bind(this);
@@ -82,13 +82,38 @@ class TemplateStudio extends Component {
             this.setState({ grammar: text });
             debouncedGrammarChange();
         };
-        this.handleGrammarChange = this.handleGrammarChange.bind(this);
         this.handleInitLogic = this.handleInitLogic.bind(this);
         this.handleJSONChange = this.handleJSONChange.bind(this);
         this.handleLoadingSucceeded = this.handleLoadingSucceeded.bind(this);
         this.handleLoadingFailed = this.handleLoadingFailed.bind(this);
         this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
-        this.handleLogicChange = this.handleLogicChange.bind(this);
+        this._handleLogicChange = this._handleLogicChange.bind(this);
+        const debouncedLogicChange = _.debounce(this._handleLogicChange, 1000, { maxWait: 5000 });
+        this.handleLogicChange = (editor, name, logicText) => {
+            const { clause, log, model, markers, status, logic } = this.state;
+            const newLogic = [];
+            let newStatus = status;
+            let newLog = log.logic;
+            logic.forEach((m) => {
+                if (m.name === name) {
+                    try {
+                        if (Utils.updateLogic(clause, name, logicText)) {
+                            newStatus = 'changed';
+                        }
+                    } catch (error) {
+                        newLog = `Cannot compile new logic ${error.message}`;
+                    }
+                    newLogic.push({ name,
+                                    content: logicText,
+                                    markersSource: m.markersSource ? m.markersSource : [],
+                                  });
+                } else {
+                    newLogic.push({ name: m.name, content: m.content, markersSource: m.markersSource });
+                }
+            });
+            this.setState({editor: editor, logic:newLogic, clause, status: newStatus, log: {...log, logic:newLog }});
+            debouncedLogicChange();
+        };
         this.handleModelChange = this.handleModelChange.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleVersionChange = this.handleVersionChange.bind(this);
@@ -106,12 +131,12 @@ class TemplateStudio extends Component {
         this.loadTemplateFromBuffer = this.loadTemplateFromBuffer.bind(this);
     }
 
-    componentDidMount() {
-        return this.loadTemplateLibrary().then(() => {
-            if (!this.loadTemplateFromUrl(Utils.initUrl(DEFAULT_TEMPLATE))) {
-                this.loadTemplateFromUrl(DEFAULT_TEMPLATE);
-            }
-        });
+    async componentDidMount() {
+        await this.loadTemplateLibrary();
+        const initTemplate = await this.loadTemplateFromUrl(Utils.initUrl(DEFAULT_TEMPLATE));
+        if (!initTemplate) {
+            await this.loadTemplateFromUrl(DEFAULT_TEMPLATE);
+        }
     }
 
     componentDidUpdate() {
@@ -328,7 +353,7 @@ class TemplateStudio extends Component {
         //this.handleJSONChange(this.state.data);
     }
 
-    _handleGrammarChange() {
+    async _handleGrammarChange() {
         const text = this.state.grammar;
         const clause = this.state.clause;
         try {
@@ -339,7 +364,8 @@ class TemplateStudio extends Component {
             if (data !== 'null') {
                 clause.getTemplate().getParserManager().buildGrammar(text);
                 this.handleLogicGrammarChange(text);
-                return Utils.draft(clause, data, { ...this.state.log, text: logText }).then((changes) => {
+                try {
+                    const changes = await Utils.draft(clause, data, { ...this.state.log, text: logText });
                     if (changes.log.text.indexOf('successful') === -1) {
                         //throw new Error('Error generating text from this new grammar');
                     }
@@ -347,10 +373,10 @@ class TemplateStudio extends Component {
                         ...changes,
                         data,
                         status,
-                    })
-                }).catch((error) => {
+                    });
+                } catch (error) {
                     throw error;
-                });
+                };
             }
         } catch (error1) {
             try {
@@ -396,7 +422,7 @@ class TemplateStudio extends Component {
 
     handleModelChange(editor, name, model) {
         const clause = this.state.clause;
-        const logicManager = this.state.logicManager;
+        const logicManager = clause.getTemplate().getLogicManager();
         const oldModel = this.state.model;
         const newModel = [];
         let modelFails = false;
@@ -439,7 +465,7 @@ class TemplateStudio extends Component {
                 this.setState(Utils.parseSample(clause, this.state.text, this.state.log));
                 try {
                     const { markers, logic, log, model, grammar } = this.state;
-                    const changesLogic = Utils.compileLogic(editor, markers, logic, model, grammar, clause, log);
+                    const changesLogic = Utils.compileLogic(editor, markers, logic, clause, log);
                     this.setState(changesLogic);
                 } catch (error) {
                     console.log(`ERROR! ${error.message}`);
@@ -450,49 +476,25 @@ class TemplateStudio extends Component {
         }
     }
 
-    handleJSONChange(data) {
+    async handleJSONChange(data) {
         const { clause, log } = this.state;
         if (data !== null) {
-            return Utils.draft(clause, data, log).then((text) => {
-                this.setState(text);
-            }).catch((error) => {
-                throw error;
-            });
+            const textChanges = await Utils.draft(clause, data, log);
+            this.setState(textChanges);
         }
     }
 
-    handleLogicChange(editor, name, logic) {
-        const { clause, text, log, model, grammar, markers } = this.state;
-        const oldLogic = this.state.logic;
-        const newLogic = [];
-        let status = this.state.status;
-        let logLogic = this.state.log.logic;
-        oldLogic.forEach((m) => {
-            if (m.name === name) {
-                try {
-                    if (Utils.updateLogic(clause, name, logic)) {
-                        status = 'changed';
-                    }
-                } catch (error) {
-                    logLogic = `Cannot compile new logic ${error.message}`;
-                }
-                newLogic.push({ name,
-                                content: logic,
-                                markersSource: m.markersSource ? m.markersSource : [],
-                              });
-            } else {
-                newLogic.push({ name: m.name, content: m.content, markersSource: m.markersSource });
-            }
-        });
-        const changesText = Utils.parseSample(clause, text, { ...log, logic: logLogic });
-        this.setState({ ...changesText, status });
-        const changesLogic = Utils.compileLogic(editor, markers, newLogic, model, grammar, clause, this.state.log);
+    _handleLogicChange() {
+        const { clause, editor, markers, logic, log } = this.state;
+        const changesLogic = Utils.compileLogic(editor, markers, logic, clause, log);
         this.setState(changesLogic);
     }
 
     handleLogicGrammarChange(grammar) {
         const { clause, text, log, model, logic, markers } = this.state;
-        const changesLogic = Utils.compileLogic(null, markers, logic, model, grammar, clause, this.state.log);
+        const logicManager = clause.getTemplate().getLogicManager();
+        logicManager.getScriptManager().addTemplateFile(grammar, 'grammar/template.tem');
+        const changesLogic = Utils.compileLogic(null, markers, logic, clause, this.state.log);
         this.setState(changesLogic);
     }
 
@@ -501,66 +503,62 @@ class TemplateStudio extends Component {
         this.setState({ markers: Utils.refreshMarkers(editor, markers, newMarkers) });
     }
 
-    handleRunLogic() {
+    async handleRunLogic() {
         // XXX Should check whether the NL parses & the logic
         // compiles & the state/request are valid JSON first
         const state = this.state;
-        const compiledLogic = state.logicManager;
+        const logicManager = this.state.clause.getTemplate().getLogicManager();
         const contract = JSON.parse(state.data);
         const request = JSON.parse(state.request);
         const cstate = JSON.parse(state.cstate);
-        return Utils.runLogic(compiledLogic, contract, request, cstate)
-            .then((response) => {
-                state.log.execute = 'Execution successful!';
-                state.response = JSON.stringify(response.response, null, 2);
-                state.cstate = JSON.stringify(response.state, null, 2);
-                state.emit = JSON.stringify(response.emit, null, 2);
-                this.setState(state);
-            }).catch((error) => {
-                state.response = 'null';
-                // state.cstate = 'null'; // XXX State should remain the initial state if execution fails
-                state.emit = '[]';
-                state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
-                this.setState(state);
-            });
+        try {
+            const response = Utils.runLogic(logicManager, contract, request, cstate);
+            state.log.execute = 'Execution successful!';
+            state.response = JSON.stringify(response.response, null, 2);
+            state.cstate = JSON.stringify(response.state, null, 2);
+            state.emit = JSON.stringify(response.emit, null, 2);
+            this.setState(state);
+        } catch(error) {
+            state.response = 'null';
+            state.emit = '[]';
+            state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
+            this.setState(state);
+        };
     }
 
-    handleInitLogic() {
+    async handleInitLogic() {
         // XXX Should check whether the NL parses & the logic
         // compiles & the state/request are valid JSON first
         const state = this.state;
         console.log('Initializing contract');
-        const compiledLogic = state.logicManager;
+        const logicManager = this.state.clause.getTemplate().getLogicManager();
         const contract = JSON.parse(state.data);
-        return Utils.runInit(compiledLogic, contract)
-            .then((response) => {
-                state.log.execute = 'Execution successful!';
-                state.response = JSON.stringify(response.response, null, 2);
-                state.cstate = JSON.stringify(response.state, null, 2);
-                state.emit = JSON.stringify(response.emit, null, 2);
-                this.setState(state);
-            }).catch((error) => {
-                state.response = 'null';
-                state.cstate = 'null';
-                state.emit = '[]';
-                state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
-                this.setState(state);
-            });
+        try {
+            const response = await Utils.runInit(logicManager, contract);
+            state.log.execute = 'Execution successful!';
+            state.response = JSON.stringify(response.response, null, 2);
+            state.cstate = JSON.stringify(response.state, null, 2);
+            state.emit = JSON.stringify(response.emit, null, 2);
+            this.setState(state);
+        } catch(error) {
+            state.response = 'null';
+            state.cstate = 'null';
+            state.emit = '[]';
+            state.log.execute = `[Error Executing Template] ${JSON.stringify(error.message)}`;
+            this.setState(state);
+        };
     }
 
-    loadTemplateLibrary() {
+    async loadTemplateLibrary() {
         const templateLibrary = new TemplateLibrary();
-        const promisedIndex =
-              templateLibrary.getTemplateIndex({ latestVersion: true, ciceroVersion });
-        return promisedIndex.then((templateIndex) => {
-            const templates = [];
-            for (const t in templateIndex) {
-                if (Object.prototype.hasOwnProperty.call(templateIndex, t)) {
-                    templates.push({ key: t, value: `ap://${t}#hash`, text: t });
-                }
+        const templateIndex = await templateLibrary.getTemplateIndex({ latestVersion: true, ciceroVersion });
+        const templates = [];
+        for (const t in templateIndex) {
+            if (Object.prototype.hasOwnProperty.call(templateIndex, t)) {
+                templates.push({ key: t, value: `ap://${t}#hash`, text: t });
             }
-            this.setState({ templates });
-        });
+        }
+        this.setState({ templates });
     }
 
     async loadTemplateFromUrl(templateURL) {
@@ -590,10 +588,10 @@ class TemplateStudio extends Component {
             newState.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             newState.data = 'null';
             this.setState(newState);
-            this.setState(Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.model, this.state.grammar, this.state.clause, this.state.log));
+            this.setState(Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.clause, this.state.log));
             this.handleModelChange(null, this.state, this.state.model);
             this.handleSampleChangeInit(this.state.text);
-            this.handleLogicChange(null, this.state, this.state.logic);
+            this._handleLogicChange();
             this.handlePackageChange(this.state.package);
             await this.handleJSONChange(this.state.data);
             await this.handleInitLogic(); // Initializes the contract state
@@ -631,10 +629,10 @@ class TemplateStudio extends Component {
             newState.request = JSON.stringify(template.getMetadata().getRequest(), null, 2);
             newState.data = 'null';
             this.setState(newState);
-            this.setState(Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.model, this.state.grammar, this.state.clause, this.state.log));
+            this.setState(Utils.compileLogic(null, this.state.markers, this.state.logic, this.state.clause, this.state.log));
             this.handleModelChange(null, this.state, this.state.model);
             this.handleSampleChangeInit(this.state.text);
-            this.handleLogicChange(null, this.state, this.state.logic);
+            this._handleLogicChange();
             this.handlePackageChange(this.state.package);
             await this.handleJSONChange(this.state.data);
             await this.handleInitLogic(); // Initializes the contract state
@@ -649,56 +647,56 @@ class TemplateStudio extends Component {
 
     render() {
         return (
-                <div>
-                <TopMenu
-            loadTemplateFromBuffer={this.loadTemplateFromBuffer}
-            loadTemplateFromUrl={this.loadTemplateFromUrl}
-            status={this.state.status}
-            templates={this.state.templates}
-                />
-                <DimmableContainer
-            clause={this.state.clause}
-            cstate={this.state.cstate}
-            data={this.state.data}
-            emit={this.state.emit}
-            grammar={this.state.grammar}
-            handleErgoMounted={this.handleErgoMounted}
-            handleGrammarChange={this.handleGrammarChange}
-            handleInitLogic={this.handleInitLogic}
-            handleJSONChange={this.handleJSONChange}
-            handleLoadingFailedConfirm={this.handleLoadingFailedConfirm}
-            handleLogicChange={this.handleLogicChange}
-            handleModelChange={this.handleModelChange}
-            handleNameChange={this.handleNameChange}
-            handleVersionChange={this.handleVersionChange}
-            handlePackageChange={this.handlePackageChange}
-            handleREADMEChange={this.handleREADMEChange}
-            handleRequestChange={this.handleRequestChange}
-            handleRunLogic={this.handleRunLogic}
-            handleSampleChange={this.handleSampleChange}
-            handleStateChange={this.handleStateChange}
-            handleStatusChange={this.handleStatusChange}
-            handleTypeChange={this.handleTypeChange}
-            loading={this.state.loading}
-            loadingFailed={this.state.loadingFailed}
-            loadTemplateFromUrl={this.loadTemplateFromUrl}
-            log={this.state.log}
-            logic={this.state.logic}
-            model={this.state.model}
-            package={this.state.package}
-            request={this.state.request}
-            response={this.state.response}
-            status={this.state.status}
-            templateName={this.state.templateName}
-            templateVersion={this.state.templateVersion}
-            templateURL={this.state.templateURL}
-            templateType={this.state.templateType}
-            text={this.state.text}
-                />
-                <BottomMenu
-            log={this.state.log}
-                />
-                </div>
+            <div>
+              <TopMenu
+                loadTemplateFromBuffer={this.loadTemplateFromBuffer}
+                loadTemplateFromUrl={this.loadTemplateFromUrl}
+                status={this.state.status}
+                templates={this.state.templates}
+              />
+              <DimmableContainer
+                clause={this.state.clause}
+                cstate={this.state.cstate}
+                data={this.state.data}
+                emit={this.state.emit}
+                grammar={this.state.grammar}
+                handleErgoMounted={this.handleErgoMounted}
+                handleGrammarChange={this.handleGrammarChange}
+                handleInitLogic={this.handleInitLogic}
+                handleJSONChange={this.handleJSONChange}
+                handleLoadingFailedConfirm={this.handleLoadingFailedConfirm}
+                handleLogicChange={this.handleLogicChange}
+                handleModelChange={this.handleModelChange}
+                handleNameChange={this.handleNameChange}
+                handleVersionChange={this.handleVersionChange}
+                handlePackageChange={this.handlePackageChange}
+                handleREADMEChange={this.handleREADMEChange}
+                handleRequestChange={this.handleRequestChange}
+                handleRunLogic={this.handleRunLogic}
+                handleSampleChange={this.handleSampleChange}
+                handleStateChange={this.handleStateChange}
+                handleStatusChange={this.handleStatusChange}
+                handleTypeChange={this.handleTypeChange}
+                loading={this.state.loading}
+                loadingFailed={this.state.loadingFailed}
+                loadTemplateFromUrl={this.loadTemplateFromUrl}
+                log={this.state.log}
+                logic={this.state.logic}
+                model={this.state.model}
+                package={this.state.package}
+                request={this.state.request}
+                response={this.state.response}
+                status={this.state.status}
+                templateName={this.state.templateName}
+                templateVersion={this.state.templateVersion}
+                templateURL={this.state.templateURL}
+                templateType={this.state.templateType}
+                text={this.state.text}
+              />
+              <BottomMenu
+                log={this.state.log}
+              />
+            </div>
         );
     }
 }

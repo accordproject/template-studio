@@ -18,7 +18,6 @@ import moment from 'moment-mini'; // For DateTime support during contract execut
 
 /* Ergo */
 
-import { LogicManager } from '@accordproject/ergo-compiler';
 import { EvalEngine } from '@accordproject/ergo-engine/index.browser.js';
 
 function getUrlVars() {
@@ -107,8 +106,7 @@ function updateRequest(clause, oldrequest, request) {
   return false;
 }
 function updateModel(clause, name, newcontent, grammar) {
-    const template = clause.getTemplate();
-    const logicManager = template.getLogicManager();
+    const logicManager = clause.getTemplate().getLogicManager();
     try {
         logicManager.updateModel(newcontent, name);
         // XXX Have to re-generate the grammar if the model changes
@@ -138,7 +136,6 @@ async function draft(clause, data, log) {
     // clear engine script cache before re-generating text 
     clause.getEngine().clearCacheJsScript();
     const text = await clause.draft(options);
-    console.log('>>> DRAFT text' + JSON.stringify(text));
     changes.text = text;
     changes.data = data;
     if (updateTemplateSample(clause, text)) {
@@ -161,7 +158,7 @@ function refreshMarkers(editor, oldMarkers, newMarkersSource) {
   return newMarkers;
 }
 
-function compileLogic(editor, markers, logic, model, grammar, clause, log) {
+function compileLogic(editor, markers, logic, clause, log) {
   const changes = {};
   let newMarkers = [];
   let newLogic = [];
@@ -170,18 +167,7 @@ function compileLogic(editor, markers, logic, model, grammar, clause, log) {
   }
 
   try {
-      const logicManager = new LogicManager('cicero');
-      logicManager.getScriptManager().addTemplateFile(grammar, 'grammar/template.tem');
-      const modelNames = [];
-      const modelContent = [];
-      model.forEach((m) => {
-          modelNames.push(m.name);
-          modelContent.push(m.content);
-      });
-      logic.forEach((l) => {
-          logicManager.addLogicFile(l.content, l.name);
-      });
-      logicManager.addModelFiles(modelContent, modelNames);
+      const logicManager = clause.getTemplate().getLogicManager();
       try {
           logicManager.compileLogicSync(true);
           logic.forEach((m) => {
@@ -212,15 +198,10 @@ function compileLogic(editor, markers, logic, model, grammar, clause, log) {
               }
           });
       }
-      clause.getTemplate().logicManager = logicManager;
-      changes.logicManager = logicManager;
-      changes.grammar = grammar;
   } catch (error) {
-    newLogic = logic;
     changes.log = logicLog(log, `Compilation error ${error.message}`);
   }
   if (editor) { changes.markers = refreshMarkers(editor, markers, newMarkers) };
-  changes.logic = newLogic;
   return changes;
 }
 
