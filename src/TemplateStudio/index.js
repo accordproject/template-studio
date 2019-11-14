@@ -19,6 +19,7 @@ const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.12.0.cta`;
 /* Utilities */
 
 import * as Utils from './Utils';
+import _ from 'lodash';
 
 /* Cicero */
 
@@ -75,6 +76,12 @@ class TemplateStudio extends Component {
       markers: [],
     };
     this.handleErgoMounted = this.handleErgoMounted.bind(this);
+    this._handleGrammarChange = this._handleGrammarChange.bind(this);
+    const debouncedGrammarChange = _.debounce(this._handleGrammarChange, 1000, { maxWait: 5000 });
+    this.handleGrammarChange = (text) => {
+      this.setState({ grammar: text });
+      debouncedGrammarChange();
+    };
     this.handleGrammarChange = this.handleGrammarChange.bind(this);
     this.handleInitLogic = this.handleInitLogic.bind(this);
     this.handleJSONChange = this.handleJSONChange.bind(this);
@@ -313,56 +320,53 @@ class TemplateStudio extends Component {
     //this.handleJSONChange(this.state.data);
   }
 
-  handleGrammarChange(text) {
-    console.log(`GRAMMAR CHANGED!` + text);
-    const clause = this.state.clause;
-    if (text !== this.state.grammar) {
-      this.setState({ grammar: text });
+  _handleGrammarChange() {
+      const text = this.state.grammar;
+      const clause = this.state.clause;
       try {
-        const status = 'changed';
-        const data = JSON.stringify(clause.getData(), null, 2);
-        const logText = 'Grammar change successful!';
-        let changes = {};
-        if (data !== 'null') {
-          clause.getTemplate().getParserManager().buildGrammar(text);
-          this.handleLogicGrammarChange(text);
-          Utils.draft(clause, data, { ...this.state.log, text: logText }).then((changes) => {
-            if (changes.log.text.indexOf('successful') === -1) {
-              //throw new Error('Error generating text from this new grammar');
-            }
-            this.setState({
-              ...changes,
-              data,
-              status,
-            })
-          }).catch((error) => {
-            throw error;
-          });
-        }
-      } catch (error1) {
-        try {
-          console.log(`Error building grammar ${error1.message}`);
           const status = 'changed';
-          const template = clause.getTemplate();
-          template.getParserManager().buildGrammar(text);
-          const log = { ...this.state.log, text: `[Change Template] ${error1.message}` };
-          // Disable for now due to round-tripping issues
-          // const changesText = Utils.parseSample(clause, this.state.text, log);
-          this.setState({
-            grammar: text,
-            status,
-          });
-        } catch (error2) {
-          this.setState({
-            grammar: text,
-            log: {
-              ...this.state.log,
-              text: `[Change Template] ${error2.message}`,
-            },
-          });
-        }
+          const data = JSON.stringify(clause.getData(), null, 2);
+          const logText = 'Grammar change successful!';
+          let changes = {};
+          if (data !== 'null') {
+              clause.getTemplate().getParserManager().buildGrammar(text);
+              this.handleLogicGrammarChange(text);
+              Utils.draft(clause, data, { ...this.state.log, text: logText }).then((changes) => {
+                  if (changes.log.text.indexOf('successful') === -1) {
+                      //throw new Error('Error generating text from this new grammar');
+                  }
+                  this.setState({
+                      ...changes,
+                      data,
+                      status,
+                  })
+              }).catch((error) => {
+                  throw error;
+              });
+          }
+      } catch (error1) {
+          try {
+              console.log(`Error building grammar ${error1.message}`);
+              const status = 'changed';
+              const template = clause.getTemplate();
+              template.getParserManager().buildGrammar(text);
+              const log = { ...this.state.log, text: `[Change Template] ${error1.message}` };
+              // Disable for now due to round-tripping issues
+              // const changesText = Utils.parseSample(clause, this.state.text, log);
+              this.setState({
+                  grammar: text,
+                  status,
+              });
+          } catch (error2) {
+              this.setState({
+                  grammar: text,
+                  log: {
+                      ...this.state.log,
+                      text: `[Change Template] ${error2.message}`,
+                  },
+              });
+          }
       }
-    }
   }
 
   handleRequestChange(text) {
