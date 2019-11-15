@@ -114,7 +114,29 @@ class TemplateStudio extends Component {
             this.setState({editor: editor, logic:newLogic, clause, status: newStatus, log: {...log, logic:newLog }});
             debouncedLogicChange();
         };
-        this.handleModelChange = this.handleModelChange.bind(this);
+        this._handleModelChange = this._handleModelChange.bind(this);
+        const debouncedModelChange = _.debounce(this._handleModelChange, 1000, { maxWait: 5000 });
+        this.handleModelChange = (editor, name, model) => {
+            const clause = this.state.clause;
+            const logicManager = clause.getTemplate().getLogicManager();
+            const oldModel = this.state.model;
+            const newModel = [];
+            let modelFails = false;
+            let changesModel;
+            oldModel.forEach((m) => {
+                if (m.name === name) {
+                    changesModel = Utils.updateModel(logicManager, 'model/'+name, model, this.state.log);
+                    newModel.push({ name,
+                                    content: model,
+                                    markersSource: m.markersSource ? m.markersSource : [],
+                                  });
+                } else {
+                    newModel.push({ name: m.name, content: m.content, markersSource: m.markersSource });
+                }
+            });
+            this.setState({...changesModel, editor: editor, clause, status:'changed', model: newModel});
+            debouncedModelChange();
+        };
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleVersionChange = this.handleVersionChange.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
@@ -349,7 +371,7 @@ class TemplateStudio extends Component {
             ...stateChanges,
             status,
         });
-        //console.log('DATA CHANGE INSIDE SAMPLE! ' + JSON.stringify(this.state.data));
+        // XXX Works but loses the cursor location
         //this.handleJSONChange(this.state.data);
     }
 
@@ -420,59 +442,22 @@ class TemplateStudio extends Component {
         });
     }
 
-    handleModelChange(editor, name, model) {
-        const clause = this.state.clause;
-        const logicManager = clause.getTemplate().getLogicManager();
-        const oldModel = this.state.model;
-        const newModel = [];
-        let modelFails = false;
-        let status = this.state.status;
-        let logModel = this.state.log.model;
-        oldModel.forEach((m) => {
-            if (m.name === name) {
-                try {
-                    if (Utils.updateModel(clause, 'models/'+name, model, this.state.grammar)) {
-                        status = 'changed';
-                        logModel = 'Load model successful';
-                    }
-                } catch (error) {
-                    modelFails = true;
-                    console.log(`ERROR! ${error.message}`);
-                    logModel = `Cannot load model: ${error.message}`;
-                }
-                newModel.push({ name,
-                                content: model,
-                                markersSource: m.markersSource ? m.markersSource : [],
-                              });
-            } else {
-                newModel.push({ name: m.name, content: m.content, markersSource: m.markersSource });
-            }
-        });
-        if (!modelFails) {
-            logModel = 'Model loaded successfully';
-        }
-        this.setState({
-            model: newModel,
-            status,
-            log: {
-                ...this.state.log,
-                model: logModel,
-            },
-        });
-        if (!modelFails) {
-            try {
-                clause.getTemplate().getParserManager().buildGrammar(this.state.grammar);
-                this.setState(Utils.parseSample(clause, this.state.text, this.state.log));
-                try {
-                    const { markers, logic, log, model, grammar } = this.state;
-                    const changesLogic = Utils.compileLogic(editor, markers, logic, clause, log);
-                    this.setState(changesLogic);
-                } catch (error) {
-                    console.log(`ERROR! ${error.message}`);
-                }
-            } catch (error) {
-                console.log(`ERROR! ${error.message}`);
-            }
+    _handleModelChange() {
+        const { editor, clause, logic, log, grammar, markers, text } = this.state;
+        const template = clause.getTemplate();
+        try {
+            template.getLogicManager().getModelManager().validateModelFiles();
+            template.getParserManager().buildGrammar(grammar);
+            this.setState(Utils.parseSample(clause, text, log));
+            const changesLogic = Utils.compileLogic(editor, markers, logic, clause, log);
+            this.setState(changesLogic);
+        } catch (error) {
+            this.setState({
+                log: {
+                    ...this.state.log,
+                    model: `[Change Model] ${error.message}`,
+                },
+            });
         }
     }
 
@@ -512,7 +497,7 @@ class TemplateStudio extends Component {
         const request = JSON.parse(state.request);
         const cstate = JSON.parse(state.cstate);
         try {
-            const response = Utils.runLogic(logicManager, contract, request, cstate);
+            const response = await Utils.runLogic(logicManager, contract, request, cstate);
             state.log.execute = 'Execution successful!';
             state.response = JSON.stringify(response.response, null, 2);
             state.cstate = JSON.stringify(response.state, null, 2);

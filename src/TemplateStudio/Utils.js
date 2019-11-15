@@ -67,6 +67,16 @@ function logicLog(log, msg) {
     loading: log.loading,
   };
 }
+function modelLog(log, msg) {
+  return {
+    text: log.text,
+    model: msg,
+    logic: log.logic,
+    meta: log.meta,
+    execute: log.execute,
+    loading: log.loading,
+  };
+}
 function parseSample(clause, text, log) {
   const changes = {};
   try {
@@ -105,16 +115,15 @@ function updateRequest(clause, oldrequest, request) {
   }
   return false;
 }
-function updateModel(clause, name, newcontent, grammar) {
-    const logicManager = clause.getTemplate().getLogicManager();
+function updateModel(logicManager, name, newcontent, log) {
+    const changes = {};
     try {
         logicManager.updateModel(newcontent, name);
-        // XXX Have to re-generate the grammar if the model changes
-        clause.getTemplate().buildGrammar(grammar);
-        return true;
+        changes.log = modelLog(log, 'Parse model successful!');
     } catch (error) {
-        return false;
+        changes.log = modelLog(log, `[Parse Model] ${error.message}`);
     }
+    return changes;
 }
 function updateLogic(clause, name, content) {
   const scriptManager = clause.getTemplate().getScriptManager();
