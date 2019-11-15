@@ -56,8 +56,8 @@ class ExecuteForm extends Form {
     const { request, cstate, response, emit } = this.props;
     return (
       <Tab.Pane>
-        <Button size="small" type="submit" onClick={this.handleRunLogic} compact><Icon name="send" /> Send Request</Button>
-        <Button size="small" type="submit" onClick={this.handleInitLogic} compact><Icon name="redo" flipped="horizontally" /> Reset Contract</Button>
+        <Button size="small" type="submit" onClick={this.handleInitLogic} compact><Icon name="redo" flipped="horizontally" /> Initialize</Button>
+        <Button size="small" type="submit" onClick={this.handleRunLogic} compact><Icon name="send" /> Trigger</Button>
         <Grid>
           <Divider hidden />
           <Grid.Row columns={2}>
