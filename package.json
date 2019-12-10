@@ -17,7 +17,7 @@
   "dependencies": {
     "@accordproject/cicero-core": "0.20.5",
     "@accordproject/concerto-core": "0.82.6",
-    "@accordproject/ergo-compiler": "0.20.3",
+    "@accordproject/ergo-compiler": "0.20.5",
     "@accordproject/ergo-engine": "0.20.5",
     "codemirror": "^5.48.2",
     "file-saver": "^2.0.0-rc.3",
