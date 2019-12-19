@@ -116,7 +116,7 @@ class DimmableContainer extends React.Component {
             name="sample"
             active={this.state.activeLegal === 'sample'}
             onClick={this.handleLegalTabChange}
-          >Test</Menu.Item>
+          >Sample</Menu.Item>
           <Menu.Item
             href="https://docs.accordproject.org/docs/spec-template.html#grammar"
             target="_blank"
@@ -155,7 +155,7 @@ class DimmableContainer extends React.Component {
             name="execution"
             active={this.state.activeLogic === 'execution'}
             onClick={this.handleLogicTabChange}
-          >Test</Menu.Item>
+          >Request</Menu.Item>
           <Menu.Item
             href="https://docs.accordproject.org/docs/spec-template.html#logic"
             target="_blank"

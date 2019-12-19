@@ -26,18 +26,18 @@ const ModalAbout = () => (
     <Modal.Content>
       <Modal.Description>
         <Header>Welcome!</Header>
-        <p>This template studio lets you load, edit and test legal clause or contract templates built with the <a href="https://accordproject.org/" target="_blank" rel="noopener noreferrer">Accord Project</a> technology.</p>
+        <p>This template studio lets you load, edit and test clause or contract templates built with the <a href="https://accordproject.org/" target="_blank" rel="noopener noreferrer">Accord Project</a> technology.</p>
         <p>It is open-source and under active development. Contributions and bug reports are welcome on <a href="https://github.com/accordproject/template-studio" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>
       </Modal.Description>
       <Divider />
       <Modal.Description>
         <Header>Getting started</Header>
         <p>Search a template from the <a href="https://templates.accordproject.org" target="_blank" rel="noopener noreferrer">Accord Project template library</a> (Search box at the top)</p>
-        <p>Chose whether to edit the <b>Contract Text</b>, <b>the Model</b>,
-        or the <b>Logic</b> (Tab on the upper left)</p>
-        <p>Edit the <b>Test Contract</b> and inspect the corresponding <b>Contract data</b></p>
-        <p>Edit the <b>Template</b> and see the corresponding <b>Test Contract</b></p>
-        <p>Edit the <b>Ergo</b> contract logic and test it by executing requests</p>
+        <p>Chose whether to edit the template <b>Text</b>, <b>Model</b>,
+        or <b>Logic</b> (Tab on the upper left)</p>
+        <p>Edit the <b>Sample</b> in the Text tab and inspect the corresponding <b>Contract Data</b></p>
+        <p>Edit the <b>Grammar</b> in the Text tab and see the corresponding <b>Sample</b></p>
+        <p>Edit the <b>Logic</b> in Ergo and trigger it by sending a <b>Request</b></p>
       </Modal.Description>
       <Divider />
       <Modal.Description>
