@@ -64,6 +64,8 @@ class TemplateStudio extends Component {
             text: '[Please Select a Sample Template]',
             data: 'null',
             log: defaultlog,
+            logo: null,
+            author: '',
             grammar: '[Please Select a Sample Template]',
             model: '[Please Select a Sample Template]',
             logic: '[Please Select a Sample Template]',
@@ -139,6 +141,7 @@ class TemplateStudio extends Component {
             debouncedModelChange();
         };
         this.handleNameChange = this.handleNameChange.bind(this);
+        this.handleAuthorChange = this.handleAuthorChange.bind(this);
         this.handleVersionChange = this.handleVersionChange.bind(this);
         this.handlePackageChange = this.handlePackageChange.bind(this);
         this.handleREADMEChange = this.handleREADMEChange.bind(this);
@@ -208,6 +211,7 @@ class TemplateStudio extends Component {
             this.state.clause.getTemplate().setPackageJson(packageJson);
             const stringifiedPackage = JSON.stringify(packageJson, null, 2);
             const templateName = packageJson.name;
+            const author = packageJson.author;
             const templateVersion = packageJson.version;
             const templateType = packageJson.accordproject.template;
             // Make sure to try re-parsing
@@ -215,6 +219,7 @@ class TemplateStudio extends Component {
             this.setState({
                 ...stateChanges,
                 package: stringifiedPackage,
+                author,
                 templateName,
                 templateVersion,
                 templateType,
@@ -255,6 +260,35 @@ class TemplateStudio extends Component {
                 log: {
                     ...this.state.log,
                     meta: `[Change Template Name] ${error}`,
+                },
+            });
+        }
+    }
+
+    handleAuthorChange(e, input) {
+        try {
+            const packageJson = JSON.parse(this.state.package);
+            packageJson.author = input.value;
+            this.state.clause.getTemplate().setPackageJson(packageJson);
+            const stringifiedPackage = JSON.stringify(packageJson, null, 2);
+            const logMeta = 'Template Name change successful!';
+            const status = 'changed';
+            this.setState({
+                author: input.value,
+                package: stringifiedPackage,
+                log: {
+                    ...this.state.log,
+                    meta: logMeta,
+                },
+                status,
+            });
+        } catch (error) {
+            console.log(`ERROR ${JSON.stringify(error.message)}`);
+            this.setState({
+                author: input.value,
+                log: {
+                    ...this.state.log,
+                    meta: `[Change Template Author] ${error}`,
                 },
             });
         }
@@ -564,6 +598,8 @@ class TemplateStudio extends Component {
             newState.templateURL = thisTemplateURL;
             newState.clause = new Clause(template);
             newState.templateName = newState.clause.getTemplate().getMetadata().getName();
+            newState.author = newState.clause.getTemplate().getMetadata().getAuthor() || '';
+            newState.logo = newState.clause.getTemplate().getMetadata().getLogo() ? newState.clause.getTemplate().getMetadata().getLogo().toString('base64') : null;
             newState.templateVersion = newState.clause.getTemplate().getMetadata().getVersion();
             newState.templateType = newState.clause.getTemplate().getMetadata().getTemplateType();
             newState.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
@@ -605,6 +641,8 @@ class TemplateStudio extends Component {
             const newState = {...this.state};
             newState.clause = new Clause(template);
             newState.templateName = newState.clause.getTemplate().getMetadata().getName();
+            newState.author = newState.clause.getTemplate().getMetadata().getAuthor() || '';
+            newState.logo = newState.clause.getTemplate().getMetadata().getLogo() ? newState.clause.getTemplate().getMetadata().getLogo().toString('base64') : null;
             newState.templateVersion = newState.clause.getTemplate().getMetadata().getVersion();
             newState.templateType = newState.clause.getTemplate().getMetadata().getTemplateType();
             newState.package = JSON.stringify(template.getMetadata().getPackageJson(), null, 2);
@@ -654,6 +692,7 @@ class TemplateStudio extends Component {
                 handleLogicChange={this.handleLogicChange}
                 handleModelChange={this.handleModelChange}
                 handleNameChange={this.handleNameChange}
+                handleAuthorChange={this.handleAuthorChange}
                 handleVersionChange={this.handleVersionChange}
                 handlePackageChange={this.handlePackageChange}
                 handleREADMEChange={this.handleREADMEChange}
@@ -667,6 +706,8 @@ class TemplateStudio extends Component {
                 loadingFailed={this.state.loadingFailed}
                 loadTemplateFromUrl={this.loadTemplateFromUrl}
                 log={this.state.log}
+                logo={this.state.logo}
+                author={this.state.author}
                 logic={this.state.logic}
                 model={this.state.model}
                 package={this.state.package}

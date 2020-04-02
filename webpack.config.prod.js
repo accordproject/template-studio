@@ -34,6 +34,7 @@ module.exports = {
     new webpack.DefinePlugin({
       ROOT_URI: JSON.stringify(resolveRootURI()), // From Netlify
     }),
+    new webpack.IgnorePlugin(/jsdom$/),
   ],
   module: {
     rules: [
