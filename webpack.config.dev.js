@@ -26,6 +26,7 @@ module.exports = {
     new webpack.DefinePlugin({
       ROOT_URI: JSON.stringify(ROOT_URI),
     }),
+    new webpack.IgnorePlugin(/jsdom$/),
   ],
   module: {
     rules: [

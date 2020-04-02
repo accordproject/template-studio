@@ -86,6 +86,8 @@ class DimmableContainer extends React.Component {
       model,
       logic,
       log,
+      logo,
+      author,
       data,
       request,
       cstate,
@@ -100,6 +102,7 @@ class DimmableContainer extends React.Component {
       templateType,
       loadTemplateFromUrl,
       handleNameChange,
+      handleAuthorChange,
       handleVersionChange,
       handleTypeChange,
       handleStatusChange,
@@ -291,8 +294,11 @@ class DimmableContainer extends React.Component {
                       <TemplateForm
                         clause={clause}
                         log={log}
+                        logo={logo}
+                        author={author}
                         status={status}
                         handleNameChange={handleNameChange}
+                        handleAuthorChange={handleAuthorChange}
                         handleVersionChange={handleVersionChange}
                         handleStatusChange={handleStatusChange}
                         handleTypeChange={handleTypeChange}

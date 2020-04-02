@@ -59,7 +59,7 @@ class TemplateForm extends React.Component {
   }
 
   render() {
-    const { log, status } = this.props;
+    const { log, logo, author, status } = this.props;
 
     return (
       <Card fluid>
@@ -103,6 +103,15 @@ class TemplateForm extends React.Component {
               }
             >
             </Form.Field>
+            <Form.Field
+              control={Input}
+              label="Author"
+              onChange={this.props.handleAuthorChange}
+              value={
+                this.props.author
+              }
+            >
+            </Form.Field>
           </Form>
         </Card.Content>
         <Card.Content>
@@ -128,6 +137,7 @@ class TemplateForm extends React.Component {
 TemplateForm.propTypes = {
   clause: PropTypes.object,
   handleNameChange: PropTypes.func.isRequired,
+  handleAuthorChange: PropTypes.func.isRequired,
   handleVersionChange: PropTypes.func.isRequired,
   handleStatusChange: PropTypes.func.isRequired,
   handleTypeChange: PropTypes.func.isRequired,
