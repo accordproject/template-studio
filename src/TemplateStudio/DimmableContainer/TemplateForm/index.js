@@ -14,7 +14,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, Confirm, Form, Input, Radio } from 'semantic-ui-react';
+import { Card, Confirm, Form, Input, Radio, Image } from 'semantic-ui-react';
 
 import { StatusLabel } from '../../Status';
 import {
@@ -64,6 +64,7 @@ class TemplateForm extends React.Component {
     return (
       <Card fluid>
         <Card.Content>
+          { logo ? <Image src={"data:image/png;base64, " + logo}  floated='right' size='mini'/> : null }
           <Card.Header>Current Template</Card.Header>
           <StatusLabel log={log} status={status} />
         </Card.Content>
