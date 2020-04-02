@@ -15,7 +15,7 @@
 /* Default values */
 
 const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.12.0.cta`;
-const TEMPLATE_LIBRARY = 'https://templates.accordproject.org';
+const TEMPLATE_LIBRARY = 'https://cicero-0-20-10--templates-accordproject.netlify.com';
 
 /* Utilities */
 
