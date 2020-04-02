@@ -15,6 +15,7 @@
 /* Default values */
 
 const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.12.0.cta`;
+const TEMPLATE_LIBRARY = 'https://templates.accordproject.org';
 
 /* Utilities */
 
@@ -535,7 +536,7 @@ class TemplateStudio extends Component {
     }
 
     async loadTemplateLibrary() {
-        const templateLibrary = new TemplateLibrary();
+        const templateLibrary = new TemplateLibrary(TEMPLATE_LIBRARY);
         const templateIndex = await templateLibrary.getTemplateIndex({ latestVersion: true, ciceroVersion });
         const templates = [];
         for (const t in templateIndex) {
@@ -547,7 +548,7 @@ class TemplateStudio extends Component {
     }
 
     async loadTemplateFromUrl(templateURL) {
-        const thisTemplateURL = templateURL;
+        const thisTemplateURL = templateURL.replace('ap://',(TEMPLATE_LIBRARY+'/archives/')).replace('#hash','.cta');
         this.setState({ loading: true });
         console.log(`Loading template:  ${thisTemplateURL}`);
         let template;
