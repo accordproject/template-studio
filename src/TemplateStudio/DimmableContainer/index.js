@@ -138,7 +138,6 @@ class DimmableContainer extends React.Component {
           this.state.activeLegal === 'sample' ?
             <ParseForm
               text={text}
-              grammar={grammar}
               log={log.text}
               data={data}
               handleSampleChange={this.props.handleSampleChange}

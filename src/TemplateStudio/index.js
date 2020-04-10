@@ -14,8 +14,8 @@
 
 /* Default values */
 
-const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.12.0.cta`;
-const TEMPLATE_LIBRARY = 'https://cicero-0-20-10--templates-accordproject.netlify.com';
+const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.12.1.cta`;
+const TEMPLATE_LIBRARY = 'https://templates.accordproject.org';
 
 /* Utilities */
 
@@ -61,14 +61,14 @@ class TemplateStudio extends Component {
             clause: null,
             package: 'null',
             readme: '',
-            text: '[Please Select a Sample Template]',
+            text: '[Please Select a Template]',
             data: 'null',
             log: defaultlog,
             logo: null,
             author: '',
-            grammar: '[Please Select a Sample Template]',
-            model: '[Please Select a Sample Template]',
-            logic: '[Please Select a Sample Template]',
+            grammar: '[Please Select a Template]',
+            model: '[Please Select a Template]',
+            logic: '[Please Select a Template]',
             request: 'null',
             cstate: 'null',
             response: JSON.stringify(null, null, 2),
@@ -81,8 +81,8 @@ class TemplateStudio extends Component {
         this.handleErgoMounted = this.handleErgoMounted.bind(this);
         this._handleGrammarChange = this._handleGrammarChange.bind(this);
         const debouncedGrammarChange = _.debounce(this._handleGrammarChange, 1000, { maxWait: 5000 });
-        this.handleGrammarChange = (text) => {
-            this.setState({ grammar: text });
+        this.handleGrammarChange = (input) => {
+            this.setState({ grammar: input });
             debouncedGrammarChange();
         };
         this.handleInitLogic = this.handleInitLogic.bind(this);
@@ -92,7 +92,7 @@ class TemplateStudio extends Component {
         this.handleLoadingFailedConfirm = this.handleLoadingFailedConfirm.bind(this);
         this._handleLogicChange = this._handleLogicChange.bind(this);
         const debouncedLogicChange = _.debounce(this._handleLogicChange, 1000, { maxWait: 5000 });
-        this.handleLogicChange = (editor, name, logicText) => {
+        this.handleLogicChange = (editor, name, input) => {
             const { clause, log, model, markers, status, logic } = this.state;
             const newLogic = [];
             let newStatus = status;
@@ -100,14 +100,14 @@ class TemplateStudio extends Component {
             logic.forEach((m) => {
                 if (m.name === name) {
                     try {
-                        if (Utils.updateLogic(clause, name, logicText)) {
+                        if (Utils.updateLogic(clause, name, input)) {
                             newStatus = 'changed';
                         }
                     } catch (error) {
                         newLog = `Cannot compile new logic ${error.message}`;
                     }
                     newLogic.push({ name,
-                                    content: logicText,
+                                    content: input,
                                     markersSource: m.markersSource ? m.markersSource : [],
                                   });
                 } else {
@@ -205,9 +205,9 @@ class TemplateStudio extends Component {
         this.setState({ status });
     }
 
-    handlePackageChange(text) {
+    handlePackageChange(input) {
         try {
-            const packageJson = JSON.parse(text);
+            const packageJson = JSON.parse(input);
             this.state.clause.getTemplate().setPackageJson(packageJson);
             const stringifiedPackage = JSON.stringify(packageJson, null, 2);
             const templateName = packageJson.name;
@@ -227,7 +227,7 @@ class TemplateStudio extends Component {
         } catch (error) {
             console.log(`ERROR ${JSON.stringify(error.message)}`);
             this.setState({
-                package: text,
+                package: input,
                 log: {
                     ...this.state.log,
                     meta: `[Change Template package.json] ${error}`,
@@ -350,12 +350,12 @@ class TemplateStudio extends Component {
         }
     }
 
-    handleREADMEChange(text) {
+    handleREADMEChange(input) {
         try {
-            const readme = text;
+            const readme = input;
             let status = this.state.status;
             const template = this.state.clause.getTemplate();
-            if (template.getMetadata().getREADME() !== text) {
+            if (template.getMetadata().getREADME() !== input) {
                 status = 'changed';
                 template.setReadme(readme);
             }
@@ -370,7 +370,7 @@ class TemplateStudio extends Component {
         } catch (error) {
             console.log(`ERROR ${JSON.stringify(error.message)}`);
             this.setState({
-                readme: text,
+                readme: input,
                 log: {
                     ...this.state.log,
                     meta: `[Change Template README] ${error}`,
@@ -379,29 +379,29 @@ class TemplateStudio extends Component {
         }
     }
 
-    handleSampleChangeInit(text) {
+    handleSampleChangeInit(input) {
         const { clause, log } = this.state;
-        this.setState({ text });
+        this.setState({ text: input });
         let status = this.state.status;
-        if (Utils.updateTemplateSample(clause, text)) {
+        if (Utils.updateTemplateSample(clause, input)) {
             status = 'changed';
         }
-        const stateChanges = Utils.parseSample(clause, text, log);
+        const stateChanges = Utils.parseSample(clause, input, log);
         this.setState({
             ...stateChanges,
             status,
         });
     }
 
-    handleSampleChange(text) {
-        console.log('SAMPLE CHANGE! ' + JSON.stringify(text));
+    handleSampleChange(input) {
+        console.log('SAMPLE CHANGE! ' + JSON.stringify(input));
         const { clause, log } = this.state;
-        this.setState({ text });
+        this.setState({ text: input });
         let status = this.state.status;
-        if (Utils.updateTemplateSample(clause, text)) {
+        if (Utils.updateTemplateSample(clause, input)) {
             status = 'changed';
         }
-        const stateChanges = Utils.parseSample(clause, text, log);
+        const stateChanges = Utils.parseSample(clause, input, log);
         this.setState({
             ...stateChanges,
             status,
@@ -411,18 +411,18 @@ class TemplateStudio extends Component {
     }
 
     async _handleGrammarChange() {
-        const text = this.state.grammar;
+        const input = this.state.grammar;
         const clause = this.state.clause;
         try {
             const status = 'changed';
             const data = JSON.stringify(clause.getData(), null, 2);
-            const logText = 'Grammar change successful!';
+            const logMessage = 'Grammar change successful!';
             let changes = {};
             if (data !== 'null') {
-                clause.getTemplate().getParserManager().buildGrammar(text);
-                this.handleLogicGrammarChange(text);
+                clause.getTemplate().getParserManager().buildGrammar(input);
+                this.handleLogicGrammarChange(input);
                 try {
-                    const changes = await Utils.draft(clause, data, { ...this.state.log, text: logText });
+                    const changes = await Utils.draft(clause, data, { ...this.state.log, text: logMessage });
                     if (changes.log.text.indexOf('successful') === -1) {
                         //throw new Error('Error generating text from this new grammar');
                     }
@@ -440,17 +440,17 @@ class TemplateStudio extends Component {
                 console.log(`Error building grammar ${error1.message}`);
                 const status = 'changed';
                 const template = clause.getTemplate();
-                template.getParserManager().buildGrammar(text);
+                template.getParserManager().buildGrammar(input);
                 const log = { ...this.state.log, text: `[Change Template] ${error1.message}` };
-                // Disable for now due to round-tripping issues
+                // Disabled for now due to round-tripping issues
                 // const changesText = Utils.parseSample(clause, this.state.text, log);
                 this.setState({
-                    grammar: text,
+                    grammar: input,
                     status,
                 });
             } catch (error2) {
                 this.setState({
-                    grammar: text,
+                    grammar: input,
                     log: {
                         ...this.state.log,
                         text: `[Change Template] ${error2.message}`,
@@ -460,20 +460,20 @@ class TemplateStudio extends Component {
         }
     }
 
-    handleRequestChange(text) {
+    handleRequestChange(input) {
         let status = this.state.status;
-        if (Utils.updateRequest(this.state.clause, this.state.request, text)) {
+        if (Utils.updateRequest(this.state.clause, this.state.request, input)) {
             status = 'changed';
         }
         return this.setState({
-            request: text,
+            request: input,
             status,
         });
     }
 
-    handleStateChange(text) {
+    handleStateChange(input) {
         return this.setState({
-            cstate: text,
+            cstate: input,
         });
     }
 
