@@ -17,7 +17,7 @@
 import moment from 'moment-mini'; // For DateTime support during contract execution
 
 /* Ergo */
-
+const TemplateInstance = require('@accordproject/cicero-core/lib/templateinstance');
 import { EvalEngine } from '@accordproject/ergo-engine/index.browser.js';
 
 function getUrlVars() {
@@ -134,7 +134,7 @@ function updateLogic(clause, name, content) {
   return false;
 }
 
-async function draft(clause, data, log) {
+function draft(clause, data, log) {
   const changes = {};
   try {
     const dataContent = JSON.parse(data);
@@ -144,7 +144,7 @@ async function draft(clause, data, log) {
     };
     // clear engine script cache before re-generating text 
     clause.getEngine().clearCacheJsScript();
-    const text = await clause.draft(options);
+    const text = clause.draft(options);
     changes.text = text;
     changes.data = data;
     if (updateTemplateSample(clause, text)) {
@@ -153,7 +153,7 @@ async function draft(clause, data, log) {
     changes.log = textLog(log, 'GenerateText successful!');
   } catch (error) {
     changes.data = data;
-    changes.log = textLog(log, `[Instantiate Contract] ${error.message}`);
+    changes.log = textLog(log, `[Draft] ${error.message}`);
   }
   return changes;
 }
@@ -167,75 +167,101 @@ function refreshMarkers(editor, oldMarkers, newMarkersSource) {
   return newMarkers;
 }
 
+function logicError(error, logic, log, changes) {
+    const message = error.message;
+    const descriptor = error.fileLocation;
+    let newMarkers = [];
+    changes.log = logicLog(log, message);
+    logic.forEach((m) => {
+        if (message.indexOf(m.name) !== -1) {
+            const mfix = m;
+            mfix.markersSource = [];
+            mfix.markersSource.push(
+                { start: { line: descriptor.start.line - 1, ch: descriptor.start.character },
+                  end: { line: descriptor.end.line - 1, ch: descriptor.end.character + 1 },
+                  kind: { className: 'syntax-error', title: descriptor.message } },
+            );
+            newMarkers = mfix.markersSource;
+        }
+    });
+    return newMarkers;
+}
+
+function rebuildParser(editor, markers, logic, clause, log, grammar) {
+    const changes = {};
+    let newMarkers = [];
+
+    const template = clause.getTemplate();
+    const parserManager = template.getParserManager();
+    const logicManager = template.getLogicManager();
+    try {
+        TemplateInstance.rebuildParser(
+            parserManager,
+            logicManager,
+            clause.getEngine(),
+            clause.getIdentifier(),
+            grammar
+        );
+        logic.forEach((m) => {
+            const mfix = m;
+            mfix.markersSource = [];
+            newMarkers = mfix.markersSource;
+        });
+        changes.log = logicLog(log, 'Compilation successful');
+    } catch (error) {
+        newMarkers = logicError(error, logic, log, changes);
+    }
+    if (editor) { changes.markers = refreshMarkers(editor, markers, newMarkers) };
+    return changes;
+}
+
 function compileLogic(editor, markers, logic, clause, log) {
-  const changes = {};
-  let newMarkers = [];
-  let newLogic = [];
-  if (logic.length === 0) {
-    return;
-  }
+    const changes = {};
+    let newMarkers = [];
+    if (logic.length === 0) {
+        return;
+    }
 
-  try {
-      const logicManager = clause.getTemplate().getLogicManager();
-      try {
-          logicManager.compileLogicSync(true);
-          logic.forEach((m) => {
-              const mfix = m;
-              mfix.markersSource = [];
-              newMarkers = mfix.markersSource;
-              newLogic.push(mfix);
-          });
-          newLogic = logic;
-          changes.log = logicLog(log, 'Compilation successful');
-      } catch (error) {
-          const message = error.message;
-          const descriptor = error.fileLocation;
-          changes.log = logicLog(log, message);
-          logic.forEach((m) => {
-              if (message.indexOf(m.name) !== -1) {
-                  const mfix = m;
-                  mfix.markersSource = [];
-                  mfix.markersSource.push(
-                      { start: { line: descriptor.start.line - 1, ch: descriptor.start.character },
-                        end: { line: descriptor.end.line - 1, ch: descriptor.end.character + 1 },
-                        kind: { className: 'syntax-error', title: descriptor.message } },
-                  );
-                  newMarkers = mfix.markersSource;
-                  newLogic.push(mfix);
-              } else {
-                  newLogic.push(m);
-              }
-          });
-      }
-  } catch (error) {
-    changes.log = logicLog(log, `Compilation error ${error.message}`);
-  }
-  if (editor) { changes.markers = refreshMarkers(editor, markers, newMarkers) };
-  return changes;
+    const logicManager = clause.getTemplate().getLogicManager();
+    try {
+        logicManager.compileLogicSync(true);
+        logic.forEach((m) => {
+            const mfix = m;
+            mfix.markersSource = [];
+            newMarkers = mfix.markersSource;
+        });
+        changes.log = logicLog(log, 'Compilation successful');
+    } catch (error) {
+        newMarkers = logicError(error, logic, log, changes);
+        changes.log = logicLog(log, `Compilation error ${error.message}`);
+    }
+    if (editor) { changes.markers = refreshMarkers(editor, markers, newMarkers) };
+    return changes;
 }
 
-async function runLogic(logicManager, contract, request, cstate) {
-  const engine = new EvalEngine();
-  const result = await engine.trigger(logicManager, 'test', contract, request, cstate, moment().format());
-  return result;
+function runLogic(logicManager, contract, request, cstate) {
+    const engine = new EvalEngine();
+    const result = engine.trigger(logicManager, 'test', contract, request, cstate, moment().format());
+    return result;
 }
 
-async function runInit(logicManager, contract) {
-  const engine = new EvalEngine();
-  const response = await engine.init(logicManager, 'test', contract, {}, moment().format());
-  return response;
+function runInit(logicManager, contract) {
+    const engine = new EvalEngine();
+    const response = engine.init(logicManager, 'test', contract, {}, moment().format());
+    return response;
 }
 
 export {
-  initUrl,
-  parseSample,
-  draft,
-  refreshMarkers,
-  compileLogic,
-  runLogic,
-  runInit,
-  updateTemplateSample,
-  updateRequest,
-  updateModel,
-  updateLogic,
+    initUrl,
+    parseSample,
+    draft,
+    refreshMarkers,
+    compileLogic,
+    rebuildParser,
+    runLogic,
+    runInit,
+    updateTemplateSample,
+    updateRequest,
+    updateModel,
+    updateLogic,
 };

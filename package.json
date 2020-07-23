@@ -1,6 +1,6 @@
 {
   "name": "template-studio",
-  "version": "0.20.7",
+  "version": "0.21.0",
   "description": "",
   "scripts": {
     "build": "webpack --config webpack.config.prod.js --mode production",
@@ -15,10 +15,10 @@
   "author": "accordproject.org",
   "license": "Apache-2.0",
   "dependencies": {
-    "@accordproject/cicero-core": "0.20.10",
-    "@accordproject/concerto-core": "0.82.7",
-    "@accordproject/ergo-compiler": "0.20.10",
-    "@accordproject/ergo-engine": "0.20.10",
+    "@accordproject/cicero-core": "0.21.2",
+    "@accordproject/concerto-core": "0.82.8",
+    "@accordproject/ergo-compiler": "0.21.2",
+    "@accordproject/ergo-engine": "0.21.2",
     "codemirror": "^5.48.2",
     "file-saver": "^2.0.0-rc.3",
     "filepond": "^3.2.5",
@@ -75,7 +75,7 @@
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "webpack": "^4.23.1",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.14"
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }
