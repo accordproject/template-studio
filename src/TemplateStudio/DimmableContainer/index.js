@@ -121,7 +121,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleLegalTabChange}
           >Sample</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/spec-template.html#grammar"
+            href="https://docs.accordproject.org/docs/accordproject-concepts.html#template-text"
             target="_blank"
             position="right"
           >
@@ -159,7 +159,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleLogicTabChange}
           >Request</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/spec-template.html#logic"
+            href="https://docs.accordproject.org/docs/accordproject-concepts.html#template-logic"
             target="_blank"
             position="right"
           >
@@ -198,7 +198,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleModelTabChange}
           >Model</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/spec-template.html#model"
+            href="https://docs.accordproject.org/docs/accordproject-concepts.html#template-model"
             target="_blank"
             position="right"
           >
@@ -228,7 +228,7 @@ class DimmableContainer extends React.Component {
             onClick={this.handleMetaTabChange}
           >package.json</Menu.Item>
           <Menu.Item
-            href="https://docs.accordproject.org/docs/spec-packaging.html#metadata"
+            href="https://docs.accordproject.org/docs/accordproject-concepts.html#template-metadata"
             target="_blank"
             position="right"
           >
