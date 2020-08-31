@@ -15,10 +15,10 @@
   "author": "accordproject.org",
   "license": "Apache-2.0",
   "dependencies": {
-    "@accordproject/cicero-core": "0.21.4",
+    "@accordproject/cicero-core": "0.21.5",
     "@accordproject/concerto-core": "0.82.8",
-    "@accordproject/ergo-compiler": "0.21.3",
-    "@accordproject/ergo-engine": "0.21.4",
+    "@accordproject/ergo-compiler": "0.21.5",
+    "@accordproject/ergo-engine": "0.21.5",
     "codemirror": "^5.48.2",
     "file-saver": "^2.0.0-rc.3",
     "filepond": "^3.2.5",
