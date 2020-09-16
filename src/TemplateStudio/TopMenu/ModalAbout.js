@@ -16,9 +16,11 @@ import React from 'react';
 import { Divider, Header, Icon, Menu, Modal } from 'semantic-ui-react';
 import * as ciceroPackageJson from '@accordproject/cicero-core/package.json';
 import * as ergoPackageJson from '@accordproject/ergo-compiler/package.json';
+import * as concertoPackageJson from '@accordproject/concerto-core/package.json';
 
 const ciceroVersion = ciceroPackageJson.version;
 const ergoVersion = ergoPackageJson.version;
+const concertoVersion = concertoPackageJson.version;
 
 const ModalAbout = () => (
   <Modal trigger={<Menu.Item><Icon name="question" /> About</Menu.Item>}>
@@ -44,6 +46,7 @@ const ModalAbout = () => (
         <Header>Version Information</Header>
         <p>Cicero {ciceroVersion}</p>
         <p>Ergo {ergoVersion}</p>
+        <p>Concerto {concertoVersion}</p>
       </Modal.Description>
     </Modal.Content>
   </Modal>
