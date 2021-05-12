@@ -19,7 +19,7 @@
     "@accordproject/concerto-core": "0.82.11",
     "@accordproject/ergo-compiler": "0.21.9",
     "@accordproject/ergo-engine": "0.21.9",
-    "codemirror": "^5.48.2",
+    "codemirror": "^5.58.2",
     "file-saver": "^2.0.0-rc.3",
     "filepond": "^3.2.5",
     "fs-extra": "^7.0.1",
