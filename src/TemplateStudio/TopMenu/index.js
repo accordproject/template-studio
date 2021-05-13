@@ -14,7 +14,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Confirm, Container, Dropdown, Header, Icon, Image, Menu, Popup, Button } from 'semantic-ui-react';
+import { Confirm, Container, Dropdown, Header, Icon, Image, Menu } from 'semantic-ui-react';
 
 import ModalURL from './ModalURL';
 import ModalUpload from './ModalUpload';
@@ -206,9 +206,6 @@ class TopMenu extends React.Component {
                 </Menu.Item>
               </Dropdown.Menu>
             </Dropdown>
-          </Menu.Item>
-          <Menu.Item>
-            <Popup content='Template Studio Compatible with Cicero 0.13' trigger={<Button inverted color="red" style={{ marginLeft: '1em' }} href="https://0-13--template-studio.netlify.com">Switch to Version 0.13</Button>} />
           </Menu.Item>
         </Container>
       </Menu>
