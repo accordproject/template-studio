@@ -14,7 +14,7 @@
 
 /* Default values */
 
-const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.13.0.cta`;
+const DEFAULT_TEMPLATE = `${ROOT_URI}/static/archives/helloworld@0.14.0.cta`;
 const TEMPLATE_LIBRARY = 'https://templates.accordproject.org';
 
 /* Utilities */

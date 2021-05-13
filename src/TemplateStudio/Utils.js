@@ -118,7 +118,7 @@ function updateRequest(clause, oldrequest, request) {
 function updateModel(logicManager, name, newcontent, log) {
     const changes = {};
     try {
-        logicManager.updateModel(newcontent, name);
+        logicManager.getModelManager().updateModel(newcontent, name);
         changes.log = modelLog(log, 'Parse model successful!');
     } catch (error) {
         changes.log = modelLog(log, `[Parse Model] ${error.message}`);
