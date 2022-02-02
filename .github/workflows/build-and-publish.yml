@@ -44,22 +44,13 @@ jobs:
         run: |
             echo "AWS_S3_BUCKET=${{secrets.AWS_S3_BUCKET}}" >> $GITHUB_ENV
 
-      - name: Deploy 'src' to S3
+      - name: Deploy to S3
         if: github.ref == 'refs/heads/master'
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --acl public-read --follow-symlinks --delete
         env:
-          SOURCE_DIR: 'src'
-
-      - name: Deploy 'static' to S3
-        if: github.ref == 'refs/heads/master'
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read --follow-symlinks --delete
-        env:
-          SOURCE_DIR: 'static'
-          DEST_DIR: 'static'
+          SOURCE_DIR: 'dist'
 
       - name: Invalidate Cloudfront
         uses: chetan/invalidate-cloudfront-action@master
